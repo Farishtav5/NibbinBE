@@ -18,8 +18,8 @@ module.exports.bootstrap = async function() {
   // // Set up fake development data (or if we already have some, avast)
   if (await User.count() == 0) {
     await User.createEach([
-      { email: 'arun.jain@bluone.in', name: 'Arun Jain', },
-      { email: 'satish@bluone.in', name: 'Satish Verma', },
+      { email: 'arun.jain@bluone.in', name: 'Arun Jain', password: 'arun' },
+      { email: 'satish@bluone.in', name: 'Satish Verma', password: '123456' },
       // etc.
     ]);
   }

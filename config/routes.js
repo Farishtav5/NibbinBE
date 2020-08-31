@@ -23,10 +23,15 @@ module.exports.routes = {
   'GET /news': "NewsController.get",
   'POST /news': "NewsController.create",
   'GET /news/bind': "NewsController.bind",
+
   'GET /categories': "CategoryController.get",
+
   'GET /users': "UserController.get",
   'GET /users/:id': "UserController.get",
   'GET /users/bind': "UserController.bind",
+  'post /user/create': "UserController.createUser",
+
+  'post /login': 'AuthController.login',
 
   /***************************************************************************
   *                                                                          *

@@ -18,5 +18,16 @@ module.exports.policies = {
   ***************************************************************************/
 
   // '*': true,
+  '*': false,
+
+  AuthController: {
+    '*': true
+  },
+  UserController: {
+    '*': ['isAuthorized'],
+  },
+  NewsController: {
+    '*': ['isAuthorized'],
+  },
 
 };
