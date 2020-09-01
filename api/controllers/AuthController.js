@@ -27,13 +27,17 @@ module.exports = {
 };
 
 function signInUser(req, res, password, user) {
+    let userinfo = {
+        name: user.name,
+        email: user.email
+    };
     User.comparePassword(password, user).then(
         function (valid) {
             if (!valid) {
                 return invalidEmailOrPassword(res);
             } else {
                 let responseData = {
-                    user: user,
+                    user: userinfo,
                     token: generateToken(user.id)
                 }
                 return ResponseService.json(200, res, "Successfully signed in", responseData);

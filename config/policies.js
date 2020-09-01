@@ -29,5 +29,8 @@ module.exports.policies = {
   NewsController: {
     '*': ['isAuthorized'],
   },
+  CategoryController: {
+    '*': ['isAuthorized'],
+  },
 
 };
