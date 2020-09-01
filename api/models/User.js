@@ -25,10 +25,17 @@ module.exports = {
       collection: "category",
       via: "users"
     },
+    googleId: {
+      type: 'json'
+    },
+    profilePic:{
+      type: 'string'
+    }
 
   },
 
   beforeCreate: function (values, cb) {
+    console.log("values.password", values.password);
     bcrypt.hash(values.password, 10, function (err, hash) {
       if (err) return cb(err);
       values.password = hash;

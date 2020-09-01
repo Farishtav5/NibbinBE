@@ -5,6 +5,10 @@
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
 
+const GOOGLE = {
+    CLIENT_ID: sails.config.custom.google_web_client_id
+}
+
 module.exports = {
 
     login: async function (req, res) {
@@ -23,6 +27,67 @@ module.exports = {
         }
 
     },
+
+    verifyGoogleLogin: async function (req, res) {
+        const { OAuth2Client } = require('google-auth-library');
+        const client = new OAuth2Client(GOOGLE.CLIENT_ID);
+
+        let items = req.allParams();
+        let token = items.token;
+        try {
+            const ticket = await client.verifyIdToken({
+                idToken: token,
+                audience: GOOGLE.CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+                // Or, if multiple clients access the backend:
+                //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+            });
+            if (ticket) {
+                const payload = ticket.getPayload();
+                if (payload) {
+                    const googleId = payload['sub'];
+                    const userInfo = {
+                        name: payload["name"] || payload["given_name"],
+                        email: payload["email"],
+                        googleId: googleId,
+                        email_verified: payload["email_verified"],
+                        picture: payload["picture"],
+                    }
+                    if (googleId && userInfo){
+                        let IsUserExist = await User.findOne({
+                            email: userInfo.email
+                        }).intercept('UsageError', (err) => {
+                            err.message = 'Uh oh: ' + err.message;
+                            return ResponseService.json(400, res, err);
+                        });
+                        if (IsUserExist){
+                            return ResponseService.json(200, res, "Successfully signed in", IsUserExist);
+                        }else{
+                            let newUserRecord = await User.create({
+                                name: userInfo.name,
+                                email: userInfo.email,
+                                googleId: googleId,
+                                profilePic: userInfo.picture
+                            }).intercept('UsageError', (err) => {
+                                err.message = 'Uh oh: ' + err.message;
+                                return ResponseService.json(400, res, "User could not be created", err);
+                            }).fetch();
+                            return ResponseService.json(200, res, "Successfully signed in", newUserRecord);
+                        }
+                    }else{
+                        return ResponseService.json(400, res, "not getting google id");
+                    }
+                }
+            }else{
+                let err = { error: "Something went wrong in else" }
+                return ResponseService.json(400, res, "Error:", err);
+            }
+            
+        } catch (err) {
+            err = _.isEmpty(err) ? { error: "Something went wrong" } : err; 
+            return ResponseService.json(400, res, "Error:", err);
+        }
+        
+    }
 
 };
 

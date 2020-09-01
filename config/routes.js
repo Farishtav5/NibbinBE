@@ -32,6 +32,7 @@ module.exports.routes = {
   'post /user/create': "UserController.createUser",
 
   'post /login': 'AuthController.login',
+  'post /verify-token/:token': 'AuthController.verifyGoogleLogin',
 
   /***************************************************************************
   *                                                                          *

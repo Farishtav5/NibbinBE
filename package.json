@@ -9,6 +9,7 @@
     "@sailshq/lodash": "^3.10.3",
     "@sailshq/socket.io-redis": "^5.2.0",
     "bcrypt": "^5.0.0",
+    "google-auth-library": "^6.0.6",
     "grunt": "1.0.4",
     "jsonwebtoken": "^8.5.1",
     "sails": "^1.2.5",
