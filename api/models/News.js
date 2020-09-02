@@ -22,6 +22,9 @@ module.exports = {
     shortDesc: {
       type: "Json"
     },
+    link: {
+      type: "json"
+    },
     status: {
       type: "string",
       isIn:['in-queue', 'published', 'edit-required']

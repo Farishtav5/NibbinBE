@@ -28,9 +28,10 @@ module.exports.policies = {
   },
   NewsController: {
     '*': ['isAuthorized'],
-    'list': true,
-    'get': true,
+    'list': ['openAuthorized'],
+    'get': ['openAuthorized'],
     'reportNewsByUser': ['openAuthorized'],
+    'restAllNewsData': ['openAuthorized'],
   },
   CategoryController: {
     '*': ['isAuthorized'],

@@ -28,12 +28,11 @@ module.exports.bootstrap = async function() {
   if (await Category.count() == 0) {
     
     await Category.createEach([
-      { name: "Health 01", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
-      { name: "Health 02", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
-      { name: "Health 03", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
-      { name: "Health 04", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
-      { name: "Health 05", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
-      { name: "Health 06", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
+      { name: "Healthcare", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
+      { name: "Legal Regulations", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
+      { name: "Technical Advancements", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
+      { name: "Business & Economics", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
+      { name: "Market insights", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
     ])
   }
 
