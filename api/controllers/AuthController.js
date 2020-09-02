@@ -59,8 +59,16 @@ module.exports = {
                             err.message = 'Uh oh: ' + err.message;
                             return ResponseService.json(400, res, err);
                         });
+                        let responseData = undefined;
                         if (IsUserExist){
-                            return ResponseService.json(200, res, "Successfully signed in", IsUserExist);
+                            responseData = {
+                                user: {
+                                    name: IsUserExist.name,
+                                    email: IsUserExist.email,
+                                    profilePic: IsUserExist.profilePic
+                                },
+                                token: generateToken(IsUserExist.id)
+                            }
                         }else{
                             let newUserRecord = await User.create({
                                 name: userInfo.name,
@@ -71,8 +79,17 @@ module.exports = {
                                 err.message = 'Uh oh: ' + err.message;
                                 return ResponseService.json(400, res, "User could not be created", err);
                             }).fetch();
-                            return ResponseService.json(200, res, "Successfully signed in", newUserRecord);
+                            responseData = {
+                                user: {
+                                    name: newUserRecord.name,
+                                    email: newUserRecord.email,
+                                    profilePic: newUserRecord.profilePic
+                                },
+                                token: generateToken(newUserRecord.id)
+                            }
+                            
                         }
+                        return ResponseService.json(200, res, "Successfully signed in", responseData);
                     }else{
                         return ResponseService.json(400, res, "not getting google id");
                     }
