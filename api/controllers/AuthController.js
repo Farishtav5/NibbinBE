@@ -36,7 +36,7 @@ module.exports = {
 
         let items = req.allParams();
         let token = items.token;
-        try {
+        // try {
             const ticket = await client.verifyIdToken({
                 idToken: token,
                 audience: GOOGLE.CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
@@ -102,11 +102,11 @@ module.exports = {
                 return ResponseService.json(400, res, "Error:", err);
             }
             
-        } catch (err) {
-            console.log('catch part : found error');
-            err = _.isEmpty(err) ? { error: "Something went wrong" } : err; 
-            return ResponseService.json(400, res, "Error:", err);
-        }
+        // } catch (err) {
+        //     console.log('catch part : found error');
+        //     err = _.isEmpty(err) ? { error: "Something went wrong" } : err; 
+        //     return ResponseService.json(400, res, "Error:", err);
+        // }
         
     }
 
