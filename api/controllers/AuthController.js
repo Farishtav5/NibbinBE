@@ -32,6 +32,8 @@ module.exports = {
         const { OAuth2Client } = require('google-auth-library');
         const client = new OAuth2Client(GOOGLE.CLIENT_ID);
 
+        console.log('verifyGoogleLogin : ', req.method);
+
         let items = req.allParams();
         let token = items.token;
         try {
@@ -95,11 +97,13 @@ module.exports = {
                     }
                 }
             }else{
+                console.log('else part : ticket not found');
                 let err = { error: "Something went wrong in else" }
                 return ResponseService.json(400, res, "Error:", err);
             }
             
         } catch (err) {
+            console.log('catch part : found error');
             err = _.isEmpty(err) ? { error: "Something went wrong" } : err; 
             return ResponseService.json(400, res, "Error:", err);
         }

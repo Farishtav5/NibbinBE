@@ -11,6 +11,7 @@ module.exports = function (req, res, next) {
     if (req.isSocket) _auth = req.headers.Authorization;
     // else _auth = (req.headers.Authorization || req.headers.authorization);
     else _auth = req.header('Authorization');
+    // console.log('isAuthorized : ',req.method + '->' + req.url);
     if (req.headers && _auth) {
         let parts = _auth.split(' ');
         if (parts.length == 2) {
