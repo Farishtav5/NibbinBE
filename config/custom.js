@@ -19,6 +19,7 @@ module.exports.custom = {
   // stripeSecret: 'sk_test_Zzd814nldl91104qor5911gjald',
   // …
 
-  google_web_client_id: '993581954800-uvda3dhqpi6cfrkddbvfk1jo7in0r0q5.apps.googleusercontent.com'
+  google_web_client_id: '993581954800-uvda3dhqpi6cfrkddbvfk1jo7in0r0q5.apps.googleusercontent.com',
+  google_ios_client_id: '993581954800-i57lidp4isrf5i7ejs2u859r8j8898cu.apps.googleusercontent.com',
 
 };

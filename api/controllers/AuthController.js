@@ -6,7 +6,8 @@
  */
 
 const GOOGLE = {
-    CLIENT_ID: sails.config.custom.google_web_client_id
+    ANDROID_CLIENT_ID: sails.config.custom.google_web_client_id,
+    IOS_CLIENT_ID: sails.config.custom.google_ios_client_id
 }
 
 module.exports = {
@@ -30,16 +31,25 @@ module.exports = {
 
     verifyGoogleLogin: async function (req, res) {
         const { OAuth2Client } = require('google-auth-library');
-        const client = new OAuth2Client(GOOGLE.CLIENT_ID);
-
         console.log('verifyGoogleLogin : ', req.method);
 
         let items = req.allParams();
         let token = items.token;
-        try {
+        let _clientId = "";
+        if(!items.os){
+            return ResponseService.json(400, res, "Please pass OS param");
+        }
+        if (items.os === 'android'){
+            _clientId = GOOGLE.ANDROID_CLIENT_ID;
+        }else if(items.os === 'ios'){
+            _clientId = GOOGLE.IOS_CLIENT_ID;
+        }
+        const client = new OAuth2Client(_clientId);
+        
+        // try {
             const ticket = await client.verifyIdToken({
                 idToken: token,
-                audience: GOOGLE.CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+                audience: _clientId,  // Specify the CLIENT_ID of the app that accesses the backend
                 // Or, if multiple clients access the backend:
                 //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
             });
@@ -102,11 +112,11 @@ module.exports = {
                 return ResponseService.json(400, res, "Error:", err);
             }
             
-        } catch (err) {
-            console.log('catch part : found error');
-            err = _.isEmpty(err) ? { error: "Something went wrong" } : err; 
-            return ResponseService.json(400, res, "Error:", err);
-        }
+        // } catch (err) {
+        //     console.log('catch part : found error');
+        //     err = _.isEmpty(err) ? { error: "Something went wrong" } : err; 
+        //     return ResponseService.json(400, res, "Error:", err);
+        // }
         
     }
 
