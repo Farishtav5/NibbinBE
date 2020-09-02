@@ -68,6 +68,28 @@ module.exports = {
         let params = req.allParams();
         let result = await News.archiveOne({id:params.id});
         res.send(result);
+    },
+
+    //newsid, typeid, subtypeid
+    reportNewsByUser: async function (req, res) {
+        let params = req.allParams();
+        if (params && params.newsId){
+            let data = {
+                typeId: params.typeId,
+                subTypeId: params.subTypeId,
+                newsId: params.newsId
+            }
+            if (req.currentUser && req.currentUser.id){
+                data.userId = req.currentUser.id;
+            }
+            let createReportByUser = await ReportByUser.create(data).intercept('UsageError', (err) => {
+                err.message = 'Uh oh: ' + err.message;
+                return ResponseService.json(400, res, "User could not be created", err);
+            }).fetch();
+
+            return ResponseService.json(200, res, "reported successfully", createReportByUser);
+        }
+
     }
 
 };

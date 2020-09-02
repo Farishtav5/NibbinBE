@@ -27,7 +27,8 @@ module.exports.routes = {
   "put /news/:id": "NewsController.update",
   "delete /news/:id": "NewsController.delete",
   
-  "post /news/:id/report" : "ReportController.create",
+  "post /news/:newsId/report": "NewsController.reportNewsByUser",
+
   "get /news/:id/report" : "ReportController.singleNews",
   
   "get /report/types" : "ReportController.types",

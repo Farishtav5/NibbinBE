@@ -30,6 +30,7 @@ module.exports.policies = {
     '*': ['isAuthorized'],
     'list': true,
     'get': true,
+    'reportNewsByUser': ['openAuthorized'],
   },
   CategoryController: {
     '*': ['isAuthorized'],
