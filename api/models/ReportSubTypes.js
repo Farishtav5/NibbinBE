@@ -1,22 +1,24 @@
 /**
- * ReportType.js
+ * ReportSubTypes.js
  *
- * @description :: A model definition represents a database table/collection.
+ * @description :: A model definition.  Represents a database table/collection/etc.
  * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
  */
 
 module.exports = {
-  
+
   attributes: {
     title: {
       type: "json",
       required: true
     },
-    subTypes: {
-      collection: "ReportSubTypes",
-      via: "typeId"
+    description: {
+      type: "json",
     },
-    
+    typeId: {
+      model: 'ReportType'
+    }
+
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝

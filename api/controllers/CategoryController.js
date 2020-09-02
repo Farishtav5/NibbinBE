@@ -7,7 +7,7 @@
 
 module.exports = {
   
-    get : async (req, res) => {
+    list: async (req, res) => {
         let result = await Category.find();
         res.send({
             rows: result

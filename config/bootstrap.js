@@ -37,6 +37,30 @@ module.exports.bootstrap = async function() {
     ])
   }
 
+  if (await ReportType.count() == 0) {
+    
+    await ReportType.createEach([
+      { title: "Spam or misleading"},
+      { title: "Hateful or abusive content"},
+      { title: "Suicide, self-injury or eating disorders"},
+    ])
+  }
+
+  if (await ReportSubTypes.count() == 0) {
+    
+    await ReportSubTypes.createEach([
+      { title: "Spam or misleading - 1", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 1},
+      { title: "Spam or misleading - 2", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 1},
+      { title: "Spam or misleading - 3", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 1},
+      { title: "Hateful or abusive content - 1", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 2},
+      { title: "Hateful or abusive content - 2", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 2},
+      { title: "Hateful or abusive content - 3", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 2},
+      { title: "Suicide, self-injury or eating disorders - 1", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 3},
+      { title: "Suicide, self-injury or eating disorders - 2", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 3},
+      { title: "Suicide, self-injury or eating disorders - 3", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 3},
+    ])
+  }
+
   // ```
 
 };

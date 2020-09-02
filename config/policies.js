@@ -28,9 +28,17 @@ module.exports.policies = {
   },
   NewsController: {
     '*': ['isAuthorized'],
+    'list': true,
+    'get': true,
   },
   CategoryController: {
     '*': ['isAuthorized'],
+    'list': true
+  },
+  ReportController: {
+    '*': ['isAuthorized'],
+    'types': true,
+    'addSubTypesInTypes': true,
   },
 
 };

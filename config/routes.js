@@ -22,13 +22,19 @@ module.exports.routes = {
   '/': { view: 'pages/homepage' },
   "get /news": "NewsController.list",
   "get /news/:id": 'NewsController.get',
+
   "post /news": "NewsController.create",
   "put /news/:id": "NewsController.update",
   "delete /news/:id": "NewsController.delete",
+  
   "post /news/:id/report" : "ReportController.create",
   "get /news/:id/report" : "ReportController.singleNews",
   
   "get /report/types" : "ReportController.types",
+
+  "get /report/demo/addsubtypes": "ReportController.addSubTypesInTypes", //will remove it later
+
+  //for dashboard
   "get /report" : "ReportController.list",
   "get /report/:id" : "ReportController.get",
 

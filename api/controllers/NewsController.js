@@ -5,8 +5,6 @@
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
 
-const News = require("../models/News");
-
 module.exports = {
 
     list: async function (req, res) {
