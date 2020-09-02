@@ -20,18 +20,33 @@ module.exports.routes = {
   ***************************************************************************/
 
   '/': { view: 'pages/homepage' },
-  'GET /news': "NewsController.get",
-  'POST /news': "NewsController.create",
-  'GET /news/bind': "NewsController.bind",
+  "get /news": "NewsController.list",
+  "get /news/:id": 'NewsController.get',
+  "post /news": "NewsController.create",
+  "put /news/:id": "NewsController.update",
+  "delete /news/:id": "NewsController.delete",
+  "post /news/:id/report" : "ReportController.create",
+  "get /news/:id/report" : "ReportController.singleNews",
+  
+  "get /report/types" : "ReportController.types",
+  "get /report" : "ReportController.list",
+  "get /report/:id" : "ReportController.get",
 
-  'GET /categories': "CategoryController.get",
+  "get /categories": "CategoryController.list",
+  "post /categories": "CategoryController.create",
+  "put /categories/:id" : "CategoryController.update",
+  "delete /categories/:id" : "CategoryController.delete",
 
-  'GET /users': "UserController.get",
-  'GET /users/:id': "UserController.get",
-  'GET /users/bind': "UserController.bind",
-  'post /user/create': "UserController.createUser",
 
   'post /login': 'AuthController.login',
+  "get /users": "UserController.list",
+  "get /users/:id": "UserController.get",
+  "post /users/create": "UserController.create",
+  "put /users/:id": "UserController.update",
+  "delete /users/:id": "UserController.delete",
+  
+  "post /users/categories" : "UserController.setCategories",
+  
   'post /verify-token/:token': 'AuthController.verifyGoogleLogin',
 
   /***************************************************************************

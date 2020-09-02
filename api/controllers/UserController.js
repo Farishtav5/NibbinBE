@@ -19,7 +19,7 @@ module.exports = {
         res.send(result);
     },
 
-    createUser: async function (req, res) {
+    create: async function (req, res) {
         let item = req.allParams();
         if (item.password !== item.confirmPassword) {
             return ResponseService.json(400, res, "Password doesn't match");
