@@ -104,11 +104,11 @@ module.exports = {
             }
             // console.dir(obj)
             NewsArray = obj;
+            NewsArray.forEach(element => {
+                element.shortDesc.replace(/[\u0800-\uFFFF]/g, '')
+            });
         });
 
-        NewsArray.forEach(element => {
-            element.shortDesc.replace(/[\u0800-\uFFFF]/g, '')
-        });
         //first delete all previous data
         await News.destroy({});
 
