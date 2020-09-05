@@ -94,7 +94,6 @@ module.exports = {
 
     //TODO: Will Remove it later
     restAllNewsData: async function (req, res) {
-        require('fs');
         var filePath = './assets/data/news_list.json';
         var NewsArray = null;
         const jsonfile = require('jsonfile');
@@ -107,24 +106,27 @@ module.exports = {
             NewsArray.forEach(element => {
                 element.shortDesc.replace(/[\u0800-\uFFFF]/g, '')
             });
+
+            //first delete all previous data
+            await News.destroy({});
+
+            let cloneObj = _.cloneDeep(NewsArray);
+            console.log('NewsArray length', NewsArray.length);
+            let insertedData = await News.createEach(NewsArray).fetch();
+            if (insertedData.length) {
+                console.log('insertedData', insertedData.length);
+                for (let index = 0; index < insertedData.length; index++) {
+                    const news = insertedData[index];
+                    if (cloneObj[index].categories_ids.length) {
+                        await News.addToCollection(news.id, 'categories', cloneObj[index].categories_ids);
+                    }
+                }
+                let result = await News.find().populate("categories");
+                return ResponseService.json(200, res, "get report successfully", result);
+            }
         });
 
-        //first delete all previous data
-        await News.destroy({});
-
-        let cloneObj = _.cloneDeep(NewsArray);
-        let insertedData = await News.createEach(NewsArray).fetch();
-        if(insertedData.length){
-            console.log('insertedData', insertedData.length);
-            for (let index = 0; index < insertedData.length; index++) {
-                const news = insertedData[index];
-                if (cloneObj[index].categories_ids.length){
-                    await News.addToCollection(news.id, 'categories', cloneObj[index].categories_ids);
-                }
-            }
-            let result = await News.find().populate("categories");
-            return ResponseService.json(200, res, "get report successfully", result);
-        }
+        
 
     }
 

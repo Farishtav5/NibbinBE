@@ -42,5 +42,8 @@ module.exports.policies = {
     'types': true,
     'addSubTypesInTypes': true,
   },
+  BookmarkController: {
+    '*': ['isAuthorized'],
+  },
 
 };

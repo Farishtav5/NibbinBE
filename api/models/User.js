@@ -30,6 +30,10 @@ module.exports = {
     },
     profilePic:{
       type: 'string'
+    },
+    bookmarks: {
+      collection: 'Bookmark',
+      via: 'userId'
     }
 
   },

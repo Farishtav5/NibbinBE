@@ -49,6 +49,7 @@ module.exports.routes = {
   'post /login': 'AuthController.login',
   "get /users": "UserController.list",
   "get /users/:id": "UserController.get",
+  "get /user/profile": "UserController.getMyProfile",
   "post /users/create": "UserController.create",
   "put /users/:id": "UserController.update",
   "delete /users/:id": "UserController.delete",
@@ -56,6 +57,11 @@ module.exports.routes = {
   "post /users/categories" : "UserController.setCategories",
   
   'post /verify-token/:token': 'AuthController.verifyGoogleLogin',
+
+
+  'get /bookmarks': 'BookmarkController.getAllBookmarkByUserId',
+  'post /addbookmark': 'BookmarkController.addBookmarksByUser',
+  'delete /removebookmark/:bookmarkId': 'BookmarkController.removeBookmarkByUser',
 
   /***************************************************************************
   *                                                                          *

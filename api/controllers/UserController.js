@@ -10,7 +10,12 @@ module.exports = {
   
     get: async function(req, res){
         let id = req.param('id');
-        let result = await User.find({id:id}).populate('categories');
+        let result = await User.find({ id: id }).populate('categories').populate('bookmarks');
+        res.send(result);
+    },
+
+    getMyProfile: async function(req, res){
+        let result = await User.find({ id: req.currentUser.id }).populate('categories').populate('bookmarks');
         res.send(result);
     },
 
