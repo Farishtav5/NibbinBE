@@ -25,6 +25,10 @@ module.exports = {
     link: {
       type: "json"
     },
+    type: {
+      type: "json",
+      defaultsTo: "news"
+    },
     status: {
       type: "string",
       isIn:['in-queue', 'published', 'edit-required']
