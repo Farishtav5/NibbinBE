@@ -54,7 +54,7 @@ module.exports.routes = {
   "put /users/:id": "UserController.update",
   "delete /users/:id": "UserController.delete",
   
-  "post /users/categories" : "UserController.setCategories",
+  "post /users/categories": "UserController.setUserInterestCategories",
   
   'post /verify-token/:token': 'AuthController.verifyGoogleLogin',
 

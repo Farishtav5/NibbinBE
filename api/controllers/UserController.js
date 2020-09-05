@@ -7,21 +7,23 @@
 
 
 module.exports = {
-  
-    get: async function(req, res){
+
+    get: async function (req, res) {
         let id = req.param('id');
         let result = await User.find({ id: id }).populate('categories').populate('bookmarks');
         res.send(result);
     },
 
-    getMyProfile: async function(req, res){
+    getMyProfile: async function (req, res) {
         let result = await User.find({ id: req.currentUser.id }).populate('categories').populate('bookmarks');
         res.send(result);
     },
 
-    bind: async function (req, res) {
-        let result = await User.addToCollection(1, 'categories', [1,2,3]);
-        res.send(result);
+    setUserInterestCategories: async function (req, res) {
+        let params = req.allParams();
+        console.log('set categoryIds', params.categoryIds);
+        let result = await User.replaceCollection(req.currentUser.id, 'categories').members(params.categoryIds);
+        return ResponseService.json(200, res, "set categories successfully", result);
     },
 
     create: async function (req, res) {
