@@ -12,7 +12,7 @@ module.exports = {
         let page = params.page == undefined ? 1 : parseInt(params.page);
         let limit = params.limit == undefined ? 10 : parseInt(params.limit);
         let skip = (page - 1) * limit;
-        let result = await News.find({ skip, limit }).populate("categories").populate("createdBy");
+        let result = await News.find({ skip, limit }).sort('dated DESC').populate("categories").populate("createdBy");
         res.send({
             page,
             rows: result
