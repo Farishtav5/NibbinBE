@@ -34,6 +34,10 @@ module.exports = {
     bookmarks: {
       collection: 'Bookmark',
       via: 'userId'
+    },
+    enableNotification: {
+      type: 'boolean',
+      defaultsTo: false
     }
 
   },

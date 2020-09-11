@@ -50,6 +50,7 @@ module.exports.routes = {
   "get /users": "UserController.list",
   "get /users/:id": "UserController.get",
   "get /user/profile": "UserController.getMyProfile",
+  "put /user/profile": "UserController.updateMyProfile",
   "post /users/create": "UserController.create",
   "put /users/:id": "UserController.update",
   "delete /users/:id": "UserController.delete",

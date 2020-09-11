@@ -18,6 +18,27 @@ module.exports = {
         let result = await User.find({ id: req.currentUser.id }).populate('categories').populate('bookmarks');
         res.send(result);
     },
+    updateMyProfile: async function (req, res) {
+        let params = req.allParams();
+        let objUserFound = await User.findOne({ id: req.currentUser.id }).intercept('UsageError', (err) => {
+            err.message = 'Uh oh: ' + err.message;
+            return ResponseService.json(400, res, "getting error when User find", err);
+        });
+        if (objUserFound){
+            let dataToUpdate = {
+                enableNotification: params.notification
+            }
+            var updatedUser = await User.updateOne({ id: req.currentUser.id }).set(dataToUpdate);
+            if (updatedUser) {
+                return ResponseService.json(200, res, "user updated successfully", updatedUser);
+            }
+            else {
+                return ResponseService.json(400, res, "User not found");
+            }
+        }else{
+            return ResponseService.json(400, res, "User not found");
+        }
+    },
 
     setUserInterestCategories: async function (req, res) {
         let params = req.allParams();
