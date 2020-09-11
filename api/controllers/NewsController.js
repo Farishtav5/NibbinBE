@@ -32,18 +32,43 @@ module.exports = {
 
     create: async function (req, res) {
         let params = req.allParams();
-        let result = await News.create({
+        let createdNewsObj = await News.create({
             title: params.title,
             headline: params.headline,
             link: params.link,
             shortDesc: params.shortDesc,
             status: "in-queue",
-            category: [1, 2],
             createdBy: params.createdBy,
             updatedBy: params.updatedBy,
         }).fetch();
 
-        res.send(result);
+        if(createdNewsObj){
+            if (params.categories){
+                await News.addToCollection(createdNewsObj.id, 'categories', params.categories);
+            }
+
+            try {
+                let firebaseDb = sails.config.firebaseDb();
+                let data = {
+                    postValue: createdNewsObj.id,
+                    title: createdNewsObj.title
+                }
+                if (createdNewsObj.imageSrc) {
+                    data.imageSrc = createdNewsObj.imageSrc
+                }
+                if (params.categories) {
+                    data.categories = params.categories
+                }
+                let createdData = await firebaseDb.collection('posts').add(data);
+                return ResponseService.json(200, res, "added to fdb", createdNewsObj);
+            } catch (error) {
+                console.log('firebaseDb : ', error);
+                return ResponseService.json(400, res, "error to fdb");
+            }
+        }else{
+            return ResponseService.json(400, res, "error to during create news");
+        }
+
     },
 
     update: async function (req, res) {

@@ -32,6 +32,7 @@ module.exports.policies = {
     'get': ['openAuthorized'],
     'reportNewsByUser': ['openAuthorized'],
     'restAllNewsData': ['openAuthorized'],
+    'demoNotifyFirebase': ['openAuthorized'],
   },
   CategoryController: {
     '*': ['isAuthorized'],
