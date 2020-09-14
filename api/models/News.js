@@ -19,6 +19,10 @@ module.exports = {
     imageSrc: {
       type: "Json"
     },
+    imageSourceName: {
+      type: "string",
+      defaultsTo: 'BluOne'
+    },
     shortDesc: {
       type: "Json"
     },
