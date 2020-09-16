@@ -16,6 +16,9 @@ module.exports = {
         let items = req.allParams();
         let email = items.email;
         let password = items.password;
+        let type = null;
+        if (items.type) type = items.type;
+
         verifyParams(res, email, password);
         if (email && password) {
             let foundUser = await User.findOne({
@@ -24,7 +27,7 @@ module.exports = {
             if (!foundUser) {
                 return invalidEmailOrPassword(res);
             }
-            signInUser(req, res, password, foundUser);
+            signInUser(req, res, password, foundUser, type);
         }
 
     },
@@ -122,7 +125,7 @@ module.exports = {
 
 };
 
-function signInUser(req, res, password, user) {
+function signInUser(req, res, password, user, type) {
     let userinfo = {
         name: user.name,
         email: user.email
@@ -134,7 +137,7 @@ function signInUser(req, res, password, user) {
             } else {
                 let responseData = {
                     user: userinfo,
-                    token: generateToken(user.id)
+                    token: generateToken(user.id, type)
                 }
                 return ResponseService.json(200, res, "Successfully signed in", responseData);
             }
@@ -155,8 +158,10 @@ function verifyParams(res, email, password) {
     }
 };
 
-function generateToken(client_id) {
-    return JwtService.issue({
-        id: client_id
-    })
+function generateToken(client_id, type) {
+    let details = { id: client_id }
+    if (type){
+        details.accessSourceType = type;
+    }
+    return JwtService.issue(details);
 };

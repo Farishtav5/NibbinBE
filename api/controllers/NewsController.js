@@ -12,10 +12,50 @@ module.exports = {
         let page = params.page == undefined ? 1 : parseInt(params.page);
         let limit = params.limit == undefined ? 10 : parseInt(params.limit);
         let skip = (page - 1) * limit;
-        let result = await News.find({ skip, limit }).sort('dated DESC').populate("categories").populate("createdBy");
+        let sorted = 'dated DESC';
+
+        let query = { skip: skip, limit: limit, sort: sorted};
+        query.where = {};
+        if(params.headline){
+            query.where.headline = { contains: params.headline };
+        }
+        if (params.link){
+            query.where.link = { contains: params.link };
+        }
+        if (params.status){
+            query.where.status = { in: [params.status, ""] };
+        }
+        if (params.addedFrom){
+            // query.where.createdAt['>='] = new Date('2018-08-21T14:56:21.774Z').getTime();
+            query.where.createdAt['>='] = new Date(params.addedFrom).getTime();
+        }
+        if (params.addedTo){
+            // query.where.createdAt['<='] = new Date('2018-08-25T14:56:21.774Z').getTime();
+            query.where.createdAt['<='] = new Date(params.addedTo).getTime();
+        }
+        let _categoriesQuery = {};
+        if (params.categories){
+            let tempCategories = (params.categories).toString().split(",");
+            for (a in tempCategories) {
+                tempCategories[a] = parseInt(tempCategories[a], 10);
+            }
+            _categoriesQuery = { where: { id: { in: tempCategories } }};
+        }
+        if (params.query){
+            query.where = {
+                or: [
+                    { headline: { contains: params.query } },
+                    { shortDesc: { contains: params.query } },
+                    { link: { contains: params.query } },
+                ] 
+            };
+        }
+
+        let result = await News.find(query).populate("categories", _categoriesQuery).populate("createdBy");
         res.send({
             page,
-            rows: result
+            total: result.length,
+            rows: result,
         });
     },
 
@@ -38,6 +78,7 @@ module.exports = {
             link: params.link,
             shortDesc: params.shortDesc,
             status: "in-queue",
+            dated: new Date(),
             createdBy: params.createdBy,
             updatedBy: params.updatedBy,
         }).fetch();
