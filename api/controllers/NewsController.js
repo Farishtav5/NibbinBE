@@ -79,8 +79,8 @@ module.exports = {
             shortDesc: params.shortDesc,
             status: "in-queue",
             dated: new Date(),
-            createdBy: params.createdBy,
-            updatedBy: params.updatedBy,
+            createdBy: req.currentUser.id, //params.createdBy,
+            updatedBy: req.currentUser.id //params.updatedBy,
         }).fetch();
 
         if(createdNewsObj){
@@ -114,18 +114,22 @@ module.exports = {
 
     update: async function (req, res) {
         let params = req.allParams();
-        let result = await News.update({
-            id: params.id
-        }).set({
+        let objUpdate = {
             title: params.title,
             headline: params.headline,
             link: params.link,
             shortDesc: params.shortDesc,
-            status: "in-queue",
-            category: [1, 2],
-            createdBy: params.createdBy,
-            updatedBy: params.updatedBy,
-        }).fetch();
+            updatedBy: req.currentUser.id //params.updatedBy,
+        }
+        if(params.status){
+            objUpdate.status = params.status;
+        }
+        if(params.categories){
+            objUpdate.categories = params.categories;
+        }
+        let result = await News.update({
+            id: params.id
+        }).set(objUpdate).fetch();
 
         res.send(result);
     },
