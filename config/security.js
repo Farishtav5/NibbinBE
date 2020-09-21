@@ -31,7 +31,8 @@ module.exports.security = {
   cors: {
     allRoutes: true,
     allowOrigins: '*',
-    allowRequestHeaders: "x-bluone-token",
+    // allowRequestHeaders: "x-bluone-token",
+    allowRequestHeaders: 'Content-Type, Access-Token, Authorization, Cache-Control, Pragma, If-Modified-Since, x-bluone-token, X-Requested-With, Accept',
     allowCredentials: false,
   },
 
