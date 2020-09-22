@@ -115,11 +115,19 @@ module.exports = {
     update: async function (req, res) {
         let params = req.allParams();
         let objUpdate = {
-            title: params.title,
-            headline: params.headline,
-            link: params.link,
-            shortDesc: params.shortDesc,
             updatedBy: req.currentUser.id //params.updatedBy,
+        }
+        if(params.title){
+            objUpdate.title = params.title;
+        }
+        if(params.headline){
+            objUpdate.headline = params.headline;
+        }
+        if(params.link){
+            objUpdate.link = params.link;
+        }
+        if(params.shortDesc){
+            objUpdate.shortDesc = params.shortDesc;
         }
         if(params.status){
             objUpdate.status = params.status;
