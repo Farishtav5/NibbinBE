@@ -35,7 +35,7 @@ module.exports = {
     },
     status: {
       type: "string",
-      isIn:['in-queue', 'published', 'edit-required'],
+      isIn:['in-queue', 'published', 'edit-required', 'approved'],
       defaultsTo: 'in-queue'
     },
     scheduledTo: {
