@@ -39,6 +39,9 @@ module.exports = function (req, res, next) {
                 }).exec(function (error, currentUser) {
                     if (error || !currentUser) return ResponseService.json(400, res, "Invalid Token!");
                     req.currentUser = currentUser;
+                    if(decoded && decoded.accessSourceType){
+                        req.accessSourceType = decoded.accessSourceType;
+                    }
                     next();
                 });
             } else return ResponseService.json(401, res, "You are not permitted to perform this action.");

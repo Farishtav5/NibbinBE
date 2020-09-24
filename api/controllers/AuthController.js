@@ -17,7 +17,7 @@ module.exports = {
         let email = items.email;
         let password = items.password;
         let type = null;
-        if (items.type) type = items.type;
+        if (items.type === "web") type = items.type;
 
         verifyParams(res, email, password);
         if (email && password) {

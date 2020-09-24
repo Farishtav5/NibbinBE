@@ -16,6 +16,10 @@ module.exports = {
 
         let query = { skip: skip, limit: limit, sort: sorted};
         query.where = {};
+
+        if(!req.accessSourceType){
+            query.where.status = { in: ["published"] }
+        }
         if(params.headline){
             query.where.headline = { contains: params.headline };
         }
@@ -26,12 +30,13 @@ module.exports = {
             query.where.status = { in: [params.status, ""] };
         }
         if (params.addedFrom){
+            console.log('params.addedFrom', params.addedFrom);
             // query.where.createdAt['>='] = new Date('2018-08-21T14:56:21.774Z').getTime();
-            query.where.createdAt['>='] = new Date(params.addedFrom).getTime();
+            query.where.createdAt = { '>=' : new Date(params.addedFrom).getTime() }
         }
         if (params.addedTo){
             // query.where.createdAt['<='] = new Date('2018-08-25T14:56:21.774Z').getTime();
-            query.where.createdAt['<='] = new Date(params.addedTo).getTime();
+            query.where.createdAt = { '<=' : new Date(params.addedTo).getTime() }
         }
         let _categoriesQuery = {};
         if (params.categories){
