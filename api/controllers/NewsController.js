@@ -12,9 +12,11 @@ module.exports = {
         let page = params.page == undefined ? 1 : parseInt(params.page);
         let limit = params.limit == undefined ? 10 : parseInt(params.limit);
         let skip = (page - 1) * limit;
-        let sorted = 'dated DESC';
+        // let sorted = 'dated DESC';
+        let shortBy = (params && params.shortBy) ? params.shortBy : 'dated';
+        let orderBy = (params && params.orderBy) ? params.orderBy : 'DESC';
 
-        let query = { skip: skip, limit: limit, sort: sorted};
+        let query = { skip: skip, limit: limit, sort: shortBy + ' ' + orderBy};
         query.where = {};
 
         if(!req.accessSourceType){
