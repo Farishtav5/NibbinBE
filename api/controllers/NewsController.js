@@ -30,7 +30,6 @@ module.exports = {
             query.where.status = { in: [params.status, ""] };
         }
         if (params.addedFrom){
-            console.log('params.addedFrom', params.addedFrom);
             // query.where.createdAt['>='] = new Date('2018-08-21T14:56:21.774Z').getTime();
             query.where.createdAt = { '>=' : new Date(params.addedFrom).getTime() }
         }
@@ -57,9 +56,10 @@ module.exports = {
         }
 
         let result = await News.find(query).populate("categories", _categoriesQuery).populate("createdBy");
+        let totalNewsCountInDB = await News.count();
         res.send({
             page,
-            total: result.length,
+            total: totalNewsCountInDB,
             rows: result,
         });
     },
