@@ -58,7 +58,9 @@ module.exports = {
         }
 
         let result = await News.find(query).populate("categories", _categoriesQuery).populate("createdBy");
-        let totalNewsCountInDB = await News.count();
+        let _queryClone = query;
+        _queryClone = _.omit(_queryClone, ['skip', 'limit']);
+        let totalNewsCountInDB = await News.count(_queryClone);
         res.send({
             page,
             total: totalNewsCountInDB,
