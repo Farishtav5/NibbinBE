@@ -38,7 +38,7 @@ module.exports = function (req, res, next) {
             User.findOne({
                 id: decoded.id
             }).exec(function (error, currentUser) {
-                if (error || !currentUser) return ResponseService.json(400, res, "Invalid Token!");
+                if (error || !currentUser) return ResponseService.json(401, res, "Invalid Token!");
                 req.currentUser = currentUser;
                 next();
             });
