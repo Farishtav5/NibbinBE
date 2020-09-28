@@ -31,13 +31,13 @@ module.exports = function (req, res, next) {
 
     if(token){
         JwtService.verify(token, async function (err, decoded) {
-            if (err) return ResponseService.json(400, res, "Invalid Token!");
+            if (err) return ResponseService.json(401, res, "Invalid Token!");
             req.token = token;
             if (typeof decoded != 'undefined') {
                 User.findOne({
                     id: decoded.id
                 }).exec(function (error, currentUser) {
-                    if (error || !currentUser) return ResponseService.json(400, res, "Invalid Token!");
+                    if (error || !currentUser) return ResponseService.json(401, res, "Invalid Token!");
                     req.currentUser = currentUser;
                     if(decoded && decoded.accessSourceType){
                         req.accessSourceType = decoded.accessSourceType;
