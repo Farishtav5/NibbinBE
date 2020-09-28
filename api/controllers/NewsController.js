@@ -21,6 +21,10 @@ module.exports = {
 
         if(!req.accessSourceType){
             query.where.status = { in: ["published"] }
+        }else{
+            if (params.status){
+                query.where.status = { in: [params.status, ""] };
+            }
         }
         if(params.headline){
             query.where.headline = { contains: params.headline };
@@ -28,9 +32,7 @@ module.exports = {
         if (params.link){
             query.where.link = { contains: params.link };
         }
-        if (params.status){
-            query.where.status = { in: [params.status, ""] };
-        }
+        
         if (params.addedFrom){
             // query.where.createdAt['>='] = new Date('2018-08-21T14:56:21.774Z').getTime();
             query.where.createdAt = { '>=' : new Date(params.addedFrom).getTime() }
@@ -57,9 +59,8 @@ module.exports = {
             };
         }
 
+        let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
         let result = await News.find(query).populate("categories", _categoriesQuery).populate("createdBy");
-        let _queryClone = query;
-        _queryClone = _.omit(_queryClone, ['skip', 'limit']);
         let totalNewsCountInDB = await News.count(_queryClone);
         res.send({
             page,
