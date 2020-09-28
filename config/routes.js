@@ -64,6 +64,16 @@ module.exports.routes = {
   'post /addbookmark': 'BookmarkController.addBookmarksByUser',
   'delete /removebookmark/:bookmarkId': 'BookmarkController.removeBookmarkByUser',
 
+  //Roles
+  'get /roles': 'RolesController.getAllRoles',
+  'post /role': 'RolesController.createNewRole',
+  'put /role/:roleId': 'RolesController.updateRole',
+  'delete /role/:roleId': 'RolesController.deleteRole',
+  
+  //Comment
+  'post /comment': 'CommentsController.createNewComment',
+
+
   /***************************************************************************
   *                                                                          *
   * More custom routes here...                                               *

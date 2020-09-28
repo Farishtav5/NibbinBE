@@ -18,8 +18,12 @@ module.exports.bootstrap = async function() {
   // // Set up fake development data (or if we already have some, avast)
   if (await User.count() == 0) {
     await User.createEach([
-      { email: 'arun.jain@bluone.in', name: 'Arun Jain', password: 'arun' },
-      { email: 'satish@bluone.in', name: 'Satish Verma', password: '123456' },
+      { email: 'arun.jain@bluone.in', name: 'Arun Jain', password: 'arun', role: 5 },
+      { email: 'satish@bluone.in', name: 'Satish Verma', password: '123456', role: 5 },
+      { email: 'farishta.sharma@bluone.in', name: 'Satish Verma', password: '123456', role: 4 },
+      { email: 'skumar.arya@bluone.in', name: 'Sachin Arya', password: '123456', role: 1 },
+      { email: 'saurabh.thukral@bluone.in', name: 'Saurabh Thukral', password: '123456', role: 2 },
+      { email: 'neha.bajpayee@bluone.in', name: 'Neha Bajpayee', password: '123456', role: 3 },
       // etc.
     ]);
   }
@@ -57,6 +61,17 @@ module.exports.bootstrap = async function() {
       { title: "Suicide, self-injury or eating disorders - 1", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 3},
       { title: "Suicide, self-injury or eating disorders - 2", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 3},
       { title: "Suicide, self-injury or eating disorders - 3", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 3},
+    ])
+  }
+  if (await Roles.count() == 0) {
+    
+    await Roles.createEach([
+      { name: "Researcher" },
+      { name: "Researcher Lead" },
+      { name: "Content Writer" },
+      { name: "Designer" },
+      { name: "Auditor" },
+      { name: "User" },
     ])
   }
 

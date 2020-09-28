@@ -46,5 +46,11 @@ module.exports.policies = {
   BookmarkController: {
     '*': ['isAuthorized'],
   },
+  RolesController: {
+    '*': ['isAuthorized'],
+  },
+  CommentsController: {
+    '*': ['isAuthorized'],
+  },
 
 };

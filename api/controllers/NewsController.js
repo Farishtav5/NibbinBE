@@ -71,7 +71,8 @@ module.exports = {
 
     get: async function (req, res) {
         let params = req.allParams();
-        let result = await News.findOne({ id: params.id }).populate("categories").populate("createdBy");
+        let commentsOrder = { sort: 'createdAt DESC'};
+        let result = await News.findOne({ id: params.id }).populate("categories").populate("createdBy").populate('comments', commentsOrder);
         res.send(result);
     },
 

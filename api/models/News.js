@@ -54,6 +54,10 @@ module.exports = {
       collection: "category",
       via: "news"
     },
+    comments: {
+      collection: 'Comments',
+      via: 'newsId'
+    },
     createdBy: {
       model: "user",
       required: true,

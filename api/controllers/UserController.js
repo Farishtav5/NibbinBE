@@ -10,12 +10,12 @@ module.exports = {
 
     get: async function (req, res) {
         let id = req.param('id');
-        let result = await User.find({ id: id }).populate('categories').populate('bookmarks');
+        let result = await User.find({ id: id }).populate('categories').populate('bookmarks').populate('role');
         res.send(result);
     },
 
     getMyProfile: async function (req, res) {
-        let result = await User.find({ id: req.currentUser.id }).populate('categories').populate('bookmarks');
+        let result = await User.find({ id: req.currentUser.id }).populate('categories').populate('bookmarks').populate('role');
         res.send(result);
     },
     updateMyProfile: async function (req, res) {

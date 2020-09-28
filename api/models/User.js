@@ -35,6 +35,9 @@ module.exports = {
       collection: 'Bookmark',
       via: 'userId'
     },
+    role: {
+      model: 'Roles'
+    },
     enableNotification: {
       type: 'boolean',
       defaultsTo: false
