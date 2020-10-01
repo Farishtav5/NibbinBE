@@ -52,7 +52,7 @@ module.exports.routes = {
   "get /user/profile": "UserController.getMyProfile",
   "put /user/profile": "UserController.updateMyProfile",
   "post /users/create": "UserController.create",
-  "put /users/:id": "UserController.update",
+  "put /users/:id": "UserController.updateUserDetail",
   "delete /users/:id": "UserController.delete",
   
   "post /users/categories": "UserController.setUserInterestCategories",

@@ -49,23 +49,21 @@ module.exports = {
 
     create: async function (req, res) {
         let item = req.allParams();
-        if (item.password !== item.confirmPassword) {
-            return ResponseService.json(400, res, "Password doesn't match");
-        }
-        let allowedParameters = ["email", "password"];
-        let data = _.pick(item, allowedParameters);
-
         let IsUserExist = await User.findOne({
             email: req.param('email')
         });
         if (IsUserExist) {
             return ResponseService.json(400, res, "email already in used");
         } else {
-            let newUserRecord = await User.create({
+            let data = {
                 name: item.name,
                 email: item.email,
-                password: item.password
-            }).intercept('UsageError', (err) => {
+                password: '123456',
+            }
+            if(item.role){
+                data.role = item.role
+            }
+            let newUserRecord = await User.create(data).intercept('UsageError', (err) => {
                 err.message = 'Uh oh: ' + err.message;
                 return ResponseService.json(400, res, "User could not be created", err);
             }).fetch();
@@ -78,6 +76,33 @@ module.exports = {
         }
 
 
+    },
+
+    updateUserDetail: async function (req, res) {
+        let params = req.allParams();
+        if(!params.id){
+            return ResponseService.json(400, res, "please provide user id");
+        }
+        let objUserFound = await User.findOne({ id: params.id }).intercept('UsageError', (err) => {
+            err.message = 'Uh oh: ' + err.message;
+            return ResponseService.json(400, res, "getting error when User find", err);
+        });
+        if (objUserFound){
+            let dataToUpdate = {};
+            if(params.name) dataToUpdate.name = params.name;
+            if(params.status) dataToUpdate.status = params.status;
+            if(params.role) dataToUpdate.role = params.role;
+
+            var updatedUser = await User.updateOne({ id: params.id }).set(dataToUpdate);
+            if (updatedUser) {
+                return ResponseService.json(200, res, "user updated successfully", updatedUser);
+            }
+            else {
+                return ResponseService.json(400, res, "User not found");
+            }
+        }else{
+            return ResponseService.json(400, res, "User not found");
+        }
     }
 
 };

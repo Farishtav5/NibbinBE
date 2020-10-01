@@ -29,51 +29,52 @@ module.exports.bootstrap = async function() {
   }
   //
 
-  if (await Category.count() == 0) {
+  // if (await Category.count() == 0) {
     
-    await Category.createEach([
-      { name: "Healthcare", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
-      { name: "Legal Regulations", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
-      { name: "Technical Advancements", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
-      { name: "Business & Economics", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
-      { name: "Market insights", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
-    ])
-  }
+  //   await Category.createEach([
+  //     { name: "Healthcare", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
+  //     { name: "Legal Regulations", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
+  //     { name: "Technical Advancements", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
+  //     { name: "Business & Economics", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
+  //     { name: "Market insights", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
+  //   ])
+  // }
 
   if (await ReportType.count() == 0) {
     
     await ReportType.createEach([
       { title: "Spam or misleading"},
       { title: "Hateful or abusive content"},
-      { title: "Suicide, self-injury or eating disorders"},
+      // { title: "Suicide, self-injury or eating disorders"},
     ])
   }
 
-  if (await ReportSubTypes.count() == 0) {
+  // if (await ReportSubTypes.count() == 0) {
     
-    await ReportSubTypes.createEach([
-      { title: "Spam or misleading - 1", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 1},
-      { title: "Spam or misleading - 2", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 1},
-      { title: "Spam or misleading - 3", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 1},
-      { title: "Hateful or abusive content - 1", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 2},
-      { title: "Hateful or abusive content - 2", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 2},
-      { title: "Hateful or abusive content - 3", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 2},
-      { title: "Suicide, self-injury or eating disorders - 1", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 3},
-      { title: "Suicide, self-injury or eating disorders - 2", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 3},
-      { title: "Suicide, self-injury or eating disorders - 3", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 3},
-    ])
-  }
-  if (await Roles.count() == 0) {
+  //   await ReportSubTypes.createEach([
+  //     { title: "Spam or misleading - 1", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 1},
+  //     { title: "Spam or misleading - 2", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 1},
+  //     { title: "Spam or misleading - 3", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 1},
+  //     { title: "Hateful or abusive content - 1", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 2},
+  //     { title: "Hateful or abusive content - 2", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 2},
+  //     { title: "Hateful or abusive content - 3", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 2},
+  //     { title: "Suicide, self-injury or eating disorders - 1", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 3},
+  //     { title: "Suicide, self-injury or eating disorders - 2", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 3},
+  //     { title: "Suicide, self-injury or eating disorders - 3", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 3},
+  //   ])
+  // }
+
+  // if (await Roles.count() == 0) {
     
-    await Roles.createEach([
-      { name: "Researcher" },
-      { name: "Researcher Lead" },
-      { name: "Content Writer" },
-      { name: "Designer" },
-      { name: "Auditor" },
-      { name: "User" },
-    ])
-  }
+  //   await Roles.createEach([
+  //     { name: "Researcher" },
+  //     { name: "Researcher Lead" },
+  //     { name: "Content Writer" },
+  //     { name: "Designer" },
+  //     { name: "Auditor" },
+  //     { name: "User" },
+  //   ])
+  // }
 
   // ```
 

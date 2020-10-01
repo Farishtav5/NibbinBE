@@ -41,6 +41,10 @@ module.exports = {
     enableNotification: {
       type: 'boolean',
       defaultsTo: false
+    },
+    status:{
+      type: 'boolean',
+      defaultsTo: true
     }
 
   },
