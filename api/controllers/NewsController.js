@@ -23,7 +23,8 @@ module.exports = {
             query.where.status = { in: ["published"] }
         }else{
             if (params.status){
-                query.where.status = { in: [params.status, ""] };
+                let tempStatus = (params.status).toString().split(",");
+                query.where.status = { in: tempStatus };
             }
         }
         if(params.headline){

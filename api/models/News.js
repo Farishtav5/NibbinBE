@@ -33,9 +33,20 @@ module.exports = {
       type: "json",
       defaultsTo: "news"
     },
+    // [
+    //   {text: 'In Queue', value: 'in-queue'}, //
+    //   {text: 'Published', value: 'published'}, //
+    //   {text: 'Approved', value: 'approved'}, //
+    //   {text: 'Edit Required', value: 'edit-required'}, //
+    //   {text: 'Scheduled', value: 'scheduled'}, //
+    //   // {text: 'Assigned', value: 'assigned'},
+    //   {text: 'Rejected', value: 'rejected'}, //
+    //   {text: 'On Hold', value: 'on-hold'}, //
+    //   {text: 'Summarized', value: 'summarized'}
+    // ]
     status: {
       type: "string",
-      isIn:['in-queue', 'published', 'edit-required', 'approved', 'submitted'],
+      isIn:['in-queue', 'published', 'edit-required', 'approved', 'submitted', 'on-hold', 'scheduled', 'rejected', 'summarized'],
       defaultsTo: 'in-queue'
     },
     scheduledTo: {
