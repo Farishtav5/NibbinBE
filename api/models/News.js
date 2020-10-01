@@ -46,7 +46,19 @@ module.exports = {
     // ]
     status: {
       type: "string",
-      isIn:['in-queue', 'published', 'edit-required', 'approved', 'submitted', 'on-hold', 'scheduled', 'rejected', 'summarized'],
+      // isIn:['in-queue', 'published', 'edit-required', 'approved', 'submitted', 'on-hold', 'scheduled', 'rejected', 'summarized'],
+      isIn:[
+        'in-queue',
+        'url-approved',
+        'design-submitted',
+        'content-submitted',
+        'in-review',
+        'edit-required',
+        'published',
+        'scheduled',
+        'rejected',
+        'on-hold'
+      ],
       defaultsTo: 'in-queue'
     },
     scheduledTo: {
