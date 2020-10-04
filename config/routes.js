@@ -73,6 +73,9 @@ module.exports.routes = {
   //Comment
   'post /comment': 'CommentsController.createNewComment',
 
+  //image upload
+  'post /upload': 'ImageController.uploadFile',
+
 
   /***************************************************************************
   *                                                                          *

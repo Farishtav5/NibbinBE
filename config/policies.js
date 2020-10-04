@@ -52,5 +52,8 @@ module.exports.policies = {
   CommentsController: {
     '*': ['isAuthorized'],
   },
+  ImageController: {
+    '*': ['openAuthorized'],
+  },
 
 };
