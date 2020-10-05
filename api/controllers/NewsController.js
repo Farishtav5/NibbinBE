@@ -147,6 +147,19 @@ module.exports = {
         if(params.categories){
             objUpdate.categories = params.categories;
         }
+        //imageSrc & imageSrcURL
+        if(params.designeSubmiited){
+            objUpdate.designeSubmiited = params.designeSubmiited;
+        }
+        if(params.contentSubmitted){
+            objUpdate.contentSubmitted = params.contentSubmitted;
+        }
+        if(params.imageSrc){
+            objUpdate.imageSrc = params.imageSrc;
+        }
+        if(params.imageSourceName){
+            objUpdate.imageSourceName = params.imageSourceName;
+        }
         let result = await News.update({
             id: params.id
         }).set(objUpdate).fetch();
