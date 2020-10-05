@@ -147,9 +147,9 @@ module.exports = {
         if(params.categories){
             objUpdate.categories = params.categories;
         }
-        //imageSrc & imageSrcURL
-        if(params.designeSubmiited){
-            objUpdate.designeSubmiited = params.designeSubmiited;
+        
+        if(params.designSubmitted){
+            objUpdate.designSubmitted = params.designSubmitted;
         }
         if(params.contentSubmitted){
             objUpdate.contentSubmitted = params.contentSubmitted;
