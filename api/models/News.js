@@ -88,7 +88,15 @@ module.exports = {
     updatedBy: {
       model: "user",
       required: true,
-    }
+    },
+    contentSubmitted: {
+      type: 'boolean',
+      defaultsTo: false
+    },
+    designSubmitted: {
+      type: 'boolean',
+      defaultsTo: false
+    },
 
 
 
