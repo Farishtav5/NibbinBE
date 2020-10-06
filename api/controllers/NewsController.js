@@ -84,6 +84,35 @@ module.exports = {
         });
     },
 
+    prevNextNews: async function (req, res) {
+        let params = req.allParams();
+        let querywhere = {};
+        if (!params.id) {
+            return ResponseService.json(400, res, "please provide news id");
+        }
+
+        if (params.status) {
+            let tempStatus = (params.status).toString().split(",");
+            querywhere.status = { in: tempStatus };
+        }
+
+        let newsObj = await News.find().where(querywhere).populate("categories").populate("createdBy");
+
+        let index = _.findIndex(newsObj, { id: parseInt(params.id) });
+        let prevId = 0;
+        let nextId = 0;
+        if(index > 0){
+            prevId =  newsObj[index - 1].id;
+        }
+        nextId = newsObj[index + 1].id;
+        res.send({
+            currentId: params.id,
+            prevId: prevId,
+            nextId: nextId,
+            news: newsObj[index]
+        });
+    },
+
     get: async function (req, res) {
         let params = req.allParams();
         let commentsOrder = { sort: 'createdAt DESC'};
@@ -170,6 +199,11 @@ module.exports = {
         }
         if(params.status){
             objUpdate.status = params.status;
+            if(params.status === "published"){
+                objUpdate.publishedAt = new Date()
+            }else if(params.status === "scheduled"){
+                objUpdate.scheduledTo = params.dated
+            }
         }
         if(params.categories){
             objUpdate.categories = params.categories;

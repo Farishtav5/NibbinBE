@@ -52,4 +52,34 @@ module.exports = {
       });
     });
   },
+
+  showExcelPage: async function (req, res){
+    return res.view('pages/excelupload');
+  },
+  uploadExcel: async function (req, res) {
+    let params = req.allParams();
+    if(params.news.length){
+        await News.destroy({});
+        let NewsArray = params.news;
+        let cloneObj = _.cloneDeep(NewsArray);
+        console.log('NewsArray length', NewsArray.length);
+        let insertedData = await News.createEach(NewsArray).fetch();
+        if (insertedData.length) {
+            console.log('insertedData', insertedData.length);
+            for (let index = 0; index < insertedData.length; index++) {
+                const news = insertedData[index];
+                if (cloneObj[index].categories_ids.length) {
+                    await News.addToCollection(news.id, 'categories', cloneObj[index].categories_ids);
+                }
+            }
+            let result = await News.find().populate("categories");
+            return ResponseService.json(200, res, "get report successfully", result);
+        }
+    }
+
+    // res.send({
+    //     news: params.news,
+    //     newsIds: params.newsIds
+    // });
+  }
 };

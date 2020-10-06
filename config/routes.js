@@ -22,6 +22,7 @@ module.exports.routes = {
   '/': { view: 'pages/homepage' },
   "get /news": "NewsController.list",
   "get /news/:id": 'NewsController.get',
+  "get /news/:id/prev-next": 'NewsController.prevNextNews',
 
   "post /news": "NewsController.create",
   "put /news/:id": "NewsController.update",
@@ -76,6 +77,10 @@ module.exports.routes = {
   //image upload
   'post /upload': 'ImageController.uploadFile',
 
+
+  // 'get /excel': { view: 'pages/excelupload' },
+  'get /excel': 'ImageController.showExcelPage',
+  'post /excel': 'ImageController.uploadExcel',
 
   /***************************************************************************
   *                                                                          *

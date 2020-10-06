@@ -1,0 +1,275 @@
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<!-- <script
+  type="text/javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.3/jquery.csv.min.js"
+></script> -->
+<script
+  type="text/javascript"
+  lang="javascript"
+  src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.1/xlsx.full.min.js"
+></script>
+<script src="//unpkg.com/canvas-datagrid/dist/canvas-datagrid.js"></script>
+<style>
+  #grid {
+    height: 100px;
+    display: none;
+    width: 100% !important;
+  }
+  #btnUpload{
+      display: none;
+  }
+</style>
+<div class="container-fluid">
+    <div class="row mt-1">
+        <div class="col-md-6">
+            <input type="file" id="input" />
+        </div>
+        <div class="col-md-6">
+            <!-- <div id="buttons"></div> -->
+            <button type="button" class="btn btn-primary float-right" id="btnUpload">Upload Data</button>
+        </div>
+    </div>
+    <div class="row mb-5 mt-1">
+        <div class="col-md-12">
+            <div id="grid" style="margin-top: 1em; width: 100%"></div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+  const input = document.getElementById("input");
+  const _grid = document.getElementById("grid");
+  const btnUpload = document.getElementById("btnUpload");
+  input.addEventListener("change", () => {
+    console.log("input.files[0]", input.files[0]);
+    let file = input.files[0];
+
+    if (typeof FileReader != "undefined") {
+      var reader = new FileReader();
+      //For Browsers other than IE.
+      if (reader.readAsBinaryString) {
+        reader.onload = function (e) {
+          ProcessExcel(e.target.result);
+        };
+        reader.readAsBinaryString(file);
+      } else {
+        //For IE Browser.
+        reader.onload = function (e) {
+          var data = "";
+          var bytes = new Uint8Array(e.target.result);
+          for (var i = 0; i < bytes.byteLength; i++) {
+            data += String.fromCharCode(bytes[i]);
+          }
+          ProcessExcel(data);
+        };
+        reader.readAsArrayBuffer(file);
+      }
+    } else {
+      console.log("This browser does not support HTML5.");
+    }
+    // readXlsxFile(input.files[0]).then((rows) => {
+    //     // `rows` is an array of rows
+    //     // each row being an array of cells.
+    // })
+  });
+
+  function getDateFormat(value){
+    let date = new Date(value);
+    let dd = date.getDate();
+    let mm = date.getMonth() + 1;
+
+    var yyyy = date.getFullYear();
+    if (dd < 10) {
+        dd = '0' + dd;
+    }
+    if (mm < 10) {
+        mm = '0' + mm;
+    }
+    // return dd + '/' + mm + '/' + yyyy;
+    return new Date(yyyy + '-' + mm + '-' + dd).toISOString().replace(/T|Z|\.\d{3}/g, ' ').trim();
+  }
+
+  function trimString(params) {
+      return params.trim();
+  }
+
+  function findCategoriesId(params) {
+      let categoriesArray = [
+            {
+                "id": 1,
+                "name": "Healthcare",
+                "description": "COVID-19, Medical Insurances, Care Givers, Mental Health, Pharma, Wellness"
+            },
+            {
+                "id": 2,
+                "name": "Legal Regulations",
+                "description": "AI/ML, IoT, Analytics, Payment Tech, Software solutions, Telehealth, 3D printing, Medical Devices, New Drug Development, Bio Technology"
+            },
+            {
+                "id": 3,
+                "name": "Technical Advancements",
+                "description": "Market data, Research Papers, Numbers"
+            },
+            {
+                "id": 4,
+                "name": "Business & Economics",
+                "description": "Lawsuits, Executive moves, FDA, CMS, COBRA, CDC"
+            },
+            {
+                "id": 5,
+                "name": "Market insights",
+                "description": "Mergers & Acquisitions, Joint Ventures, Partnerships, Startups, Venture Funding, Government Funding, IPO, Financial Results"
+            }
+        ]
+        let ids = [];
+        if(params){
+            let _names = (params).split(",").map(item => item.trim());
+            for (item of _names) {
+                let s = categoriesArray.find((t) => {return t.name === item});
+                if(s){
+                    ids.push(s.id);
+                }
+            }
+        }
+        return ids;
+  }
+
+  function ProcessExcel(data) {
+    var workbook = XLSX.read(data, {
+      type: "binary",
+    });
+    //Fetch the name of First Sheet.
+    var firstSheet = workbook.SheetNames[0];
+    //Read all rows from First Sheet into an JSON array.
+    // var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+    let excelRows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], {raw: false});
+    console.log("excelRows", excelRows);
+    _onsheet(excelRows, workbook.SheetNames);
+    btnUpload.addEventListener("click", (event) => {
+        event.preventDefault();
+        let newsObj = [];
+        let newsIds = [];
+        // {
+        //     SrNo: '132',
+        //     Title: 'Cerner Integrates EHR Digital Health Platform to Boost Patient Experience',
+        //     Date: '8/6/20',
+        //     'Read More': 'https://ramaonhealthcare.com/cerner-integrates-ehr-digital-health-platform-to-boost-patient-experience/#content',
+        //     Headline: 'Cerner, Xealth collaborate to boost patient experience',
+        //     Brief: 'In an effort to enhance patient care experience and ensure patients’ active participation throughout the process of healthcare, Cerner has announced that it is collaborating with digital health platform, Xealth. The partnership will aim to consent clinicians to order solutions and manage health conditions within the EHR workflow. The partnership is an effort to enhance the patient care experience.',
+        //     'Groups (select all possible)': 'Business & Economics',
+        //     Categories: 'Collaborations, Telehealth',
+        //     'Image Credit': 'Pxhere',
+        //     'Image Link': 'https://bluonec-my.sharepoint.com/personal/gazel_om_bluone_in/_layouts/15/onedrive.aspx?sortField=Modified&isAscending=false&id=%2Fpersonal%2Fgazel%5Fom%5Fbluone%5Fin%2FDocuments%2FNIBBIN%20Images%2F132%2Ejpeg&parent=%2Fpersonal%2Fgazel%5Fom%5Fbluone%5Fin%2FDocuments%2FNIBBIN%20Images'
+        // }
+        excelRows.forEach((t, index)=>{
+            let cat_ids = '';
+            if(t['Groups (select all possible)']){
+                let _ids = findCategoriesId(t['Groups (select all possible)']);
+                cat_ids = _ids;
+            }
+            newsIds.push(t.SrNo);
+            let item = {
+                title: t.Title ? t.Title : '-',
+                headline: t.Headline ? t.Headline : (t.Title ? t.Title : '-'),
+                imageSrc: t['Image Link'] ? 'https://cdn-nibbin.s3.us-east-2.amazonaws.com/images/' + trimString(t['SrNo']) + '.jpg' : '',
+                imageSourceName: t['Image Credit'] ? trimString(t['Image Credit']) : '',
+                shortDesc: (t['Brief'] ? trimString(t['Brief']) : '').replace(/[\u0800-\uFFFF]/g, ''),
+                link: t['Read More'] ? trimString(t['Read More']) : '',
+                dated: getDateFormat(t.Date),
+                categories_ids: cat_ids.length ? cat_ids : [],
+                createdBy: 2,
+                updatedBy: 2
+            }
+            if(item.imageSrc){
+                item.status = "published";
+            }
+            newsObj.push(item);
+        })
+
+        return new Promise(function(resolve, reject) { 
+            // do the usual XHR stuff 
+            var req = new XMLHttpRequest();
+            req.open('post', '/excel'); 
+            //NOW WE TELL THE SERVER WHAT FORMAT OF POST REQUEST WE ARE MAKING 
+            req.setRequestHeader('Content-Type', 'application/json;charset=utf-8');
+            req.onload = function() { 
+                if (req.status == 200) { 
+                    resolve(req.response); 
+                } else { 
+                    reject(Error(req.statusText)); 
+                }
+            }; 
+                // handle network errors 
+            req.onerror = function() { 
+                reject(Error("Network Error")); 
+            }; 
+            // make the request 
+            let postedNews = {
+                news: newsObj,
+                newsIds: newsIds
+            }
+            req.send(JSON.stringify(postedNews)); 
+        });
+    });
+    
+  }
+</script>
+
+<script>
+  var make_buttons = function (sheetnames, cb) {
+    var buttons = document.getElementById("buttons");
+    buttons.innerHTML = "";
+    sheetnames.forEach(function (s, idx) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.name = "btn" + idx;
+      btn.className = "btn btn-primary"
+      btn.text = s;
+      var txt = document.createElement('span'); txt.innerText = s; btn.appendChild(txt);
+      btn.addEventListener(
+        "click",
+        function () {
+          cb(idx);
+        },
+        false
+      );
+      buttons.appendChild(btn);
+      buttons.appendChild(document.createElement("br"));
+    });
+  };
+
+  var cdg = canvasDatagrid({
+    parentNode: _grid,
+  });
+  cdg.style.height = "100%";
+  cdg.style.width = "100%";
+
+  function _resize() {
+    _grid.style.height = window.innerHeight - 200 + "px";
+    _grid.style.width = window.innerWidth - 200 + "px";
+  }
+//   window.addEventListener("resize", _resize);
+
+  var _onsheet = function (json, sheetnames, select_sheet_cb) {
+    // make_buttons(sheetnames, select_sheet_cb);
+    btnUpload.style.display = "block";
+
+    /* show grid */
+    _grid.style.display = "block";
+    _resize();
+
+    /* set up table headers */
+    var L = 0;
+    json.forEach(function (r) {
+      if (L < r.length) L = r.length;
+    });
+    console.log(L);
+    for (var i = json[0].length; i < L; ++i) {
+      json[0][i] = "";
+    }
+
+    /* load data */
+    cdg.data = json;
+  };
+</script>

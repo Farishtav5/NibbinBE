@@ -30,6 +30,7 @@ module.exports.policies = {
     '*': ['isAuthorized'],
     'list': ['openAuthorized'],
     'get': ['openAuthorized'],
+    'prevNextNews': ['openAuthorized'],
     'reportNewsByUser': ['openAuthorized'],
     'restAllNewsData': ['openAuthorized'],
     'demoNotifyFirebase': ['openAuthorized'],
@@ -53,7 +54,7 @@ module.exports.policies = {
     '*': ['isAuthorized'],
   },
   ImageController: {
-    '*': ['openAuthorized'],
+    '*': ['isAuthorized'],
   },
 
 };
