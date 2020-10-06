@@ -75,19 +75,27 @@
   });
 
   function getDateFormat(value){
-    let date = new Date(value);
-    let dd = date.getDate();
-    let mm = date.getMonth() + 1;
+    // let date = new Date(value);
+    // let dd = date.getDate();
+    // let mm = date.getMonth() + 1;
 
-    var yyyy = date.getFullYear();
-    if (dd < 10) {
-        dd = '0' + dd;
-    }
-    if (mm < 10) {
-        mm = '0' + mm;
-    }
-    // return dd + '/' + mm + '/' + yyyy;
-    return new Date((yyyy + '-' + mm + '-' + dd).toString()).toISOString().replace(/T|Z|\.\d{3}/g, ' ').trim();
+    // var yyyy = date.getFullYear();
+    // if (dd < 10) {
+    //     dd = '0' + dd;
+    // }
+    // if (mm < 10) {
+    //     mm = '0' + mm;
+    // }
+    // // return dd + '/' + mm + '/' + yyyy;
+    // return new Date((yyyy + '-' + mm + '-' + dd).toString()).toISOString().replace(/T|Z|\.\d{3}/g, ' ').trim();
+
+    var ts_hms = new Date(value);
+    return ts_hms.getFullYear() + '-' + 
+    ("0" + (ts_hms.getMonth() + 1)).slice(-2) + '-' + 
+    ("0" + (ts_hms.getDate())).slice(-2) + ' ' +
+    ("0" + ts_hms.getHours()).slice(-2) + ':' +
+    ("0" + ts_hms.getMinutes()).slice(-2) + ':' +
+    ("0" + ts_hms.getSeconds()).slice(-2);
   }
 
   function trimString(params) {
