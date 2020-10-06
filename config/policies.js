@@ -33,6 +33,7 @@ module.exports.policies = {
     'prevNextNews': ['openAuthorized'],
     'reportNewsByUser': ['openAuthorized'],
     'restAllNewsData': ['openAuthorized'],
+    'findCovid19': ['openAuthorized'],
     'demoNotifyFirebase': ['openAuthorized'],
   },
   CategoryController: {
@@ -54,7 +55,8 @@ module.exports.policies = {
     '*': ['isAuthorized'],
   },
   ImageController: {
-    '*': ['isAuthorized'],
+    // '*': ['isAuthorized'],
+    '*': true,
   },
 
 };

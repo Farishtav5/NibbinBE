@@ -97,6 +97,10 @@ module.exports = {
       type: 'boolean',
       defaultsTo: false
     },
+    delete: {
+      type: 'boolean',
+      defaultsTo: false
+    },
 
 
 

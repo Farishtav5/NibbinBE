@@ -18,6 +18,7 @@ module.exports = {
 
         let query = { skip: skip, limit: limit, sort: shortBy + ' ' + orderBy};
         query.where = {};
+        query.where.delete = false;
 
         if(!req.accessSourceType){
             query.where.status = { in: ["published"] }
@@ -292,7 +293,61 @@ module.exports = {
 
         
 
-    }
+    },
+
+    findCovid19: async function (req, res) {
+        let params = req.allParams();
+        
+        let query = {};
+        query.where = {};
+
+        if (params.status){
+            let tempStatus = (params.status).toString().split(",");
+            query.where.status = { in: tempStatus };
+        }
+        if(params.headline){
+            query.where.headline = { contains: params.headline };
+        }
+        if (params.link){
+            query.where.link = { contains: params.link };
+        }
+        
+        if (params.addedFrom){
+            // query.where.createdAt['>='] = new Date('2018-08-21T14:56:21.774Z').getTime();
+            query.where.createdAt = { '>=' : new Date(params.addedFrom).getTime() }
+        }
+        if (params.addedTo){
+            // query.where.createdAt['<='] = new Date('2018-08-25T14:56:21.774Z').getTime();
+            query.where.createdAt = { '<=' : new Date(params.addedTo).getTime() }
+        }
+        let _categoriesQuery = {};
+        if (params.categories){
+            let tempCategories = (params.categories).toString().split(",");
+            for (a in tempCategories) {
+                tempCategories[a] = parseInt(tempCategories[a], 10);
+            }
+            _categoriesQuery = { where: { id: { in: tempCategories } }};
+        }
+        if (params.query){
+            query.where = {
+                or: [
+                    { headline: { contains: params.query } },
+                    { shortDesc: { contains: params.query } },
+                    { link: { contains: params.query } },
+                ] 
+            };
+        }
+
+        let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
+        // let result = await News.find(query);
+        let result = await News.update(query).set({
+            delete: true
+          }).fetch();
+        res.send({
+            total: result.length,
+            rows: result,
+        });
+    },
 
 };
 
