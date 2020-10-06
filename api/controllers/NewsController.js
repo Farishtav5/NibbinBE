@@ -62,23 +62,23 @@ module.exports = {
 
         let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
         let result = await News.find(query).populate("categories", _categoriesQuery).populate("createdBy");
-        // let totalNewsCountInDB = await News.count(_queryClone);
-        let totalNewsCountInDB = await News.find(_queryClone);
+        let totalNewsCountInDB = await News.count(_queryClone);
+        let tilesObj = await News.find();
         let tiles = {
             //'rejected'
-            inQueueCount: _.filter(totalNewsCountInDB, (t) => {return t.status === "in-queue"}).length,
-            publishedCount: _.filter(totalNewsCountInDB, (t) => {return t.status === "published"}).length,
-            editRequiredCount: _.filter(totalNewsCountInDB, (t) => {return t.status === "edit-required"}).length,
-            scheduledCount: _.filter(totalNewsCountInDB, (t) => {return t.status === "scheduled"}).length,
-            inReviewCount: _.filter(totalNewsCountInDB, (t) => {return t.status === "in-review"}).length,
-            designedSubmittedCount: _.filter(totalNewsCountInDB, (t) => {return t.status === "design-submitted"}).length,
-            contentSubmittedCount: _.filter(totalNewsCountInDB, (t) => {return t.status === "content-submitted"}).length,
-            urlApprovedCount: _.filter(totalNewsCountInDB, (t) => {return t.status === "url-approved"}).length,
-            onHoldCount: _.filter(totalNewsCountInDB, (t) => {return t.status === "on-hold"}).length,
+            inQueueCount: _.filter(tilesObj, (t) => {return t.status === "in-queue"}).length,
+            publishedCount: _.filter(tilesObj, (t) => {return t.status === "published"}).length,
+            editRequiredCount: _.filter(tilesObj, (t) => {return t.status === "edit-required"}).length,
+            scheduledCount: _.filter(tilesObj, (t) => {return t.status === "scheduled"}).length,
+            inReviewCount: _.filter(tilesObj, (t) => {return t.status === "in-review"}).length,
+            designedSubmittedCount: _.filter(tilesObj, (t) => {return t.status === "design-submitted"}).length,
+            contentSubmittedCount: _.filter(tilesObj, (t) => {return t.status === "content-submitted"}).length,
+            urlApprovedCount: _.filter(tilesObj, (t) => {return t.status === "url-approved"}).length,
+            onHoldCount: _.filter(tilesObj, (t) => {return t.status === "on-hold"}).length,
         }
         res.send({
             page,
-            total: totalNewsCountInDB.length,
+            total: totalNewsCountInDB,
             rows: result,
             tiles
         });
