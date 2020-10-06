@@ -18,7 +18,7 @@ module.exports = {
 
         let query = { skip: skip, limit: limit, sort: shortBy + ' ' + orderBy};
         query.where = {};
-        query.where.delete = false;
+        
 
         if(!req.accessSourceType){
             query.where.status = { in: ["published"] }
@@ -60,6 +60,7 @@ module.exports = {
                 ] 
             };
         }
+        query.where.delete = false;
 
         let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
         let result = await News.find(query).populate("categories", _categoriesQuery).populate("createdBy");
