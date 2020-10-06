@@ -88,7 +88,20 @@ module.exports = {
         let params = req.allParams();
         let commentsOrder = { sort: 'createdAt DESC'};
         let result = await News.findOne({ id: params.id }).populate("categories").populate("createdBy").populate('comments', commentsOrder);
-        res.send(result);
+        if(result){
+            let resultWithCommentsObj = await nestedPop.nestedPop(result, {
+                comments: {
+                  as: 'Comments',
+                  populate: [
+                    'commentedBy'
+                  ]
+                }
+              });
+            res.send(resultWithCommentsObj);
+        }else{
+            res.send(result);
+        }
+        
     },
 
     bind: async function (req, res) {
