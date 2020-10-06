@@ -87,7 +87,7 @@
         mm = '0' + mm;
     }
     // return dd + '/' + mm + '/' + yyyy;
-    return new Date(yyyy + '-' + mm + '-' + dd).toISOString().replace(/T|Z|\.\d{3}/g, ' ').trim();
+    return new Date((yyyy + '-' + mm + '-' + dd).toString()).toISOString().replace(/T|Z|\.\d{3}/g, ' ').trim();
   }
 
   function trimString(params) {
