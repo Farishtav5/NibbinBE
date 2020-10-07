@@ -226,10 +226,6 @@ module.exports = {
             objUpdate.contentSubmitted = params.contentSubmitted;
         }
 
-        if( (findNews.designSubmitted && objUpdate.contentSubmitted) || (findNews.contentSubmitted && objUpdate.designSubmitted) ){
-            objUpdate.status = "in-review";
-        }
-
         if(params.status){
             objUpdate.status = params.status;
             if(params.status === "published"){
@@ -237,6 +233,10 @@ module.exports = {
             }else if(params.status === "scheduled"){
                 objUpdate.scheduledTo = params.dated
             }
+        }
+
+        if( (findNews.designSubmitted && objUpdate.contentSubmitted) || (findNews.contentSubmitted && objUpdate.designSubmitted) ){
+            objUpdate.status = "in-review";
         }
 
         if(params.imageSrc){
