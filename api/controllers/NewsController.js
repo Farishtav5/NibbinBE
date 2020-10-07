@@ -186,6 +186,14 @@ module.exports = {
 
     update: async function (req, res) {
         let params = req.allParams();
+        if (!params.id) {
+            return ResponseService.json(400, res, "please provide news id");
+        }
+        let findNews = await News.findOne({ id: params.id });
+        if(!findNews){
+            return ResponseService.json(404, res, "news not found");
+        }
+
         let objUpdate = {
             updatedBy: req.currentUser.id //params.updatedBy,
         }
@@ -201,14 +209,7 @@ module.exports = {
         if(params.shortDesc){
             objUpdate.shortDesc = params.shortDesc;
         }
-        if(params.status){
-            objUpdate.status = params.status;
-            if(params.status === "published"){
-                objUpdate.publishedAt = new Date()
-            }else if(params.status === "scheduled"){
-                objUpdate.scheduledTo = params.dated
-            }
-        }
+        
         if(params.categories){
             objUpdate.categories = params.categories;
         }
@@ -223,6 +224,19 @@ module.exports = {
             objUpdate.contentSubmitted = params.contentSubmitted;
         }else if(params.contentSubmitted == false){
             objUpdate.contentSubmitted = params.contentSubmitted;
+        }
+
+        if( (findNews.designSubmitted && objUpdate.contentSubmitted) || (findNews.contentSubmitted && objUpdate.designSubmitted) ){
+            objUpdate.status = "in-review";
+        }
+
+        if(params.status){
+            objUpdate.status = params.status;
+            if(params.status === "published"){
+                objUpdate.publishedAt = new Date()
+            }else if(params.status === "scheduled"){
+                objUpdate.scheduledTo = params.dated
+            }
         }
 
         if(params.imageSrc){
