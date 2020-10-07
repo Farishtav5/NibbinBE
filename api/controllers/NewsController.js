@@ -102,11 +102,13 @@ module.exports = {
 
         let index = _.findIndex(newsObj, { id: parseInt(params.id) });
         let prevId = 0;
-        let nextId = 0;
+        let nextId = null;
         if(index > 0){
             prevId =  newsObj[index - 1].id;
         }
-        nextId = newsObj[index + 1].id;
+        if(newsObj[index + 1] && newsObj[index + 1].id){
+            nextId = newsObj[index + 1].id;
+        }
         res.send({
             currentId: params.id,
             prevId: prevId,
@@ -222,7 +224,7 @@ module.exports = {
         }else if(params.contentSubmitted == false){
             objUpdate.contentSubmitted = params.contentSubmitted;
         }
-        
+
         if(params.imageSrc){
             objUpdate.imageSrc = params.imageSrc;
         }
