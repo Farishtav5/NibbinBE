@@ -13,7 +13,7 @@ module.exports.cron = {
         // console.log(now);
         let date = moment().format("YYYY-MM-DD HH:mm:ss");
         let currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
-        let last15minutesTime = currentTime.subtract(15, 'minutes').format("YYYY-MM-DD HH:mm:ss");
+        let last15minutesTime = moment().subtract(15, 'minutes').format("YYYY-MM-DD HH:mm:ss");
 
         let timeCondition = { 
           '>=' : last15minutesTime,
