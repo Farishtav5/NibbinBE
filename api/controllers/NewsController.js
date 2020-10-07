@@ -159,25 +159,6 @@ module.exports = {
             if (params.categories){
                 await News.addToCollection(createdNewsObj.id, 'categories', params.categories);
             }
-
-            try {
-                let firebaseDb = sails.config.firebaseDb();
-                let data = {
-                    postValue: createdNewsObj.id,
-                    title: createdNewsObj.title
-                }
-                if (createdNewsObj.imageSrc) {
-                    data.imageSrc = createdNewsObj.imageSrc
-                }
-                if (params.categories) {
-                    data.categories = params.categories
-                }
-                let createdData = await firebaseDb.collection('posts').add(data);
-                return ResponseService.json(200, res, "added to fdb", createdNewsObj);
-            } catch (error) {
-                console.log('firebaseDb : ', error);
-                return ResponseService.json(400, res, "error to fdb");
-            }
         }else{
             return ResponseService.json(400, res, "error to during create news");
         }
@@ -248,6 +229,26 @@ module.exports = {
         let result = await News.update({
             id: params.id
         }).set(objUpdate).fetch();
+
+        if(result.length && result[0]){
+            let updatedNews = result[0];
+            if(updatedNews.status === "published"){
+                let findUpdatedNews = await News.findOne({ id: updatedNews.id }).populate("categories");
+                let firebaseDb = sails.config.firebaseDb();
+                let data = {
+                    postValue: findUpdatedNews.id,
+                    title: findUpdatedNews.headline
+                }
+                if (findUpdatedNews.imageSrc) {
+                    data.imageSrc = findUpdatedNews.imageSrc
+                }
+                if (findUpdatedNews.categories) {
+                    let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; }).join(","); // "A,B,C"
+                    data.categories = _categories
+                }
+                let createdData = await firebaseDb.collection('posts').add(data);
+            }
+        }
 
         res.send(result);
     },

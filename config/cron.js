@@ -44,6 +44,26 @@ const runAsyncPublishPost = async (newsList) => {
           status: 'published'
         }).fetch();
         console.log('scheduled to published : ', result.length);
+        if(result.length && result[0]){
+            let updatedNews = result[0];
+            if(updatedNews.status === "published"){
+                let findUpdatedNews = await News.findOne({ id: updatedNews.id }).populate("categories");
+                let firebaseDb = sails.config.firebaseDb();
+                let data = {
+                    postValue: findUpdatedNews.id,
+                    title: findUpdatedNews.headline
+                }
+                if (findUpdatedNews.imageSrc) {
+                    data.imageSrc = findUpdatedNews.imageSrc
+                }
+                if (findUpdatedNews.categories) {
+                    let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; }).join(","); // "A,B,C"
+                    data.categories = _categories
+                }
+                let createdData = await firebaseDb.collection('posts').add(data);
+            }
+        }
+
       })
     )
   }
