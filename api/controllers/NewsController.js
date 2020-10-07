@@ -213,10 +213,16 @@ module.exports = {
         
         if(params.designSubmitted){
             objUpdate.designSubmitted = params.designSubmitted;
+        }else if(params.designSubmitted == false){
+            objUpdate.designSubmitted = params.designSubmitted;
         }
+
         if(params.contentSubmitted){
             objUpdate.contentSubmitted = params.contentSubmitted;
+        }else if(params.contentSubmitted == false){
+            objUpdate.contentSubmitted = params.contentSubmitted;
         }
+        
         if(params.imageSrc){
             objUpdate.imageSrc = params.imageSrc;
         }
@@ -232,7 +238,9 @@ module.exports = {
 
     delete: async function (req, res) {
         let params = req.allParams();
-        let result = await News.archiveOne({ id: params.id });
+        let result = await News.update({ id: params.id }).set({
+            delete: true
+          }).fetch();
         res.send(result);
     },
 
