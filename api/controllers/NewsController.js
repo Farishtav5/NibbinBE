@@ -44,12 +44,14 @@ module.exports = {
             query.where.createdAt = { '<=' : new Date(params.addedTo).getTime() }
         }
         let _categoriesQuery = {};
+        let tempCategories = [];
         if (params.categories){
-            let tempCategories = (params.categories).toString().split(",");
+            tempCategories = (params.categories).toString().split(",");
             for (a in tempCategories) {
                 tempCategories[a] = parseInt(tempCategories[a], 10);
             }
-            _categoriesQuery = { where: { id: { in: tempCategories } }};
+            // _categoriesQuery = { where: { id: { in: tempCategories } }};
+            _categoriesQuery = { id: { in: tempCategories } };
         }
         if (params.query){
             query.where = {
@@ -61,9 +63,21 @@ module.exports = {
             };
         }
         query.where.delete = false;
-
+        
         let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
-        let result = await News.find(query).populate("categories", _categoriesQuery).populate("createdBy");
+        let newsList = await News.find(query).populate("categories").populate("createdBy");
+        console.log('_categoriesQuery', JSON.stringify(_categoriesQuery), tempCategories);
+        let result = [];
+        if(tempCategories.length){
+            result = newsList.filter(({categories}) => {
+                return categories.some(({id})=> {
+                    return tempCategories.indexOf(id) != -1;
+                })
+            });
+        }else{
+            result = newsList;
+        }
+
         let totalNewsCountInDB = await News.count(_queryClone);
         let tilesObj = await News.find({delete: false});
         let tiles = {
@@ -81,6 +95,7 @@ module.exports = {
         res.send({
             page,
             total: totalNewsCountInDB,
+            total_news: result.length,
             rows: result,
             tiles
         });
