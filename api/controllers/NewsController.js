@@ -65,7 +65,7 @@ module.exports = {
         let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
         let result = await News.find(query).populate("categories", _categoriesQuery).populate("createdBy");
         let totalNewsCountInDB = await News.count(_queryClone);
-        let tilesObj = await News.find();
+        let tilesObj = await News.find({delete: false});
         let tiles = {
             //'rejected'
             inQueueCount: _.filter(tilesObj, (t) => {return t.status === "in-queue"}).length,
