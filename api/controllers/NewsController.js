@@ -117,7 +117,7 @@ module.exports = {
         where n.delete = false`;
         let query = `${sqlQuery} ${whereQuery} ${paginationQuery}`;
         // console.log('sqlQuery', sqlQuery);
-        // console.log('query', query);
+        console.log('query', query);
 
         let result = await News.getDatastore().sendNativeQuery(query);
         result = result.rows;
@@ -149,7 +149,13 @@ module.exports = {
         });
 
         // let totalNewsCountInDB = await News.count(_queryClone);
-        let tilesObj = await News.find({delete: false});
+        // let tilesObj = await News.find({delete: false});
+        let _queryForTiles = `SELECT DISTINCTROW n.* FROM news n
+        inner join category_news__news_categories c on n.id = c.news_categories
+        inner join category cc on cc.id = c.category_news
+        where n.delete = false`;
+        let tilesObj = await News.getDatastore().sendNativeQuery(_queryForTiles);
+        tilesObj = tilesObj.rows;
         let tiles = {
             //'rejected'
             inQueueCount: _.filter(tilesObj, (t) => {return t.status === "in-queue"}).length,
