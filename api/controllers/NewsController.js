@@ -100,9 +100,9 @@ module.exports = {
             whereQuery += ` and cc.id in (${tempCategories.join(',')})`;
         }
         if (params.query){
-            whereQuery += ` or n.headline like '%${params.query}%' or
+            whereQuery += ` and (n.headline like '%${params.query}%' or
              n.shortDesc like '%${params.query}%' or 
-             n.link like '%${params.query}%'`;
+             n.link like '%${params.query}%') `;
         }
         // sqlQuery = `SELECT DISTINCTROW n.*, CONCAT("[", GROUP_CONCAT(CONCAT('{name:"', cc.name, '", id:"',cc.id,'"}')), "]") as categories FROM news n
         sqlQuery = `SELECT DISTINCTROW n.*, 
