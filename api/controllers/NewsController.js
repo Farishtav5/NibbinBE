@@ -93,7 +93,7 @@ module.exports = {
         let _categoriesQuery = {};
         let tempCategories = [];
         if (params.categories){
-            tempCategories = (params.categories).toString().split(",");
+            tempCategories = (params.categories).toString().replace(/,(\s+)?$/, '').split(",");
             for (a in tempCategories) {
                 tempCategories[a] = parseInt(tempCategories[a], 10);
             }
