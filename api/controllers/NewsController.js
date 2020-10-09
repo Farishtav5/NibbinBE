@@ -116,8 +116,8 @@ module.exports = {
         inner join category cc on cc.id = c.category_news
         where n.delete = false`;
         let query = `${sqlQuery} ${whereQuery} ${paginationQuery}`;
-        console.log('sqlQuery', sqlQuery);
-        console.log('query', query);
+        // console.log('sqlQuery', sqlQuery);
+        // console.log('query', query);
 
         let result = await News.getDatastore().sendNativeQuery(query);
         result = result.rows;

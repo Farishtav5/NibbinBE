@@ -26,6 +26,7 @@
         </div>
         <div class="col-md-6">
             <!-- <div id="buttons"></div> -->
+            <span id="msg"></span>
             <button type="button" class="btn btn-primary float-right" id="btnUpload">Upload Data</button>
         </div>
     </div>
@@ -41,6 +42,7 @@
   const input = document.getElementById("input");
   const _grid = document.getElementById("grid");
   const btnUpload = document.getElementById("btnUpload");
+  const msg = document.getElementById("msg");
   input.addEventListener("change", () => {
     console.log("input.files[0]", input.files[0]);
     let file = input.files[0];
@@ -134,7 +136,7 @@
         if(params){
             let _names = (params).split(",").map(item => item.trim());
             for (item of _names) {
-                let s = categoriesArray.find((t) => {return t.name === item});
+                let s = categoriesArray.find((t) => {return t.name.toLowerCase() === (item).toLowerCase()});
                 if(s){
                     ids.push(s.id);
                 }
@@ -170,13 +172,17 @@
         //     'Image Credit': 'Pxhere',
         //     'Image Link': 'https://bluonec-my.sharepoint.com/personal/gazel_om_bluone_in/_layouts/15/onedrive.aspx?sortField=Modified&isAscending=false&id=%2Fpersonal%2Fgazel%5Fom%5Fbluone%5Fin%2FDocuments%2FNIBBIN%20Images%2F132%2Ejpeg&parent=%2Fpersonal%2Fgazel%5Fom%5Fbluone%5Fin%2FDocuments%2FNIBBIN%20Images'
         // }
-        excelRows.forEach((t, index)=>{
-            let cat_ids = '';
+
+        for (let index = 0; index < excelRows.length; index++) {
+          let t = excelRows[index];
+          let cat_ids = '';
             if(t['Groups (select all possible)']){
                 let _ids = findCategoriesId(t['Groups (select all possible)']);
                 cat_ids = _ids;
+            }else if(t['Groups']){
+                let _ids = findCategoriesId(t['Groups']);
+                cat_ids = _ids;
             }
-            newsIds.push(t.SrNo);
             let item = {
                 title: t.Title ? t.Title : '-',
                 headline: t.Headline ? t.Headline : (t.Title ? t.Title : '-'),
@@ -192,8 +198,34 @@
             if(item.imageSrc){
                 item.status = "published";
             }
-            newsObj.push(item);
-        })
+            newsIds.push(t.SrNo);
+            newsObj.push(item);          
+        }
+
+        // excelRows.forEach((t, index)=>{
+        //     let cat_ids = '';
+        //     if(t['Groups (select all possible)']){
+        //         let _ids = findCategoriesId(t['Groups (select all possible)']);
+        //         cat_ids = _ids;
+        //     }
+        //     newsIds.push(t.SrNo);
+        //     let item = {
+        //         title: t.Title ? t.Title : '-',
+        //         headline: t.Headline ? t.Headline : (t.Title ? t.Title : '-'),
+        //         imageSrc: t['Image Link'] ? 'https://cdn-nibbin.s3.us-east-2.amazonaws.com/images/' + trimString(t['SrNo']) + '.jpg' : '',
+        //         imageSourceName: t['Image Credit'] ? trimString(t['Image Credit']) : '',
+        //         shortDesc: (t['Brief'] ? trimString(t['Brief']) : '').replace(/[\u0800-\uFFFF]/g, ''),
+        //         link: t['Read More'] ? trimString(t['Read More']) : '',
+        //         dated: getDateFormat(t.Date),
+        //         categories_ids: cat_ids.length ? cat_ids : [],
+        //         createdBy: 2,
+        //         updatedBy: 2
+        //     }
+        //     if(item.imageSrc){
+        //         item.status = "published";
+        //     }
+        //     newsObj.push(item);
+        // })
 
         return new Promise(function(resolve, reject) { 
             // do the usual XHR stuff 
@@ -203,6 +235,7 @@
             req.setRequestHeader('Content-Type', 'application/json;charset=utf-8');
             req.onload = function() { 
                 if (req.status == 200) { 
+                  msg.textContent ='successfully inserted';
                     resolve(req.response); 
                 } else { 
                     reject(Error(req.statusText)); 

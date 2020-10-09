@@ -59,7 +59,7 @@ module.exports = {
   uploadExcel: async function (req, res) {
     let params = req.allParams();
     if(params.news.length){
-        await News.destroy({});
+        // await News.destroy({});
         let NewsArray = params.news;
         let cloneObj = _.cloneDeep(NewsArray);
         console.log('NewsArray length', NewsArray.length);
