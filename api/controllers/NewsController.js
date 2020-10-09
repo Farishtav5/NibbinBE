@@ -73,8 +73,8 @@ module.exports = {
             whereQuery += ` and n.status in ('published')`;
         }else{
             if (params.status){
-                let tempStatus = (params.status).toString().split(",");
-                whereQuery += ` and n.status in (${tempStatus.join(',')})`;
+                let tempStatus = (params.status).toString().split(",").map(word => `'${word.trim()}'`).join(',');
+                whereQuery += ` and n.status in (${tempStatus})`;
             }
         }
         if(params.headline){
