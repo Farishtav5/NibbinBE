@@ -122,7 +122,7 @@ module.exports = {
         let result = await News.getDatastore().sendNativeQuery(query);
         result = result.rows;
         let totalNewsCountInDB = await News.getDatastore().sendNativeQuery(`${sqlQuery} ${whereQuery}`);
-        totalNewsCountInDB = totalNewsCountInDB.length;
+        totalNewsCountInDB = totalNewsCountInDB.rows.length;
 
         
         // let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
