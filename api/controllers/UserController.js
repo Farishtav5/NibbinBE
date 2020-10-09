@@ -8,8 +8,44 @@
 
 module.exports = {
     getAllUsersList: async function (req, res) {
-        let result = await User.find().populate('role');
-        res.send(result);
+        let params = req.allParams();
+        let page = params.page == undefined ? 1 : parseInt(params.page);
+        let limit = params.limit == undefined ? 10 : parseInt(params.limit);
+        let skip = (page - 1) * limit;
+        let shortBy = (params && params.shortBy) ? params.shortBy : 'createdAt';
+        let orderBy = (params && params.orderBy) ? params.orderBy : 'DESC';
+        let query = { skip: skip, limit: limit, sort: shortBy + ' ' + orderBy};
+
+        let filters = ['name', 'email', 'role', 'status'];
+        query.where = {};
+        if(params.name){
+            query.where.name = { contains: params.name }
+        }
+        if(params.email){
+            query.where.email = { contains: params.email }
+        }
+        if(params.status){
+            query.where.status = params.status ? true : false;
+        }
+        if(params.role){
+            query.where.role = params.role;
+        }
+
+        // for (let i = 0; i < filters.length; i++) {
+        //     const key = filters[i];
+        //     if(params[key]){
+        //         query.where[key] = { contains: params[key] }
+        //     }
+        // }
+        
+        let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
+        let result = await User.find(query).populate('role');
+        let totalUsers = await User.count(_queryClone);
+        res.send({
+            page,
+            total: totalUsers,
+            users: result
+        });
     },
 
     get: async function (req, res) {
