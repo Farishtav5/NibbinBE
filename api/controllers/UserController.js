@@ -7,6 +7,10 @@
 
 
 module.exports = {
+    getAllUsersList: async function (req, res) {
+        let result = await User.find().populate('role');
+        res.send(result);
+    },
 
     get: async function (req, res) {
         let id = req.param('id');

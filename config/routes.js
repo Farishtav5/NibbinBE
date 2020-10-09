@@ -49,7 +49,7 @@ module.exports.routes = {
 
 
   'post /login': 'AuthController.login',
-  "get /users": "UserController.list",
+  "get /users": "UserController.getAllUsersList",
   "get /users/:id": "UserController.get",
   "get /user/profile": "UserController.getMyProfile",
   "put /user/profile": "UserController.updateMyProfile",

@@ -16,32 +16,77 @@ module.exports = {
         let shortBy = (params && params.shortBy) ? params.shortBy : 'dated';
         let orderBy = (params && params.orderBy) ? params.orderBy : 'DESC';
 
-        let query = { skip: skip, limit: limit, sort: shortBy + ' ' + orderBy};
-        query.where = {};
+        // let query = { skip: skip, limit: limit, sort: shortBy + ' ' + orderBy};
+        // query.where = {};
         
 
+        // if(!req.accessSourceType){
+        //     query.where.status = { in: ["published"] }
+        // }else{
+        //     if (params.status){
+        //         let tempStatus = (params.status).toString().split(",");
+        //         query.where.status = { in: tempStatus };
+        //     }
+        // }
+        // if(params.headline){
+        //     query.where.headline = { contains: params.headline };
+        // }
+        // if (params.link){
+        //     query.where.link = { contains: params.link };
+        // }
+        
+        // if (params.addedFrom){
+        //     // query.where.createdAt['>='] = new Date('2018-08-21T14:56:21.774Z').getTime();
+        //     query.where.createdAt = { '>=' : new Date(params.addedFrom).getTime() }
+        // }
+        // if (params.addedTo){
+        //     // query.where.createdAt['<='] = new Date('2018-08-25T14:56:21.774Z').getTime();
+        //     query.where.createdAt = { '<=' : new Date(params.addedTo).getTime() }
+        // }
+        // let _categoriesQuery = {};
+        // let tempCategories = [];
+        // if (params.categories){
+        //     tempCategories = (params.categories).toString().split(",");
+        //     for (a in tempCategories) {
+        //         tempCategories[a] = parseInt(tempCategories[a], 10);
+        //     }
+        //     _categoriesQuery = { where: { id: { in: tempCategories } }};
+        //     // _categoriesQuery = { id: tempCategories };
+        // }
+        // if (params.query){
+        //     query.where = {
+        //         or: [
+        //             { headline: { contains: params.query } },
+        //             { shortDesc: { contains: params.query } },
+        //             { link: { contains: params.query } },
+        //         ] 
+        //     };
+        // }
+        // query.where.delete = false;
+        let sqlQuery = '';
+        let whereQuery = '';
+        let paginationQuery = ` group by n.id ORDER BY ${'n.'+shortBy} ${orderBy} limit ${limit} offset ${skip}`;
+        
         if(!req.accessSourceType){
-            query.where.status = { in: ["published"] }
+            whereQuery += ` and n.status in ('published')`;
         }else{
             if (params.status){
                 let tempStatus = (params.status).toString().split(",");
-                query.where.status = { in: tempStatus };
+                whereQuery += ` and n.status in (${tempStatus.join(',')})`;
             }
         }
         if(params.headline){
-            query.where.headline = { contains: params.headline };
+            whereQuery += ` and n.headline like '%${params.headline}%'`;
         }
         if (params.link){
-            query.where.link = { contains: params.link };
+            whereQuery += ` and n.link like '%${params.link}%'`;
         }
         
         if (params.addedFrom){
-            // query.where.createdAt['>='] = new Date('2018-08-21T14:56:21.774Z').getTime();
-            query.where.createdAt = { '>=' : new Date(params.addedFrom).getTime() }
+            whereQuery += ` and n.createdAt >= '${new Date(params.addedFrom).getTime()}'`;
         }
         if (params.addedTo){
-            // query.where.createdAt['<='] = new Date('2018-08-25T14:56:21.774Z').getTime();
-            query.where.createdAt = { '<=' : new Date(params.addedTo).getTime() }
+            whereQuery += ` and n.createdAt <= '${new Date(params.addedTo).getTime()}'`;
         }
         let _categoriesQuery = {};
         let tempCategories = [];
@@ -50,35 +95,58 @@ module.exports = {
             for (a in tempCategories) {
                 tempCategories[a] = parseInt(tempCategories[a], 10);
             }
-            // _categoriesQuery = { where: { id: { in: tempCategories } }};
-            _categoriesQuery = { id: { in: tempCategories } };
+            whereQuery += ` and cc.id in (${tempCategories.join(',')})`;
         }
         if (params.query){
-            query.where = {
-                or: [
-                    { headline: { contains: params.query } },
-                    { shortDesc: { contains: params.query } },
-                    { link: { contains: params.query } },
-                ] 
-            };
+            whereQuery += ` or n.headline like '%${params.query}%' or
+             n.shortDesc like '%${params.query}%' or 
+             n.link like '%${params.query}%'`;
         }
-        query.where.delete = false;
-        
-        let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
-        let newsList = await News.find(query).populate("categories").populate("createdBy");
-        console.log('_categoriesQuery', JSON.stringify(_categoriesQuery), tempCategories);
-        let result = [];
-        if(tempCategories.length){
-            result = newsList.filter(({categories}) => {
-                return categories.some(({id})=> {
-                    return tempCategories.indexOf(id) != -1;
-                })
-            });
-        }else{
-            result = newsList;
-        }
+        // sqlQuery = `SELECT DISTINCTROW n.*, CONCAT("[", GROUP_CONCAT(CONCAT('{name:"', cc.name, '", id:"',cc.id,'"}')), "]") as categories FROM news n
+        sqlQuery = `SELECT DISTINCTROW n.*, 
+        JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'name', cc.name,
+                'id', cc.id
+            )
+        ) as categories FROM news n
+        inner join category_news__news_categories c on n.id = c.news_categories
+        inner join category cc on cc.id = c.category_news
+        where n.delete = false`;
+        let query = `${sqlQuery} ${whereQuery} ${paginationQuery}`;
+        // console.log('sqlQuery', sqlQuery);
+        // console.log('query', query);
 
-        let totalNewsCountInDB = await News.count(_queryClone);
+        let result = await News.getDatastore().sendNativeQuery(query);
+        result = result.rows;
+        let totalNewsCountInDB = await News.getDatastore().sendNativeQuery(`${sqlQuery} ${whereQuery}`);
+        totalNewsCountInDB = totalNewsCountInDB.length;
+
+        
+        // let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
+        // let newsList = await News.find(query).populate("categories", _categoriesQuery).populate("createdBy");
+        // console.log('_categoriesQuery', JSON.stringify(_categoriesQuery), tempCategories);
+        // let result = [];
+        // // if(tempCategories.length){
+        // //     result = newsList.filter(({categories}) => {
+        // //         return categories.some(({id})=> {
+        // //             return tempCategories.indexOf(id) != -1;
+        // //         })
+        // //     });
+        // // }else{
+        // // }
+        // result = newsList;
+        result.forEach((t)=>{
+            t.categories = JSON.parse(t.categories);
+            t.title = t.title ? JSON.parse(t.title) : '';
+            t.headline = t.headline ? JSON.parse(t.headline) : '';
+            t.imageSrc = t.imageSrc ? JSON.parse(t.imageSrc) : '';
+            t.shortDesc = t.shortDesc ? JSON.parse(t.shortDesc) : '';
+            t.link = t.link ? JSON.parse(t.link) : '';
+            t.type = t.type ? JSON.parse(t.type) : '';
+        });
+
+        // let totalNewsCountInDB = await News.count(_queryClone);
         let tilesObj = await News.find({delete: false});
         let tiles = {
             //'rejected'
