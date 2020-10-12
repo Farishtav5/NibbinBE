@@ -261,7 +261,12 @@ module.exports = {
         if (!params.id) {
             return ResponseService.json(400, res, "please provide news id");
         }
-        let findNews = await News.findOne({ id: params.id });
+        let tempIds = (params.id).toString().replace(/,(\s+)?$/, '').split(",");
+        for (let a in tempIds) {
+            tempIds[a] = parseInt(tempIds[a], 10);
+        }
+
+        let findNews = await News.find({ id: tempIds });
         if(!findNews){
             return ResponseService.json(404, res, "news not found");
         }
@@ -318,10 +323,7 @@ module.exports = {
             objUpdate.imageSourceName = params.imageSourceName;
         }
 
-        let tempIds = (params.id).toString().replace(/,(\s+)?$/, '').split(",");
-        for (let a in tempIds) {
-            tempIds[a] = parseInt(tempIds[a], 10);
-        }
+        
         let result = await News.update({
             id: tempIds //params.id
         }).set(objUpdate).fetch();
