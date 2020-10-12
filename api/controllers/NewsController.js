@@ -163,9 +163,9 @@ module.exports = {
             editRequiredCount: _.filter(tilesObj, (t) => {return t.status === "edit-required"}).length,
             scheduledCount: _.filter(tilesObj, (t) => {return t.status === "scheduled"}).length,
             inReviewCount: _.filter(tilesObj, (t) => {return t.status === "in-review"}).length,
-            designedSubmittedCount: _.filter(tilesObj, (t) => {return t.status === "design-submitted"}).length,
-            contentSubmittedCount: _.filter(tilesObj, (t) => {return t.status === "content-submitted"}).length,
-            urlApprovedCount: _.filter(tilesObj, (t) => {return t.status === "url-approved"}).length,
+            inDraftCount: _.filter(tilesObj, (t) => {return t.status === "draft"}).length,
+            inDesignCount: _.filter(tilesObj, (t) => {return t.status === "in-design"}).length,
+            inContentCount: _.filter(tilesObj, (t) => {return t.status === "in-content"}).length,
             onHoldCount: _.filter(tilesObj, (t) => {return t.status === "on-hold"}).length,
         }
         res.send({
@@ -372,6 +372,22 @@ module.exports = {
             return ResponseService.json(200, res, "reported successfully", createReportByUser);
         }
 
+    },
+
+    newsStatusList: async function (req, res) {
+      let statusList = [
+        'in-queue',
+        'in-content',
+        'draft',
+        'in-design',
+        'in-review',
+        'edit-required',
+        'published',
+        'scheduled',
+        'rejected',
+        'on-hold'
+      ];
+      res.send(statusList);
     },
 
     //TODO: Will Remove it later

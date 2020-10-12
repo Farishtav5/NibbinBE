@@ -23,6 +23,7 @@ module.exports.routes = {
   "get /news": "NewsController.list",
   "get /news/:id": 'NewsController.get',
   "get /news/:id/prev-next": 'NewsController.prevNextNews',
+  "get /news/status-list": 'NewsController.newsStatusList',
 
   "post /news": "NewsController.create",
   "put /news/:id": "NewsController.update",
