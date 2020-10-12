@@ -317,27 +317,35 @@ module.exports = {
         if(params.imageSourceName){
             objUpdate.imageSourceName = params.imageSourceName;
         }
+
+        let tempIds = (params.id).toString().replace(/,(\s+)?$/, '').split(",");
+        for (let a in tempIds) {
+            tempIds[a] = parseInt(tempIds[a], 10);
+        }
         let result = await News.update({
-            id: params.id
+            id: tempIds //params.id
         }).set(objUpdate).fetch();
 
-        if(result.length && result[0]){
-            let updatedNews = result[0];
-            if(updatedNews.status === "published"){
-                let findUpdatedNews = await News.findOne({ id: updatedNews.id }).populate("categories");
-                let firebaseDb = sails.config.firebaseDb();
-                let data = {
-                    postValue: findUpdatedNews.id,
-                    title: findUpdatedNews.headline
+        if(result.length){
+            let updatedNews = result;
+            for (let i = 0; i < updatedNews.length; i++) {
+                const _newsItem = updatedNews[i];
+                if(_newsItem.status === "published"){
+                    let findUpdatedNews = await News.findOne({ id: _newsItem.id }).populate("categories");
+                    let firebaseDb = sails.config.firebaseDb();
+                    let data = {
+                        postValue: findUpdatedNews.id,
+                        title: findUpdatedNews.headline
+                    }
+                    if (findUpdatedNews.imageSrc) {
+                        data.imageSrc = findUpdatedNews.imageSrc
+                    }
+                    if (findUpdatedNews.categories) {
+                        let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; }).join(","); // "A,B,C"
+                        data.categories = _categories
+                    }
+                    let createdData = await firebaseDb.collection('posts').add(data);
                 }
-                if (findUpdatedNews.imageSrc) {
-                    data.imageSrc = findUpdatedNews.imageSrc
-                }
-                if (findUpdatedNews.categories) {
-                    let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; }).join(","); // "A,B,C"
-                    data.categories = _categories
-                }
-                let createdData = await firebaseDb.collection('posts').add(data);
             }
         }
 
