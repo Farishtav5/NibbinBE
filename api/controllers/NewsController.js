@@ -117,7 +117,7 @@ module.exports = {
         where n.delete = false`;
         let query = `${sqlQuery} ${whereQuery} ${paginationQuery}`;
         // console.log('sqlQuery', sqlQuery);
-        console.log('query', query);
+        // console.log('query', query);
 
         let result = await News.getDatastore().sendNativeQuery(query);
         result = result.rows;
@@ -247,13 +247,11 @@ module.exports = {
         }).fetch();
 
         if(createdNewsObj){
-            console.log('createdNewsObj.id', createdNewsObj.id);
             if (params.categories){
-                console.log('params.categories', params.categories);
                 await News.addToCollection(createdNewsObj.id, 'categories', params.categories);
             }
+            return ResponseService.json(200, res, "news created", createdNewsObj);
         }else{
-            console.log('createdNewsObj null');
             return ResponseService.json(400, res, "error to during create news");
         }
 
