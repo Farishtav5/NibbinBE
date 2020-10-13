@@ -239,7 +239,7 @@ module.exports = {
             title: params.title,
             headline: params.headline,
             link: params.link,
-            shortDesc: params.shortDesc,
+            shortDesc: params.shortDesc ? params.shortDesc : '',
             status: "in-queue",
             dated: new Date(),
             createdBy: req.currentUser.id, //params.createdBy,
@@ -247,10 +247,13 @@ module.exports = {
         }).fetch();
 
         if(createdNewsObj){
+            console.log('createdNewsObj.id', createdNewsObj.id);
             if (params.categories){
+                console.log('params.categories', params.categories);
                 await News.addToCollection(createdNewsObj.id, 'categories', params.categories);
             }
         }else{
+            console.log('createdNewsObj null');
             return ResponseService.json(400, res, "error to during create news");
         }
 
