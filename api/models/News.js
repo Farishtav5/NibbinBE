@@ -16,6 +16,9 @@ module.exports = {
       type: "json",
       required: true,
     },
+    slug: {
+      type: "string"
+    },
     imageSrc: {
       type: "Json"
     },
@@ -97,6 +100,9 @@ module.exports = {
     designSubmitted: {
       type: 'boolean',
       defaultsTo: false
+    },
+    metaSource: {
+      type: "json"
     },
     delete: {
       type: 'boolean',

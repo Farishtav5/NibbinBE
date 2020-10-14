@@ -35,6 +35,9 @@ module.exports.policies = {
     'restAllNewsData': ['openAuthorized'],
     'findCovid19': ['openAuthorized'],
     'demoNotifyFirebase': ['openAuthorized'],
+    'demoFetch': ['openAuthorized'],
+    
+    'previewSourceLink': true,
   },
   CategoryController: {
     '*': ['isAuthorized'],

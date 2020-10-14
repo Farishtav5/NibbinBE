@@ -45,7 +45,11 @@ module.exports = {
     status:{
       type: 'boolean',
       defaultsTo: true
-    }
+    },
+    delete: {
+      type: 'boolean',
+      defaultsTo: false
+    },
 
   },
 

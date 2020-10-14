@@ -22,7 +22,11 @@ module.exports = {
     },
     description: {
       type: "json"
-    }
+    },
+    images: {
+      collection: "images",
+      via: "categories"
+    },
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝

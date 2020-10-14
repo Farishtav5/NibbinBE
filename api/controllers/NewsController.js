@@ -4,6 +4,10 @@
  * @description :: Server-side actions for handling incoming requests.
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
+const fs = require("fs");
+const got = require("got");
+
+activities = Utilities.activities;
 
 module.exports = {
 
@@ -250,6 +254,12 @@ module.exports = {
             if (params.categories){
                 await News.addToCollection(createdNewsObj.id, 'categories', params.categories);
             }
+            await sails.helpers.createActivityLog.with({
+                newsId: createdNewsObj.id,
+                createdBy: req.currentUser.id,
+                status: createdNewsObj.status,
+                action: "NewsController - create"
+            });
             return ResponseService.json(200, res, "news created", createdNewsObj);
         }else{
             return ResponseService.json(400, res, "error to during create news");
@@ -333,6 +343,15 @@ module.exports = {
             let updatedNews = result;
             for (let i = 0; i < updatedNews.length; i++) {
                 const _newsItem = updatedNews[i];
+                if(_newsItem.status === activities.NEWS.STATUS.IN_CONTENT){
+                    await updateApprovedNewsForMetaSource(_newsItem);
+                }
+                await sails.helpers.createActivityLog.with({
+                    newsId: _newsItem.id,
+                    createdBy: req.currentUser.id,
+                    status: _newsItem.status,
+                    action: "NewsController - update"
+                });
                 if(_newsItem.status === "published"){
                     let findUpdatedNews = await News.findOne({ id: _newsItem.id }).populate("categories");
                     let firebaseDb = sails.config.firebaseDb();
@@ -360,6 +379,12 @@ module.exports = {
         let result = await News.update({ id: params.id }).set({
             delete: true
           }).fetch();
+        await sails.helpers.createActivityLog.with({
+            newsId: result.id,
+            createdBy: req.currentUser.id,
+            message: activities.NEWS.DELETED,
+            action: "NewsController - delete"
+        });
         res.send(result);
     },
 
@@ -399,6 +424,19 @@ module.exports = {
         'on-hold'
       ];
       res.send(statusList);
+    },
+
+    previewSourceLink: async function (req, res) {
+      //
+    //   let urls = [
+    //         "https://www.medicalnewstoday.com/articles/friendly-e-coli-may-protect-the-gut-from-their-deadly-cousin",
+    //         "https://www.fiercebiotech.com/medtech/fda-opens-door-to-batch-testing-for-covid-19-quest-diagnostics-green-lights",
+    //         "https://www.sciencedaily.com/releases/2020/07/200717133231.htm",
+    //         "https://www.statnews.com/2020/07/14/moderna-covid19-vaccine-first-data-show-spurs-immune-response/",
+    //         "https://www.fiercebiotech.com/medtech/thermo-fisher-throws-extra-billion-to-buy-covid-19-testing-supplier-qiagen",
+    //     ];;
+    //   const {body} = await got(urls[2]);
+      res.send("😜");
     },
 
     //TODO: Will Remove it later
@@ -493,5 +531,83 @@ module.exports = {
         });
     },
 
+    demoFetch: async function (req, res) {
+        let data = await sails.helpers.scrapImageFromUrl.with({
+            url: 'https://www.fiercebiotech.com/medtech/fda-opens-door-to-batch-testing-for-covid-19-quest-diagnostics-green-lights',
+        });
+        let result = await downloadImageFromSource_and_UploadOnS3(data.mainImage);
+        res.send({data:data, result:result});
+    }
+
 };
+
+async function updateApprovedNewsForMetaSource(news) {
+    let metaInfoFromSource = await sails.helpers.scrapImageFromUrl.with({
+        url: 'https://www.medicalnewstoday.com/articles/friendly-e-coli-may-protect-the-gut-from-their-deadly-cousin',
+    });
+    if(metaInfoFromSource){
+        let metaInfo = metaInfoFromSource;
+        let result = await News.update({
+            id: news.id
+        }).set({metaSource: metaInfo}).fetch();
+        console.log('updated Meta info ', result[0].status)
+    }
+}
+
+async function downloadImageFromSource_and_UploadOnS3(imagepath) {
+    let url = imagepath;
+    
+    const fileName = "assets/images/demo1.jpg";
+    const downloadStream = got.stream(url);
+    const fileWriterStream = fs.createWriteStream(fileName);
+
+    downloadStream
+    .on("downloadProgress", ({ transferred, total, percent }) => {
+        const percentage = Math.round(percent * 100);
+        console.error(`progress: ${transferred}/${total} (${percentage}%)`);
+    })
+    .on("error", (error) => {
+        console.error(`Download failed: ${error.message}`);
+        return false;
+    });
+
+    fileWriterStream
+    .on("error", (error) => {
+        console.error(`Could not write file to system: ${error.message}`);
+        return false;
+    })
+    .on("finish", () => {
+        console.log(`File downloaded to ${fileName}`);
+        const AWS = require('aws-sdk');
+        const s3 = new AWS.S3({
+            accessKeyId: 'AKIA22F3ZX7YBVHPG3LW',
+            secretAccessKey: '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'
+        });
+        const fileContent = fs.readFileSync(fileName);
+
+        // setting up s3 upload parameters
+        const params = {
+            Bucket: 'cdn-nibbin',
+            Key: 'images/demo3.png', // file name you want to save as
+            Body: fileContent,
+            ACL: "public-read",
+            ContentType: "image/png" //"image/png"
+        };
+
+        // Uploading files to the bucket
+        s3.upload(params, (err, data) => {
+            if (err) {
+                throw err;
+            }
+            console.log(`File uploaded successfully. ${data.Location}`);
+            fs.unlinkSync(fileName);
+            return data.Location;
+        });
+        // return true;
+    });
+
+    downloadStream.pipe(fileWriterStream);
+    
+
+}
 
