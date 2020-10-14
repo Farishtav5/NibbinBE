@@ -5,8 +5,6 @@
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
 
-const Images = require("../models/Images");
-
 module.exports = {
   uploadFile: async function (req, res) {
     let params = req.allParams();
