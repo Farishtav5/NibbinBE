@@ -327,11 +327,16 @@ module.exports = {
             objUpdate.status = "in-review";
         }
 
-        if(params.imageSrc){
-            objUpdate.imageSrc = params.imageSrc;
-        }
-        if(params.imageSourceName){
-            objUpdate.imageSourceName = params.imageSourceName;
+        // if(params.imageSrc){
+        //     objUpdate.imageSrc = params.imageSrc;
+        // }
+        // if(params.imageSourceName){
+        //     objUpdate.imageSourceName = params.imageSourceName;
+        // }
+        if(params.imageId){
+            objUpdate.imageId = params.imageId;
+        }else if(params.fetch_from_source){
+            // TODO: SATISH
         }
 
         
@@ -554,7 +559,7 @@ async function updateApprovedNewsForMetaSource(news) {
     }
 }
 
-async function downloadImageFromSource_and_UploadOnS3(imagepath) {
+async function downloadImageFromSource_and_UploadOnS3(imagepath, newsId) {
     let url = imagepath;
     
     const fileName = "assets/images/demo1.jpg";

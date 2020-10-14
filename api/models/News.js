@@ -19,12 +19,18 @@ module.exports = {
     slug: {
       type: "string"
     },
-    imageSrc: {
-      type: "Json"
+    // imageSrc: {
+    //   type: "Json"
+    // },
+    // imageSourceName: {
+    //   type: "string",
+    //   defaultsTo: 'BluOne'
+    // },
+    imageId:{
+      model: "images",
     },
-    imageSourceName: {
-      type: "string",
-      defaultsTo: 'BluOne'
+    extra_excel_image_id:{
+      type: "string"
     },
     shortDesc: {
       type: "Json"

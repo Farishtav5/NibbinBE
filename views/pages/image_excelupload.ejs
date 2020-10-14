@@ -76,30 +76,6 @@
     // })
   });
 
-  function getDateFormat(value){
-    // let date = new Date(value);
-    // let dd = date.getDate();
-    // let mm = date.getMonth() + 1;
-
-    // var yyyy = date.getFullYear();
-    // if (dd < 10) {
-    //     dd = '0' + dd;
-    // }
-    // if (mm < 10) {
-    //     mm = '0' + mm;
-    // }
-    // // return dd + '/' + mm + '/' + yyyy;
-    // return new Date((yyyy + '-' + mm + '-' + dd).toString()).toISOString().replace(/T|Z|\.\d{3}/g, ' ').trim();
-
-    var ts_hms = new Date(value);
-    return ts_hms.getFullYear() + '-' + 
-    ("0" + (ts_hms.getMonth() + 1)).slice(-2) + '-' + 
-    ("0" + (ts_hms.getDate())).slice(-2) + ' ' +
-    ("0" + ts_hms.getHours()).slice(-2) + ':' +
-    ("0" + ts_hms.getMinutes()).slice(-2) + ':' +
-    ("0" + ts_hms.getSeconds()).slice(-2);
-  }
-
   function trimString(params) {
       return params.trim();
   }
@@ -158,93 +134,40 @@
     _onsheet(excelRows, workbook.SheetNames);
     btnUpload.addEventListener("click", (event) => {
         event.preventDefault();
-        let newsObj = [];
-        let newsIds = [];
-        // {
-        //     SrNo: '132',
-        //     Title: 'Cerner Integrates EHR Digital Health Platform to Boost Patient Experience',
-        //     Date: '8/6/20',
-        //     'Read More': 'https://ramaonhealthcare.com/cerner-integrates-ehr-digital-health-platform-to-boost-patient-experience/#content',
-        //     Headline: 'Cerner, Xealth collaborate to boost patient experience',
-        //     Brief: 'In an effort to enhance patient care experience and ensure patients’ active participation throughout the process of healthcare, Cerner has announced that it is collaborating with digital health platform, Xealth. The partnership will aim to consent clinicians to order solutions and manage health conditions within the EHR workflow. The partnership is an effort to enhance the patient care experience.',
-        //     'Groups (select all possible)': 'Business & Economics',
-        //     Categories: 'Collaborations, Telehealth',
-        //     'Image Credit': 'Pxhere',
-        //     'Image Link': 'https://bluonec-my.sharepoint.com/personal/gazel_om_bluone_in/_layouts/15/onedrive.aspx?sortField=Modified&isAscending=false&id=%2Fpersonal%2Fgazel%5Fom%5Fbluone%5Fin%2FDocuments%2FNIBBIN%20Images%2F132%2Ejpeg&parent=%2Fpersonal%2Fgazel%5Fom%5Fbluone%5Fin%2FDocuments%2FNIBBIN%20Images'
-        // }
+        let imagesObj = [];
 
         for (let index = 0; index < excelRows.length; index++) {
           let t = excelRows[index];
           let cat_ids = '';
-            if(t['Groups (select all possible)']){
-                let _ids = findCategoriesId(t['Groups (select all possible)']);
-                cat_ids = _ids;
-            }else if(t['Groups']){
-                let _ids = findCategoriesId(t['Groups']);
-                cat_ids = _ids;
-            }
+            // if(t['Groups (select all possible)']){
+            //     let _ids = findCategoriesId(t['Groups (select all possible)']);
+            //     cat_ids = _ids;
+            // }else if(t['Groups']){
+            //     let _ids = findCategoriesId(t['Groups']);
+            //     cat_ids = _ids;
+            // }
             let item = {
-                id: trimString(t['SrNo']),
-                title: t.Title ? t.Title : '-',
-                headline: t.Headline ? t.Headline : (t.Title ? t.Title : '-'),
-                imageSrc: t['Image Link'] ? 'https://cdn-nibbin.s3.us-east-2.amazonaws.com/images/' + trimString(t['SrNo']) + '.jpg' : '',
-                imageSourceName: t['Image Credit'] ? trimString(t['Image Credit']) : '',
-                shortDesc: (t['Brief'] ? trimString(t['Brief']) : '').replace(/[\u0800-\uFFFF]/g, ''),
-                link: t['Read More'] ? trimString(t['Read More']) : '',
-                dated: getDateFormat(t.Date),
-                categories_ids: cat_ids.length ? cat_ids : [],
-                createdBy: 2,
-                updatedBy: 2
+              id: t['Image Name'] ? trimString(t['Image Name']) : '',
+              // excelId: t['Excel Id'] ? trimString(t['Excel Id']) : '',
+              
+              excelId: t['Image Name'] ? trimString(t['Image Name']) : '',
+              imageSrc: t['Image Name'] ? 'https://cdn-nibbin.s3.us-east-2.amazonaws.com/images/' + trimString(t['Image Name']) + '.jpg' : '',
+              imageSourceName: t['Image Credit'] ? trimString(t['Image Credit']) : '',
             }
-            if(t['Image Name']){
-              if(t['Image Name'] != "NA")
-              item.imageId = parseInt(trimString(t['Image Name']));
-            }
-            if(t['Excel Id']){
-              if(t['Excel Id'] === "NA"){
-                item.extra_excel_image_id = "NA";
-              }else {
-                item.extra_excel_image_id = trimString(t['Excel Id']);
+            if(t['Image Tags']){
+              if(t['Image Tags'] === "NA"){
+                item.tags = "";
+              }else{
+                item.tags = trimString(t['Image Tags']);
               }
             }
-            if(item.shortDesc){
-                item.status = "in-design";
-            }else {
-                item.status = "in-content";
-            }
-            newsIds.push(t.SrNo);
-            newsObj.push(item);          
+            imagesObj.push(item);          
         }
-
-        // excelRows.forEach((t, index)=>{
-        //     let cat_ids = '';
-        //     if(t['Groups (select all possible)']){
-        //         let _ids = findCategoriesId(t['Groups (select all possible)']);
-        //         cat_ids = _ids;
-        //     }
-        //     newsIds.push(t.SrNo);
-        //     let item = {
-        //         title: t.Title ? t.Title : '-',
-        //         headline: t.Headline ? t.Headline : (t.Title ? t.Title : '-'),
-        //         imageSrc: t['Image Link'] ? 'https://cdn-nibbin.s3.us-east-2.amazonaws.com/images/' + trimString(t['SrNo']) + '.jpg' : '',
-        //         imageSourceName: t['Image Credit'] ? trimString(t['Image Credit']) : '',
-        //         shortDesc: (t['Brief'] ? trimString(t['Brief']) : '').replace(/[\u0800-\uFFFF]/g, ''),
-        //         link: t['Read More'] ? trimString(t['Read More']) : '',
-        //         dated: getDateFormat(t.Date),
-        //         categories_ids: cat_ids.length ? cat_ids : [],
-        //         createdBy: 2,
-        //         updatedBy: 2
-        //     }
-        //     if(item.imageSrc){
-        //         item.status = "published";
-        //     }
-        //     newsObj.push(item);
-        // })
 
         return new Promise(function(resolve, reject) { 
             // do the usual XHR stuff 
             var req = new XMLHttpRequest();
-            req.open('post', '/excel'); 
+            req.open('post', '/excel?type=images'); 
             //NOW WE TELL THE SERVER WHAT FORMAT OF POST REQUEST WE ARE MAKING 
             req.setRequestHeader('Content-Type', 'application/json;charset=utf-8');
             req.onload = function() { 
@@ -261,8 +184,7 @@
             }; 
             // make the request 
             let postedNews = {
-                news: newsObj,
-                newsIds: newsIds
+                images: imagesObj,
             }
             req.send(JSON.stringify(postedNews)); 
         });

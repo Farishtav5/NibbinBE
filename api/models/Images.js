@@ -9,6 +9,9 @@ module.exports = {
 
   attributes: {
     //
+    excelId:{
+      type: "string"
+    },
     imageSrc: {
       type: "Json"
     },
@@ -23,6 +26,15 @@ module.exports = {
       collection: "category",
       via: "images"
     },
+    createdDateTime: {
+      type: "ref",
+      columnType: "datetime"
+    },
+  },
+
+  beforeCreate: function (values, cb) {
+    values.createdDateTime = new Date();
+    cb();
   },
 
 };
