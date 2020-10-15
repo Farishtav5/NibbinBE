@@ -41,7 +41,7 @@ module.exports = {
       //   // now update in news
       //   let UpdatedNews = await News.update({ id: newsId }).set({ imageId: createdImagesObj.id }).fetch();
       // }
-      return res.send({imageId: createdImagesObj.id});
+      return res.send({imageId: createdImagesObj.id, link: uploadedUrl});
     });
   },
   /** 
