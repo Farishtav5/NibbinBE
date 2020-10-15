@@ -118,7 +118,7 @@ module.exports = {
         ) as categories, im.imageSrc, im.imageSourceName FROM news n
         inner join category_news__news_categories c on n.id = c.news_categories
         inner join category cc on cc.id = c.category_news
-        left join images im on n.imageId = im.id
+        left join images im on n.imageId = im.id OR n.imageId = null
         where n.delete = false`;
         let query = `${sqlQuery} ${whereQuery} ${paginationQuery}`;
         // console.log('sqlQuery', sqlQuery);
@@ -155,15 +155,15 @@ module.exports = {
 
         // let totalNewsCountInDB = await News.count(_queryClone);
         // let tilesObj = await News.find({delete: false});
-        // let _queryForTiles = `SELECT DISTINCTROW n.*, im.imageSrc FROM news n
-        // inner join category_news__news_categories c on n.id = c.news_categories
-        // inner join category cc on cc.id = c.category_news
-        // left join images im on n.imageId = im.id OR n.imageId = null
-        // where n.delete = false`;
         let _queryForTiles = `SELECT DISTINCTROW n.*, im.imageSrc FROM news n
+        inner join category_news__news_categories c on n.id = c.news_categories
+        inner join category cc on cc.id = c.category_news
         left join images im on n.imageId = im.id OR n.imageId = null
         where n.delete = false`;
-        let tilesObj = await News.getDatastore().sendNativeQuery(_queryForTiles);
+        // let _queryForTiles = `SELECT DISTINCTROW n.*, im.imageSrc FROM news n
+        // left join images im on n.imageId = im.id OR n.imageId = null
+        // where n.delete = false`;
+        let tilesObj = await News.getDatastore().sendNativeQuery(`${_queryForTiles} group by n.id`);
         tilesObj = tilesObj.rows;
         let tiles = {
             //'rejected'
