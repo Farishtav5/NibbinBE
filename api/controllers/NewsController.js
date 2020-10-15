@@ -207,7 +207,8 @@ module.exports = {
             nextId = newsObj[index + 1].id;
         }
         if(newsObj[index] && newsObj[index].imageId){
-            let _image_id = _.cloneDeep(newsObj[index].imageId);
+            let _image_id = null;
+            _image_id = _.cloneDeep(newsObj[index].imageId);
             newsObj[index].imageSrc = _image_id.imageSrc;
             newsObj[index].imageSourceName = _image_id.imageSourceName;
             newsObj[index].imageId = _image_id.id;
