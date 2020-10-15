@@ -6,7 +6,6 @@
  */
 const fs = require("fs");
 const got = require("got");
-const Images = require("../models/Images");
 
 activities = Utilities.activities;
 
