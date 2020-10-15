@@ -129,7 +129,8 @@ module.exports = {
         let insertedData = [];
         for (let i = 0; i < NewsArray.length; i++) {
           const t = NewsArray[i];
-          let findImageById = await Images.findOne({ excelId: t.extra_excel_image_id });
+          let findImageById = null;
+          if(t.extra_excel_image_id) findImageById = await Images.findOne({ excelId: t.extra_excel_image_id });
           let news_data = {
             title: t.title,
             headline: t.headline,
