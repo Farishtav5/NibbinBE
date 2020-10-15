@@ -6,6 +6,7 @@
  */
 const fs = require("fs");
 const got = require("got");
+const Images = require("../models/Images");
 
 activities = Utilities.activities;
 
@@ -364,17 +365,20 @@ module.exports = {
         
         let result = await News.update({
             id: tempIds //params.id
-        }).set(objUpdate).populate('imageId').fetch();
+        }).set(objUpdate).fetch();
 
         if(result.length){
             let updatedNews = result;
             for (let i = 0; i < updatedNews.length; i++) {
                 const _newsItem = updatedNews[i];
                 if(_newsItem && _newsItem.imageId){
-                    let _image_id = _.cloneDeep(_newsItem.imageId);
-                    result[i].imageSrc = _image_id.imageSrc;
-                    result[i].imageSourceName = _image_id.imageSourceName;
-                    result[i].imageId = _image_id.id;
+                    let findImageById = await Images.findOne({ id: _newsItem.imageId });
+                    if(findImageById){
+                        let _image_id = _.cloneDeep(findImageById);
+                        result[i].imageSrc = _image_id.imageSrc;
+                        result[i].imageSourceName = _image_id.imageSourceName;
+                        result[i].imageId = _image_id.id;
+                    }
                 }
                 if(_newsItem.status === activities.NEWS.STATUS.IN_CONTENT){
                     await updateApprovedNewsForMetaSource(_newsItem);
