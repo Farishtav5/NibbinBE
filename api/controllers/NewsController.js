@@ -115,9 +115,10 @@ module.exports = {
                 'name', cc.name,
                 'id', cc.id
             )
-        ) as categories FROM news n
+        ) as categories, im.imageSrc FROM news n
         inner join category_news__news_categories c on n.id = c.news_categories
         inner join category cc on cc.id = c.category_news
+        inner join images im on n.imageId = im.id
         where n.delete = false`;
         let query = `${sqlQuery} ${whereQuery} ${paginationQuery}`;
         // console.log('sqlQuery', sqlQuery);
@@ -154,9 +155,10 @@ module.exports = {
 
         // let totalNewsCountInDB = await News.count(_queryClone);
         // let tilesObj = await News.find({delete: false});
-        let _queryForTiles = `SELECT DISTINCTROW n.* FROM news n
+        let _queryForTiles = `SELECT DISTINCTROW n.*, im.imageSrc FROM news n
         inner join category_news__news_categories c on n.id = c.news_categories
         inner join category cc on cc.id = c.category_news
+        inner join images im on n.imageId = im.id
         where n.delete = false`;
         let tilesObj = await News.getDatastore().sendNativeQuery(_queryForTiles);
         tilesObj = tilesObj.rows;
@@ -215,7 +217,7 @@ module.exports = {
     get: async function (req, res) {
         let params = req.allParams();
         let commentsOrder = { sort: 'createdAt DESC'};
-        let result = await News.findOne({ id: params.id }).populate("categories").populate("createdBy").populate('comments', commentsOrder);
+        let result = await News.findOne({ id: params.id }).populate("categories").populate('imageId').populate("createdBy").populate('comments', commentsOrder);
         if(result){
             let resultWithCommentsObj = await nestedPop.nestedPop(result, {
                 comments: {
@@ -225,6 +227,12 @@ module.exports = {
                   ]
                 }
               });
+              if(resultWithCommentsObj && resultWithCommentsObj.imageId){
+                  let _image_id = _.cloneDeep(resultWithCommentsObj.imageId);
+                  resultWithCommentsObj.imageSrc = _image_id.imageSrc;
+                  resultWithCommentsObj.imageSourceName = _image_id.imageSourceName;
+                  resultWithCommentsObj.imageId = _image_id.id;
+              }
             res.send(resultWithCommentsObj);
         }else{
             res.send(result);
