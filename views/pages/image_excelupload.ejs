@@ -147,12 +147,12 @@
             //     cat_ids = _ids;
             // }
             let item = {
-              id: t['Image Name'] ? trimString(t['Image Name']) : '',
-              excelId: t['Excel Id'] ? trimString(t['Excel Id']) : '',
+              // id: t['Image Name'] ? trimString(t['Image Name']) : '',
+              // excelId: t['Excel Id'] ? trimString(t['Excel Id']) : '',
 
-              // excelId: t['Image Name'] ? trimString(t['Image Name']) : '',
-              // imageSrc: t['Image Name'] ? 'https://cdn-nibbin.s3.us-east-2.amazonaws.com/images/' + trimString(t['Image Name']) + '.jpg' : '',
-              // imageSourceName: t['Image Credit'] ? trimString(t['Image Credit']) : '',
+              excelId: t['Image Name'] ? trimString(t['Image Name']) : '',
+              imageSrc: t['Image Name'] ? 'https://cdn-nibbin.s3.us-east-2.amazonaws.com/images/' + trimString(t['Image Name']) + '.jpg' : '',
+              imageSourceName: t['Image Credit'] ? trimString(t['Image Credit']) : '',
             }
             if(t['Image Tags']){
               if(t['Image Tags'] === "NA"){

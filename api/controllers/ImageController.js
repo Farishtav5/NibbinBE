@@ -7,13 +7,7 @@
 
 module.exports = {
   uploadFile: async function (req, res) {
-    let params = req.allParams();
-    let newsId = params.newsId;
-    let findNews = await News.findOne({ id: newsId });
-    if(!findNews){
-      return ResponseService.json(404, res, "news not found");
-    }
-    
+    let params = req.allParams();    
     const options = {
       // This is the usual stuff
       adapter: require("skipper-better-s3"),
@@ -40,41 +34,13 @@ module.exports = {
       if(params.imageSourceName) _imageData.imageSourceName = params.imageSourceName;
       if(params.tags) _imageData.tags = params.tags;
 
-      if(findNews.imageId){
-        let findImageById = await Images.findOne({ id: findNews.imageId });
-        let _categories = null;
-        if (findNews.categories) {
-          _categories = Array.prototype.map.call(findNews.categories, function(item) { return item.id; }).join(","); // "A,B,C"
-        }
-        if(findImageById){ 
-          //id found in images and news, now we have to update in images
-          let updatedImagesTable = await Images.update({id: findNews.imageId }).set(_imageData).fetch();
-          if(_categories){
-            let resultCategories = await Images.replaceCollection(findNews.imageId, 'categories').members([_categories]);
-          }
-        }
-        else{
-          // not found in images but found in news
-          // now we have to create a record in images by ref of news-images-id
-          
-          let createdImagesObj = await Images.create(_imageData).fetch();
-          if(createdImagesObj){
-            await Images.addToCollection(createdImagesObj.id, 'categories').members([_categories]);
-          }
-        }
-      }
-      else{
-        //not found in news by ref id of Images
-        // we have to create a record in Imags and then will update in news
-        let createdImagesObj = await Images.create(_imageData).fetch();
-        if(createdImagesObj){
-          await Images.addToCollection(createdImagesObj.id, 'categories').members([_categories]);
-          // now update in news
-          let UpdatedNews = await News.update({ id: newsId }).set({ imageId: createdImagesObj.id }).fetch();
-        }
-      }
-      let findUpdatedNewsObj = await News.findOne({ id: newsId });
-      return res.send(findUpdatedNewsObj);
+      let createdImagesObj = await Images.create(_imageData).fetch();
+      // if(createdImagesObj){
+      //   await Images.addToCollection(createdImagesObj.id, 'categories').members([_categories]);
+      //   // now update in news
+      //   let UpdatedNews = await News.update({ id: newsId }).set({ imageId: createdImagesObj.id }).fetch();
+      // }
+      return res.send({imageId: createdImagesObj.id});
     });
   },
   /** 
