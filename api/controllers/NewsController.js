@@ -115,7 +115,7 @@ module.exports = {
                 'name', cc.name,
                 'id', cc.id
             )
-        ) as categories, im.imageSrc FROM news n
+        ) as categories, im.imageSrc, im.imageSourceName FROM news n
         inner join category_news__news_categories c on n.id = c.news_categories
         inner join category cc on cc.id = c.category_news
         inner join images im on n.imageId = im.id
@@ -195,7 +195,7 @@ module.exports = {
             querywhere.status = { in: tempStatus };
         }
 
-        let newsObj = await News.find().where(querywhere).populate("categories").populate("createdBy");
+        let newsObj = await News.find().where(querywhere).populate("categories").populate('imageId').populate("createdBy");
 
         let index = _.findIndex(newsObj, { id: parseInt(params.id) });
         let prevId = 0;
@@ -205,6 +205,12 @@ module.exports = {
         }
         if(newsObj[index + 1] && newsObj[index + 1].id){
             nextId = newsObj[index + 1].id;
+        }
+        if(newsObj[index] && newsObj[index].imageId){
+            let _image_id = _.cloneDeep(newsObj[index].imageId);
+            newsObj[index].imageSrc = _image_id.imageSrc;
+            newsObj[index].imageSourceName = _image_id.imageSourceName;
+            newsObj[index].imageId = _image_id.id;
         }
         res.send({
             currentId: params.id,
