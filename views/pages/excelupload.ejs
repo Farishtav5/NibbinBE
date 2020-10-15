@@ -184,7 +184,7 @@
                 cat_ids = _ids;
             }
             let item = {
-                id: trimString(t['SrNo']),
+                // id: trimString(t['SrNo']),
                 title: t.Title ? t.Title : '-',
                 headline: t.Headline ? t.Headline : (t.Title ? t.Title : '-'),
                 imageSrc: t['Image Link'] ? 'https://cdn-nibbin.s3.us-east-2.amazonaws.com/images/' + trimString(t['SrNo']) + '.jpg' : '',
@@ -197,16 +197,15 @@
                 updatedBy: 2
             }
             if(t['Image Name']){
-              if(t['Image Name'] != "NA")
-              item.imageId = parseInt(trimString(t['Image Name']));
+              item.extra_excel_image_id = parseInt(trimString(t['Image Name']));
             }
-            if(t['Excel Id']){
-              if(t['Excel Id'] === "NA"){
-                item.extra_excel_image_id = "NA";
-              }else {
-                item.extra_excel_image_id = trimString(t['Excel Id']);
-              }
-            }
+            // if(t['Excel Id']){
+            //   if(t['Excel Id'] === "NA"){
+            //     item.extra_excel_image_id = "NA";
+            //   }else {
+            //     item.extra_excel_image_id = trimString(t['Excel Id']);
+            //   }
+            // }
             if(item.shortDesc){
                 item.status = "in-design";
             }else {

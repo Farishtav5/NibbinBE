@@ -4,6 +4,7 @@
  * @description :: Server-side actions for handling incoming requests.
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
+activities = Utilities.activities;
 
 module.exports = {
   uploadFile: async function (req, res) {
@@ -113,18 +114,51 @@ module.exports = {
         let NewsArray = params.news;
         let cloneObj = _.cloneDeep(NewsArray);
         console.log('NewsArray length', NewsArray.length);
-        let insertedData = await News.createEach(NewsArray).fetch();
-        if (insertedData.length) {
-            console.log('insertedData', insertedData.length);
-            for (let index = 0; index < insertedData.length; index++) {
-                const news = insertedData[index];
-                if (cloneObj[index].categories_ids.length) {
-                    await News.addToCollection(news.id, 'categories', cloneObj[index].categories_ids);
-                }
-            }
-            let result = await News.find().populate("categories");
-            return ResponseService.json(200, res, "get report successfully", result);
+        // let insertedData = await News.createEach(NewsArray).fetch();
+        // if (insertedData.length) {
+        //     console.log('insertedData', insertedData.length);
+        //     for (let index = 0; index < insertedData.length; index++) {
+        //         const news = insertedData[index];
+        //         if (cloneObj[index].categories_ids.length) {
+        //             await News.addToCollection(news.id, 'categories', cloneObj[index].categories_ids);
+        //         }
+        //     }
+        //     let result = await News.find().populate("categories");
+        //     return ResponseService.json(200, res, "get report successfully", result);
+        // }
+        let insertedData = [];
+        for (let i = 0; i < NewsArray.length; i++) {
+          const t = NewsArray[i];
+          let findImageById = await Images.findOne({ excelId: t.extra_excel_image_id });
+          let news_data = {
+            title: t.title,
+            headline: t.headline,
+            imageSrc: t.imageSrc,
+            imageSourceName: t.imageSourceName,
+            shortDesc: t.shortDesc,
+            link: t.link,
+            dated: t.dated,
+            categories_ids: t.categories_ids,
+            createdBy: 2,
+            updatedBy: 2
+          }
+          if(findImageById && findImageById.id) {
+            news_data.imageId = findImageById.id;
+          }
+          if(news_data.shortDesc && news_data.imageId){
+            news_data.status = activities.NEWS.STATUS.PUBLISHED;
+          }else if(news_data.shortDesc && !news_data.imageId){
+            news_data.status = activities.NEWS.STATUS.IN_DESIGN;
+          }else if(!news_data.shortDesc){
+            news_data.status = activities.NEWS.STATUS.IN_CONTENT;
+          }
+          let insertedNews = await News.create(news_data).fetch();
+          if (cloneObj[i].categories_ids.length) {
+              await News.addToCollection(insertedNews.id, 'categories', cloneObj[i].categories_ids);
+          }
+          if(insertedNews) insertedData.push(insertedNews);
         }
+        return ResponseService.json(200, res, "get report successfully", insertedData);
     }
     if(params.images && params.images.length){
         let ImagesArray = params.images;
