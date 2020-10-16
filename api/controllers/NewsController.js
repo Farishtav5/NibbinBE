@@ -578,15 +578,17 @@ module.exports = {
 };
 
 async function updateApprovedNewsForMetaSource(news) {
-    let metaInfoFromSource = await sails.helpers.scrapImageFromUrl.with({
-        url: 'https://www.medicalnewstoday.com/articles/friendly-e-coli-may-protect-the-gut-from-their-deadly-cousin',
-    });
-    if(metaInfoFromSource){
-        let metaInfo = metaInfoFromSource;
-        let result = await News.update({
-            id: news.id
-        }).set({metaSource: metaInfo}).fetch();
-        console.log('updated Meta info ', result[0].status)
+    if(news && news.link){
+        let metaInfoFromSource = await sails.helpers.scrapImageFromUrl.with({
+            url: news.link,
+        });
+        if(metaInfoFromSource){
+            let metaInfo = metaInfoFromSource;
+            let result = await News.update({
+                id: news.id
+            }).set({metaSource: metaInfo}).fetch();
+            console.log('updated Meta info ', result[0].status)
+        }
     }
 }
 
