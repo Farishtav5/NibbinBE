@@ -18,7 +18,8 @@ module.exports = {
     //   region: "us-east-1", // Optional - default is 'us-standard'
       // Let's use the custom s3params to upload this file as publicly
       // readable by anyone
-      dirname: 'images',
+      // dirname: 'images',
+      dirname: ((sails.config.environment === 'qa' || sails.config.environment === 'development') ? 'dev_images' : 'images'),
       s3params: { ACL: "public-read" },
       // And while we are at it, let's monitor the progress of this upload
       onProgress: (progress) => sails.log.verbose("Upload progress:", progress),
@@ -47,6 +48,23 @@ module.exports = {
   /** 
    * TODO: Upload in Images or Gallery
   */
+ getAllImagesForGallery: async function (req, res) {
+  let params = req.allParams();
+  let query = { original: false };
+  let whereQueryTags = {};
+  if(params.tags){
+    whereQueryTags.or = []
+    let tempTags = (params.tags).toString().split(",");
+    for (let i = 0; i < tempTags.length; i++) {
+      const item = tempTags[i];
+      whereQueryTags.or.push({ tags: {contains: item }})
+    }
+    // query.tags = { contains: params.tags }
+  }
+  let allImages = await Images.find(query).where(whereQueryTags);
+  console.log('allImages : ', allImages.length);
+  return ResponseService.json(200, res, "getting all images", allImages);
+ },
 
   // uploadFile_OLD: function (req, res) {
   //   // req.file('image').upload({

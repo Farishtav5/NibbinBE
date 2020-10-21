@@ -19,7 +19,7 @@ module.exports = {
       model: 'News'
     },
     requestModification:{
-      type: "string",
+      type: "json",
     },
   },
 

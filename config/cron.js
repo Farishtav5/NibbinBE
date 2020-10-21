@@ -16,13 +16,13 @@ module.exports.cron = {
         let last15minutesTime = moment().subtract(15, 'minutes').format("YYYY-MM-DD HH:mm:ss");
 
         let timeCondition = { 
-          '>=' : last15minutesTime,
+          // '>=' : last15minutesTime,
           '<=' : currentTime
         }
 
         let newsObj = await News.findOne({ status: "scheduled", scheduledTo: timeCondition });
         if(newsObj){
-          runAsyncPublishPost();
+          await runAsyncPublishPost(newsObj);
         }
       },
       onComplete: function() {
@@ -48,6 +48,15 @@ const runAsyncPublishPost = async (newsList) => {
             let updatedNews = result[0];
             if(updatedNews.status === "published"){
                 let findUpdatedNews = await News.findOne({ id: updatedNews.id }).populate("categories");
+                if(findUpdatedNews && findUpdatedNews.imageId){
+                  let findImageById = await Images.findOne({ id: findUpdatedNews.imageId });
+                  if(findImageById){
+                      let _image_id = _.cloneDeep(findImageById);
+                      findUpdatedNews.imageSrc = _image_id.imageSrc;
+                      findUpdatedNews.imageSourceName = _image_id.imageSourceName;
+                      findUpdatedNews.imageId = _image_id.id;
+                  }
+                }
                 let firebaseDb = sails.config.firebaseDb();
                 let data = {
                     postValue: findUpdatedNews.id,

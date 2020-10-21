@@ -18,10 +18,10 @@ module.exports.bootstrap = async function() {
   // // Set up fake development data (or if we already have some, avast)
   if (await User.count() == 0) {
     await User.createEach([
-      { email: 'arun.jain@bluone.in', name: 'Arun Jain', password: 'arun', role: 5 },
-      { email: 'satish@bluone.in', name: 'Satish Verma', password: '123456', role: 5 },
-      { email: 'farishta.sharma@bluone.in', name: 'Satish Verma', password: '123456', role: 4 },
-      { email: 'skumar.arya@bluone.in', name: 'Sachin Arya', password: '123456', role: 1 },
+      { email: 'arun.jain@bluone.in', name: 'Arun Jain', password: 'arun', role: 1 },
+      { email: 'satish@bluone.in', name: 'Satish Verma', password: '123456', role: 1 },
+      { email: 'farishta.sharma@bluone.in', name: 'Satish Verma', password: '123456', role: 2 },
+      { email: 'skumar.arya@bluone.in', name: 'Sachin Arya', password: '123456', role: 3 },
       { email: 'saurabh.thukral@bluone.in', name: 'Saurabh Thukral', password: '123456', role: 2 },
       { email: 'neha.bajpayee@bluone.in', name: 'Neha Bajpayee', password: '123456', role: 3 },
       // etc.

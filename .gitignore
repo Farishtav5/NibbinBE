@@ -2,6 +2,5 @@ node_modules
 .tmp
 .vscode
 .DS_Store
-config/env/*
-config/env/production.js
+# config/env/*
 config/env/production.js

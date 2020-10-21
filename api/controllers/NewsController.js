@@ -6,8 +6,10 @@
  */
 const fs = require("fs");
 const got = require("got");
+const keyword_extractor = require("keyword-extractor");
 
 activities = Utilities.activities;
+UUID = Utilities.uuid;
 
 module.exports = {
 
@@ -227,25 +229,29 @@ module.exports = {
     get: async function (req, res) {
         let params = req.allParams();
         let commentsOrder = { sort: 'createdAt DESC'};
-        let result = await News.findOne({ id: params.id }).populate("categories").populate('imageId').populate("createdBy").populate('comments', commentsOrder);
-        if(result){
-            let resultWithCommentsObj = await nestedPop.nestedPop(result, {
-                comments: {
-                  as: 'Comments',
-                  populate: [
-                    'commentedBy'
-                  ]
+        if(params && params.id){
+            let result = await News.findOne({ id: params.id }).populate("categories").populate('imageId').populate("createdBy").populate('comments', commentsOrder);
+            if(result){
+                let resultWithCommentsObj = await nestedPop.nestedPop(result, {
+                    comments: {
+                    as: 'Comments',
+                    populate: [
+                        'commentedBy'
+                    ]
+                    }
+                });
+                if(resultWithCommentsObj && resultWithCommentsObj.imageId){
+                    let _image_id = _.cloneDeep(resultWithCommentsObj.imageId);
+                    resultWithCommentsObj.imageSrc = _image_id.imageSrc;
+                    resultWithCommentsObj.imageSourceName = _image_id.imageSourceName;
+                    resultWithCommentsObj.imageId = _image_id.id;
                 }
-              });
-              if(resultWithCommentsObj && resultWithCommentsObj.imageId){
-                  let _image_id = _.cloneDeep(resultWithCommentsObj.imageId);
-                  resultWithCommentsObj.imageSrc = _image_id.imageSrc;
-                  resultWithCommentsObj.imageSourceName = _image_id.imageSourceName;
-                  resultWithCommentsObj.imageId = _image_id.id;
-              }
-            res.send(resultWithCommentsObj);
+                res.send(resultWithCommentsObj);
+            }else{
+                res.send(result);
+            }
         }else{
-            res.send(result);
+            return ResponseService.json(400, res, "provide news id");
         }
         
     },
@@ -357,8 +363,14 @@ module.exports = {
                 objUpdate.imageSourceName = params.imageSourceName;
                 await Images.update({id: params.imageId}).set({imageSourceName: params.imageSourceName}).fetch();
             }
-        }else if(params.fetch_from_source){
-            // TODO: SATISH
+        }
+        
+        if(params.status === activities.NEWS.STATUS.IN_DESIGN){
+            let _automateImageId = await automateImageForNews_UpdateNews(tempIds);
+            if(_automateImageId){
+                objUpdate.imageId = _automateImageId;
+                objUpdate.status = "in-review";
+            }
         }
 
         
@@ -568,11 +580,15 @@ module.exports = {
     },
 
     demoFetch: async function (req, res) {
-        let data = await sails.helpers.scrapImageFromUrl.with({
-            url: 'https://www.fiercebiotech.com/medtech/fda-opens-door-to-batch-testing-for-covid-19-quest-diagnostics-green-lights',
-        });
-        let result = await downloadImageFromSource_and_UploadOnS3(data.mainImage);
-        res.send({data:data, result:result});
+        // let data = await sails.helpers.scrapImageFromUrl.with({
+        //     url: 'https://www.fiercebiotech.com/medtech/fda-opens-door-to-batch-testing-for-covid-19-quest-diagnostics-green-lights',
+        // });
+        // let result = await downloadImageFromSource_and_UploadOnS3(data.mainImage);
+        // res.send({data:data, result:result});
+        let params = req.allParams();
+        let news = await News.findOne({ id: params.id });
+        let dd = await automateImageForNews_UpdateNews(params.id);
+        res.send({dd: dd});
     }
 
 };
@@ -587,65 +603,202 @@ async function updateApprovedNewsForMetaSource(news) {
             let result = await News.update({
                 id: news.id
             }).set({metaSource: metaInfo}).fetch();
-            console.log('updated Meta info ', result[0].status)
+            console.log('updated Meta info ', result[0].status);
+            return result;
         }
     }
 }
 
-async function downloadImageFromSource_and_UploadOnS3(imagepath, newsId) {
+async function downloadImageFromSource_and_UploadOnS3(imagepath) {
     let url = imagepath;
     
     const fileName = "assets/images/demo1.jpg";
-    const downloadStream = got.stream(url);
-    const fileWriterStream = fs.createWriteStream(fileName);
+    // const downloadStream = got.stream(url);
+    // const fileWriterStream = fs.createWriteStream(fileName);
 
-    downloadStream
-    .on("downloadProgress", ({ transferred, total, percent }) => {
-        const percentage = Math.round(percent * 100);
-        console.error(`progress: ${transferred}/${total} (${percentage}%)`);
-    })
-    .on("error", (error) => {
-        console.error(`Download failed: ${error.message}`);
-        return false;
-    });
-
-    fileWriterStream
-    .on("error", (error) => {
-        console.error(`Could not write file to system: ${error.message}`);
-        return false;
-    })
-    .on("finish", () => {
-        console.log(`File downloaded to ${fileName}`);
-        const AWS = require('aws-sdk');
-        const s3 = new AWS.S3({
-            accessKeyId: 'AKIA22F3ZX7YBVHPG3LW',
-            secretAccessKey: '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'
+    return new Promise(resolve => {
+        const downloadStream = got.stream(url);
+        const fileWriterStream = fs.createWriteStream(fileName);
+        downloadStream
+        .on("downloadProgress", ({ transferred, total, percent }) => {
+            const percentage = Math.round(percent * 100);
+            console.error(`progress: ${transferred}/${total} (${percentage}%)`);
+        })
+        .on("error", (error) => {
+            console.error(`Download failed: ${error.message}`);
+            // return false;
+            resolve(false);
         });
-        const fileContent = fs.readFileSync(fileName);
 
-        // setting up s3 upload parameters
-        const params = {
-            Bucket: 'cdn-nibbin',
-            Key: 'images/demo3.png', // file name you want to save as
-            Body: fileContent,
-            ACL: "public-read",
-            ContentType: "image/png" //"image/png"
-        };
+        fileWriterStream
+        .on("error", (error) => {
+            console.error(`Could not write file to system: ${error.message}`);
+            resolve(false);
+        })
+        .on("finish", () => {
+            console.log(`File downloaded to ${fileName}`);
+            const AWS = require('aws-sdk');
+            const s3 = new AWS.S3({
+                accessKeyId: 'AKIA22F3ZX7YBVHPG3LW',
+                secretAccessKey: '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'
+            });
+            const fileContent = fs.readFileSync(fileName);
 
-        // Uploading files to the bucket
-        s3.upload(params, (err, data) => {
-            if (err) {
-                throw err;
+            let dirname = ((sails.config.environment === 'qa' || sails.config.environment === 'development') ? 'dev_images' : 'images');
+
+            // setting up s3 upload parameters
+            const params = {
+                Bucket: 'cdn-nibbin',
+                Key: dirname + '/' + UUID() + '.png', // file name you want to save as
+                Body: fileContent,
+                ACL: "public-read",
+                ContentType: "image/png" //"image/png"
+            };
+
+            // Uploading files to the bucket
+            s3.upload(params, (err, data) => {
+                if (err) {
+                    throw err;
+                }
+                console.log(`File uploaded successfully. ${data.Location}`);
+                fs.unlinkSync(fileName);
+                // return data.Location;
+                resolve(data.Location);
+            });
+            // return true;
+        });
+
+        downloadStream.pipe(fileWriterStream);
+    })
+}
+
+async function searchImageFromGalleryByTags(news) {
+    //
+    let AllGaleryImages = await Images.find();
+    let matchedArrayWithImages = [];
+
+    // let _newsTitle_WordsArray = string_to_array(removeSymbol(news.headline));
+    // let _newsShortDesc_WordsArray = string_to_array(removeSymbol(news.shortDesc));
+    let _newsTitle_WordsArray = find_key_words(news.headline);
+    let _newsShortDesc_WordsArray = find_key_words(news.shortDesc);
+    for (let i = 0; i < AllGaleryImages.length; i++) {
+        const item = AllGaleryImages[i];
+        if(item.tags){
+            let _tags = item.tags.toLowerCase().trim().split(",").map(Function.prototype.call, String.prototype.trim);
+            // console.log('_tags', _tags);
+            let matchValuesArray = _newsTitle_WordsArray.filter(element => _tags.includes(element));
+            if(matchValuesArray.length === 0){
+                matchValuesArray = _newsShortDesc_WordsArray.filter(element => _tags.includes(element));
             }
-            console.log(`File uploaded successfully. ${data.Location}`);
-            fs.unlinkSync(fileName);
-            return data.Location;
+            matchedArrayWithImages.push(
+                {
+                    imageId: item.id, 
+                    imageSrc: item.imageSrc, 
+                    matched: matchValuesArray, 
+                    count: matchValuesArray.length
+                }
+            );
+        }
+    }
+    matchedArrayWithImages = matchedArrayWithImages.filter((item) => item.count!==0);
+    let maxItem = Math.max.apply(Math, matchedArrayWithImages.map(function(o) { return o.count; }));
+    var _Indexed = {};
+    var itemsArray = [];
+
+    matchedArrayWithImages.forEach(function(item) {
+        item.matched.forEach(function(value) {
+            // create a new category if it does not exist yet
+            if(!_Indexed[value]) {
+                _Indexed[value] = {
+                    matched: [],
+                    total: 0
+                };
+                itemsArray.push(_Indexed[value]);
+            }
+
+            // add the product to the category
+            _Indexed[value].matched.push({
+                imageId: item.imageId, 
+                imageSrc: item.imageSrc, 
+                matched: item.matched, 
+                count: item.count  
+            });
+            _Indexed[value].total = _Indexed[value].matched.length;
         });
-        // return true;
     });
+    let xMax = Math.max(...Array.from(itemsArray, o => o.total));
+    let maxXObject = itemsArray.find(o => o.total === xMax);
+    maxXObject = (maxXObject && maxXObject.matched) ? maxXObject.matched : [];
+    let result = (maxXObject.length > 0) ? maxXObject[Math.floor(Math.random() * maxXObject.length)] : null;
+    console.log('search Image by tags', result);
+    return result;
 
-    downloadStream.pipe(fileWriterStream);
-    
+    // res.send({
+    //     maxItem, 
+    //     selected: maxXObject[Math.floor(Math.random() * maxXObject.length)],
+    //     maxXObject,
+    //     // selected: matchedArrayWithImages[Math.floor(Math.random() * matchedArrayWithImages.length)], //old
+    //     // selected2: matchedArrayWithImages[_.random(matchedArrayWithImages.length-1)],
+    //     itemsArray,
+    //     matchedArrayWithImages, 
+    //     headline: news.headline, 
+    //     brief: news.shortDesc,
+    //     // news, 
+    //     _newsTitle_WordsArray, _newsShortDesc_WordsArray
+    // });
 
+}
+
+async function automateImageForNews_UpdateNews(newsId) {
+    let url = require('url');
+    let news = await News.findOne({ id: newsId });
+    if(news && news.metaSource && news.metaSource.mainImage){
+        let uploadImageOnS3 = await downloadImageFromSource_and_UploadOnS3(news.metaSource.mainImage);
+        let sourceName = url.parse(news.link).hostname;
+        // res.send({uploadImageOnS3, sourceName});
+        let _imageData = {
+            imageSrc: uploadImageOnS3,
+            imageSourceName: sourceName,
+            original: true
+          }
+          let createdImagesObj = await Images.create(_imageData).fetch();
+        //   res.send({uploadImageOnS3, sourceName, createdImagesObj});
+        if(createdImagesObj && createdImagesObj.id){
+            return createdImagesObj.id;
+        }else{
+            return null;
+        }
+    }else{
+        let imgObj = await searchImageFromGalleryByTags(news);
+        if(imgObj){
+            return imgObj.imageId;
+        }else{
+            return null;
+        }
+    }
+}
+
+function removeSymbol(str, symbol = ","){
+    var newString = "";
+    for(var i = 0; i < str.length; i++) {
+        var char = str.charAt(i);
+        if(char != symbol){
+            newString = newString + char;
+        }
+    }
+    return newString.toLowerCase();
+}
+function string_to_array(str) {
+    return str.trim().toLowerCase().split(" ");
+};
+
+function find_key_words(sentence) {
+    return keyword_extractor.extract(sentence,{
+        language:"english",
+        remove_digits: true,
+        return_changed_case:true,
+        remove_duplicates: false
+
+   });
 }
 

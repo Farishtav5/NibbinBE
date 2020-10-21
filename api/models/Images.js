@@ -19,6 +19,10 @@ module.exports = {
       type: "string",
       defaultsTo: 'BluOne'
     },
+    original: {
+      type: 'boolean',
+      defaultsTo: false
+    },
     tags: {
       type: "json",
     },
