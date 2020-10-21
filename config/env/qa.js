@@ -49,8 +49,8 @@ module.exports = {
     default: {
       // adapter: 'sails-mysql',
       adapter: 'sails-mysql',
-      // url: 'mysql://console-dev:eugTY8rlve@localhost:3306/console-dev',
-      url: 'mysql://root:root@localhost:8889/console-dev',
+      url: 'mysql://console-dev:eugTY8rlve@localhost:3306/console-dev',
+      // url: 'mysql://root:root@localhost:8889/console-dev',
       // url: 'mysql://user:password@host:port/database',
       //--------------------------------------------------------------------------
       //  /\   To avoid checking it in to version control, you might opt to set
