@@ -61,7 +61,7 @@ module.exports = {
     }
     // query.tags = { contains: params.tags }
   }
-  let allImages = await Images.find(query).where(whereQueryTags);
+  let allImages = await Images.find(query).sort('id DESC').where(whereQueryTags);
   console.log('allImages : ', allImages.length);
   return ResponseService.json(200, res, "getting all images", allImages);
  },

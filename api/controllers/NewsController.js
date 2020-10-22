@@ -341,7 +341,8 @@ module.exports = {
         if(params.status){
             objUpdate.status = params.status;
             if(params.status === "published"){
-                objUpdate.publishedAt = new Date()
+                objUpdate.publishedAt = new Date();
+                objUpdate.dated = objUpdate.publishedAt;
             }else if(params.status === "scheduled"){
                 objUpdate.scheduledTo = params.dated
             }
@@ -407,8 +408,8 @@ module.exports = {
                         postValue: findUpdatedNews.id,
                         title: findUpdatedNews.headline
                     }
-                    if (findUpdatedNews.imageSrc) {
-                        data.imageSrc = findUpdatedNews.imageSrc
+                    if (result[i].imageSrc) {
+                        data.imageSrc = result[i].imageSrc
                     }
                     if (findUpdatedNews.categories) {
                         let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; }).join(","); // "A,B,C"
@@ -424,9 +425,9 @@ module.exports = {
 
     delete: async function (req, res) {
         let params = req.allParams();
-        let result = await News.update({ id: params.id }).set({
+        let result = await News.updateOne({ id: params.id }).set({
             delete: true
-          }).fetch();
+          });
         await sails.helpers.createActivityLog.with({
             newsId: result.id,
             createdBy: req.currentUser.id,
@@ -754,7 +755,7 @@ async function automateImageForNews_UpdateNews(newsId) {
     let news = await News.findOne({ id: newsId });
     if(news && news.metaSource && news.metaSource.mainImage){
         let uploadImageOnS3 = await downloadImageFromSource_and_UploadOnS3(news.metaSource.mainImage);
-        let sourceName = url.parse(news.link).hostname;
+        let sourceName = extractHostname(news.link); //url.parse(news.link).hostname;
         // res.send({uploadImageOnS3, sourceName});
         let _imageData = {
             imageSrc: uploadImageOnS3,
@@ -776,6 +777,23 @@ async function automateImageForNews_UpdateNews(newsId) {
             return null;
         }
     }
+}
+
+function extractHostname(url) {
+    var hostname;
+    //find & remove protocol (http, ftp, etc.) and get hostname
+
+    if (url.indexOf("//") > -1) {
+        hostname = url.split('/')[2];
+    }
+    else {
+        hostname = url.split('/')[0];
+    }
+    //find & remove port number
+    hostname = hostname.split(':')[0];
+    //find & remove "?"
+    hostname = hostname.split('?')[0];
+    return hostname;
 }
 
 function removeSymbol(str, symbol = ","){

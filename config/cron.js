@@ -2,7 +2,8 @@ var moment = require('moment');
 
 module.exports.cron = {
     myFirstJob: {
-      schedule: '* */15 * * * *', //['seconds', 'minutes', 'hours', 'dayOfMonth', 'month', 'dayOfWeek']
+      schedule: '0 */15 * * * *', //['seconds', 'minutes', 'hours', 'dayOfMonth', 'month', 'dayOfWeek']
+      // '0 */1 * * * *'
     //   onTick: function () {
     //     console.log('You will see this every second');
     //     console.log(`Also, sails object is available as this, e.g. ${this.config.environment}`);
@@ -15,13 +16,11 @@ module.exports.cron = {
         let currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
         let last15minutesTime = moment().subtract(15, 'minutes').format("YYYY-MM-DD HH:mm:ss");
 
-        let timeCondition = { 
-          // '>=' : last15minutesTime,
-          '<=' : currentTime
-        }
+        console.log('currentTime', currentTime);
 
-        let newsObj = await News.findOne({ status: "scheduled", scheduledTo: timeCondition });
-        if(newsObj){
+        let newsObj = await News.find({ status: "scheduled", scheduledTo: { '<=': currentTime } });
+        console.log('newsObj', newsObj);
+        if(newsObj.length){
           await runAsyncPublishPost(newsObj);
         }
       },
@@ -41,6 +40,7 @@ const runAsyncPublishPost = async (newsList) => {
         let result = await News.update({ id: news.id }).set({
           // publishedAt: new Date()
           publishedAt: news.scheduledTo,
+          dated: news.scheduledTo,
           status: 'published'
         }).fetch();
         console.log('scheduled to published : ', result.length);
