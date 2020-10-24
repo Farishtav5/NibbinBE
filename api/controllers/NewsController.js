@@ -490,7 +490,7 @@ module.exports = {
 
     //TODO: Will Remove it later
     restAllNewsData: async function (req, res) {
-        var filePath = './assets/data/news_list.json';
+        var filePath = './assets/data/1-1911-with-meta-source.json';
         var NewsArray = null;
         const jsonfile = require('jsonfile');
         await jsonfile.readFile(filePath, async function (err, obj) {
@@ -499,27 +499,27 @@ module.exports = {
             }
             // console.dir(obj)
             NewsArray = obj;
-            NewsArray.forEach(element => {
-                element.shortDesc.replace(/[\u0800-\uFFFF]/g, '')
-            });
+            // NewsArray.forEach(element => {
+            //     element.shortDesc.replace(/[\u0800-\uFFFF]/g, '')
+            // });
 
             //first delete all previous data
-            await News.destroy({});
+            // await News.destroy({});
 
             let cloneObj = _.cloneDeep(NewsArray);
             console.log('NewsArray length', NewsArray.length);
             let insertedData = await News.createEach(NewsArray).fetch();
-            if (insertedData.length) {
-                console.log('insertedData', insertedData.length);
-                for (let index = 0; index < insertedData.length; index++) {
-                    const news = insertedData[index];
-                    if (cloneObj[index].categories_ids.length) {
-                        await News.addToCollection(news.id, 'categories', cloneObj[index].categories_ids);
-                    }
-                }
-                let result = await News.find().populate("categories");
-                return ResponseService.json(200, res, "get report successfully", result);
-            }
+            // if (insertedData.length) {
+            //     console.log('insertedData', insertedData.length);
+            //     for (let index = 0; index < insertedData.length; index++) {
+            //         const news = insertedData[index];
+            //         if (cloneObj[index].categories_ids.length) {
+            //             await News.addToCollection(news.id, 'categories', cloneObj[index].categories_ids);
+            //         }
+            //     }
+            // }
+            let result = await News.find().populate("categories");
+            return ResponseService.json(200, res, "get report successfully", result);
         });
 
         
@@ -586,10 +586,12 @@ module.exports = {
         // });
         // let result = await downloadImageFromSource_and_UploadOnS3(data.mainImage);
         // res.send({data:data, result:result});
-        let params = req.allParams();
-        let news = await News.findOne({ id: params.id });
-        let dd = await automateImageForNews_UpdateNews(params.id);
-        res.send({dd: dd});
+        // let params = req.allParams();
+        // let news = await News.findOne({ id: params.id });
+        // let dd = await automateImageForNews_UpdateNews(params.id);
+        // res.send({dd: dd});
+        let result = await News.find().populate("categories");
+        return ResponseService.json(200, res, "get report successfully", result);
     }
 
 };

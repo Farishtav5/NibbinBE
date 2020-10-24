@@ -29,7 +29,7 @@ module.exports = {
     imageId:{
       model: "images",
     },
-    extra_excel_image_id:{
+    excel_id:{
       type: "string"
     },
     shortDesc: {

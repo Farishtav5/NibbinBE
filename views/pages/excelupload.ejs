@@ -91,13 +91,18 @@
     // // return dd + '/' + mm + '/' + yyyy;
     // return new Date((yyyy + '-' + mm + '-' + dd).toString()).toISOString().replace(/T|Z|\.\d{3}/g, ' ').trim();
 
+    let HH = Math.floor(Math.random() * 23);  // 0-23 hours
+    let MM = Math.floor(Math.random() * 59);  // 0-59 hours
+    if(HH < 10) HH = '0' + HH;
+    if(MM < 10) MM = '0' + MM;
+    console.log('time', HH + ' : '+ MM);
+    let _time = HH + ':' + MM + ':00';
+    
     var ts_hms = new Date(value);
     return ts_hms.getFullYear() + '-' + 
     ("0" + (ts_hms.getMonth() + 1)).slice(-2) + '-' + 
     ("0" + (ts_hms.getDate())).slice(-2) + ' ' +
-    ("0" + ts_hms.getHours()).slice(-2) + ':' +
-    ("0" + ts_hms.getMinutes()).slice(-2) + ':' +
-    ("0" + ts_hms.getSeconds()).slice(-2);
+    _time;
   }
 
   function trimString(params) {
@@ -189,7 +194,7 @@
                 headline: t.Headline ? t.Headline : (t.Title ? t.Title : '-'),
                 imageSrc: t['Image Link'] ? 'https://cdn-nibbin.s3.us-east-2.amazonaws.com/images/' + trimString(t['SrNo']) + '.jpg' : '',
                 imageSourceName: t['Image Credit'] ? trimString(t['Image Credit']) : '',
-                shortDesc: (t['Brief'] ? trimString(t['Brief']) : '').replace(/[\u0800-\uFFFF]/g, ''),
+                shortDesc: (t['Brief'] ? trimString(t['Brief']) : ''), //.replace(/[\u0800-\uFFFF]/g, ''),
                 link: t['Read More'] ? trimString(t['Read More']) : '',
                 dated: getDateFormat(t.Date),
                 categories_ids: cat_ids.length ? cat_ids : [],
@@ -199,6 +204,9 @@
             if(t['Image Name']){
               item.extra_excel_image_id = parseInt(trimString(t['Image Name']));
             }
+            if(t['SrNo']){
+              item.excel_id = parseInt(trimString(t['SrNo']));
+            }
             // if(t['Excel Id']){
             //   if(t['Excel Id'] === "NA"){
             //     item.extra_excel_image_id = "NA";
@@ -206,11 +214,11 @@
             //     item.extra_excel_image_id = trimString(t['Excel Id']);
             //   }
             // }
-            if(item.shortDesc){
-                item.status = "in-design";
-            }else {
-                item.status = "in-content";
-            }
+            // if(item.shortDesc){
+            //     item.status = "in-design";
+            // }else {
+            //     item.status = "in-content";
+            // }
             newsIds.push(t.SrNo);
             newsObj.push(item);          
         }

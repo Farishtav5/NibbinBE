@@ -29,16 +29,15 @@ module.exports.bootstrap = async function() {
   }
   //
 
-  // if (await Category.count() == 0) {
-    
-  //   await Category.createEach([
-  //     { name: "Healthcare", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
-  //     { name: "Legal Regulations", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
-  //     { name: "Technical Advancements", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
-  //     { name: "Business & Economics", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
-  //     { name: "Market insights", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse viverra sollicitudin erat, nec ullamcorper enim tincidunt cursus. Sed imperdiet risus velit, ut molestie nisl ultricies"},
-  //   ])
-  // }
+  if (await Category.count() == 0) {
+    await Category.createEach([
+      { name: "Healthcare", description: "The group will have story categories like news articles, medical insurances, caregivers, mental health, pharma, wellness, etc."},
+      { name: "Legal Regulations", description: "This group will contain story categories that will include lawsuits, executive moves, FDA, CMS, COBRA, CDC etc."},
+      { name: "Technical Advancements", description: "This group will have story categories like IoT, payment technologies, medical devices, wearables, new drug developments etc."},
+      { name: "Business Economics", description: "This group will have categories of mergers & acquisitions, joint ventures, startups, venture funding, government funding etc."},
+      { name: "Market insights", description: "The group will have stories that contain market data of healthcare companies, research papers, business profits/loss etc."},
+    ])
+  }
 
   if (await ReportType.count() == 0) {
     
@@ -49,32 +48,25 @@ module.exports.bootstrap = async function() {
     ])
   }
 
-  // if (await ReportSubTypes.count() == 0) {
-    
-  //   await ReportSubTypes.createEach([
-  //     { title: "Spam or misleading - 1", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 1},
-  //     { title: "Spam or misleading - 2", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 1},
-  //     { title: "Spam or misleading - 3", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 1},
-  //     { title: "Hateful or abusive content - 1", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 2},
-  //     { title: "Hateful or abusive content - 2", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 2},
-  //     { title: "Hateful or abusive content - 3", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 2},
-  //     { title: "Suicide, self-injury or eating disorders - 1", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 3},
-  //     { title: "Suicide, self-injury or eating disorders - 2", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 3},
-  //     { title: "Suicide, self-injury or eating disorders - 3", description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', typeId: 3},
-  //   ])
-  // }
+  if (await ReportSubTypes.count() == 0) {
+    await ReportSubTypes.createEach([
+      { title: "Content is excessively posted and repetitive.", description: '', typeId: 1},
+      { title: "Promises for news but instead redirects to malicious sites.", description: '', typeId: 1},
+      { title: "Manipulative data.", description: '', typeId: 1},
+      { title: "Content has extended name calling or malicious insults.", description: '', typeId: 2},
+      { title: "Content intendeds to shame, deceive or insult a minor or survivors.", description: '', typeId: 2},
+      { title: "Abusive language.", description: '', typeId: 2},
+    ])
+  }
 
-  // if (await Roles.count() == 0) {
-    
-  //   await Roles.createEach([
-  //     { name: "Researcher" },
-  //     { name: "Researcher Lead" },
-  //     { name: "Content Writer" },
-  //     { name: "Designer" },
-  //     { name: "Auditor" },
-  //     { name: "User" },
-  //   ])
-  // }
+  if (await Roles.count() == 0) {
+    await Roles.createEach([
+      { name: "Admin", published_view: {"view":false,"date":false}, table: {"newsHeadline":false,"group":false,"linkAdded":false,"approved":false,"assigned":false,"schedule":false,"published":false,"link":false,"submit":false} },
+      { name: "Auditor", published_view: {"view":false,"date":false}, table: {"newsHeadline":false,"group":false,"linkAdded":false,"approved":false,"assigned":false,"schedule":false,"published":false,"link":false,"submit":false} },
+      { name: "Member", published_view: {"view":false,"date":false}, table: {"newsHeadline":false,"group":false,"linkAdded":false,"approved":false,"assigned":false,"schedule":false,"published":false,"link":false,"submit":false} },
+      { name: "User", published_view: {"view":false,"date":false}, table: {"newsHeadline":false,"group":false,"linkAdded":false,"approved":false,"assigned":false,"schedule":false,"published":false,"link":false,"submit":false} },
+    ])
+  }
 
   // ```
 

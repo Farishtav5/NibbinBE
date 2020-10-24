@@ -51,8 +51,8 @@ module.exports = {
           ($kwd = $('meta[name="keywords"]').attr("content")),
           ($ogTitle = $('meta[property="og:title"]').attr("content")),
           ($ogImage = $('meta[property="og:image"]').attr("content")),
-          ($ogkeywords = $('meta[property="og:keywords"]').attr("content")),
-          ($images = $("img"));
+          ($ogkeywords = $('meta[property="og:keywords"]').attr("content"));
+          // ($images = $("img"));
 
         if ($title) {
           resObj.title = $title;
@@ -78,24 +78,30 @@ module.exports = {
           resObj.mainKeywords = $ogkeywords;
         }
 
-        if ($images && $images.length) {
-          resObj.images = [];
+        // if ($images && $images.length) {
+        //   resObj.images = [];
 
-          for (var i = 0; i < $images.length; i++) {
-            resObj.images.push($($images[i]).attr("src"));
-          }
-        }
+        //   for (var i = 0; i < $images.length; i++) {
+        //     resObj.images.push($($images[i]).attr("src"));
+        //   }
+        // }
 
         //send the response
         // res.end(JSON.stringify(resObj));
         console.log("request complete");
-        return exits.success(resObj);
+        if(resObj.mainImage){
+          return exits.success(resObj);
+        }else{
+          return exits.success(false);
+        }
+        // return exits.success(resObj);
       } else {
-        console.log("request complete");
+        console.log("request complete - no body");
         return exits.success(false);
       }
       
     } catch (error) {
+      console.log("error catch request", error);
       return exits.success(false);
     }
   },

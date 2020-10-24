@@ -4,7 +4,12 @@
  * @description :: Server-side actions for handling incoming requests.
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
+const fs = require("fs");
+const got = require("got");
+const keyword_extractor = require("keyword-extractor");
+
 activities = Utilities.activities;
+UUID = Utilities.uuid;
 
 module.exports = {
   uploadFile: async function (req, res) {
@@ -42,7 +47,7 @@ module.exports = {
       //   // now update in news
       //   let UpdatedNews = await News.update({ id: newsId }).set({ imageId: createdImagesObj.id }).fetch();
       // }
-      return res.send({imageId: createdImagesObj.id, link: uploadedUrl});
+      return res.send({imageId: createdImagesObj.id, link: uploadedUrl, imageSourceName:createdImagesObj.imageSourceName});
     });
   },
   /** 
@@ -50,8 +55,7 @@ module.exports = {
   */
  getAllImagesForGallery: async function (req, res) {
   let params = req.allParams();
-  let query = { original: false };
-  let whereQueryTags = {};
+  let whereQueryTags = { original: false };
   if(params.tags){
     whereQueryTags.or = []
     let tempTags = (params.tags).toString().split(",");
@@ -61,7 +65,7 @@ module.exports = {
     }
     // query.tags = { contains: params.tags }
   }
-  let allImages = await Images.find(query).sort('id DESC').where(whereQueryTags);
+  let allImages = await Images.find().sort('id DESC').where(whereQueryTags);
   console.log('allImages : ', allImages.length);
   return ResponseService.json(200, res, "getting all images", allImages);
  },
@@ -128,27 +132,16 @@ module.exports = {
   uploadExcel: async function (req, res) {
     let params = req.allParams();
     if(params.news && params.news.length){
-        // await News.destroy({});
         let NewsArray = params.news;
         let cloneObj = _.cloneDeep(NewsArray);
         console.log('NewsArray length', NewsArray.length);
-        // let insertedData = await News.createEach(NewsArray).fetch();
-        // if (insertedData.length) {
-        //     console.log('insertedData', insertedData.length);
-        //     for (let index = 0; index < insertedData.length; index++) {
-        //         const news = insertedData[index];
-        //         if (cloneObj[index].categories_ids.length) {
-        //             await News.addToCollection(news.id, 'categories', cloneObj[index].categories_ids);
-        //         }
-        //     }
-        //     let result = await News.find().populate("categories");
-        //     return ResponseService.json(200, res, "get report successfully", result);
-        // }
         let insertedData = [];
         for (let i = 0; i < NewsArray.length; i++) {
           const t = NewsArray[i];
-          let findImageById = null;
-          if(t.extra_excel_image_id) findImageById = await Images.findOne({ excelId: t.extra_excel_image_id });
+          // let metaInfoFromSource = await sails.helpers.scrapImageFromUrl.with({
+          //     url: t.link,
+          // });
+          
           let news_data = {
             title: t.title,
             headline: t.headline,
@@ -158,12 +151,17 @@ module.exports = {
             link: t.link,
             dated: t.dated,
             categories_ids: t.categories_ids,
+            excel_id: t.excel_id,
             createdBy: 2,
             updatedBy: 2
           }
-          if(findImageById && findImageById.id) {
-            news_data.imageId = findImageById.id;
-          }
+          // if(metaInfoFromSource) news_data.metaSource = metaInfoFromSource;
+
+          // let _imageId = await automateImageForNews_UpdateNews(news_data);
+
+          // if(_imageId) {
+          //   news_data.imageId = _imageId;
+          // }
           if(news_data.shortDesc && news_data.imageId){
             news_data.status = activities.NEWS.STATUS.PUBLISHED;
           }else if(news_data.shortDesc && !news_data.imageId){
@@ -190,10 +188,256 @@ module.exports = {
             return ResponseService.json(200, res, "get report successfully", result);
         }
     }
+  },
 
-    // res.send({
-    //     news: params.news,
-    //     newsIds: params.newsIds
-    // });
-  }
+  scrapImageUrl: async function (req, res) {
+    let news = await News.find(); // {metaSource: null}
+    console.log('news.length', news.length);
+    if(news.length){
+      for (let i = 0; i < news.length; i++) {
+        let t = news[i];
+        console.log('news_id : ', t.id);
+        // if(t.id > 1065 && t.id !== 1087 && t.id !== 1694){
+        //   let metaInfoFromSource = await sails.helpers.scrapImageFromUrl.with({ url: t.link });
+        //   console.log('i = ' + i + ', metaInfoFromSource = ' + metaInfoFromSource + ', new id = '+ t.id);
+        //   if(metaInfoFromSource){
+        //     let result = await News.update({
+        //         id: t.id
+        //     }).set({metaSource: metaInfoFromSource}).fetch();
+        //   }
+        // }
+
+        // let _imageId = await automateImageForNews_UpdateNews(t);
+        // if(_imageId){
+        //   let result = await News.update({
+        //       id: t.id
+        //   }).set({imageId: _imageId}).fetch();
+        //   console.log('i = ' + i + ', imageId = ' + _imageId + ', new id = '+ t.id);
+        // }
+        
+        // let status;
+
+        // if(t.shortDesc && t.imageId){
+        //   status = activities.NEWS.STATUS.PUBLISHED;
+        // }else if(t.shortDesc && !t.imageId){
+        //   status = activities.NEWS.STATUS.IN_DESIGN;
+        // }else if(!t.shortDesc){
+        //   status = activities.NEWS.STATUS.IN_CONTENT;
+        // }
+        // let result = await News.update({
+        //     id: t.id
+        // }).set({status: status}).fetch();
+        console.log('i = ' + i + ', status = ' + status + ', news_id = '+ t.id);
+
+
+      }
+    }
+    res.send({l: news.length});
+  },
 };
+
+async function downloadImageFromSource_and_UploadOnS3(imagepath) {
+  let url = imagepath;
+  console.log('downloadImageFromSource : ', url);
+  let imageNumber = UUID() + '.png';
+  let imageName = "assets/images/" + imageNumber;
+  
+  const fileName = imageName;
+  // const downloadStream = got.stream(url);
+  // const fileWriterStream = fs.createWriteStream(fileName);
+
+  return new Promise(resolve => {
+    try {
+      const downloadStream = got.stream(url);
+      const fileWriterStream = fs.createWriteStream(fileName);
+      downloadStream
+      .on("downloadProgress", ({ transferred, total, percent }) => {
+          const percentage = Math.round(percent * 100);
+          // console.error(`progress: ${transferred}/${total} (${percentage}%)`);
+      })
+      .on("error", (error) => {
+          console.error(`Download failed: ${error.message}`);
+          // return false;
+          resolve(false);
+      });
+
+      fileWriterStream
+      .on("error", (error) => {
+          console.error(`Could not write file to system: ${error.message}`);
+          resolve(false);
+      })
+      .on("finish", () => {
+          console.log(`File downloaded to ${fileName}`);
+          const AWS = require('aws-sdk');
+          const s3 = new AWS.S3({
+              accessKeyId: 'AKIA22F3ZX7YBVHPG3LW',
+              secretAccessKey: '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'
+          });
+          const fileContent = fs.readFileSync(fileName);
+
+          let dirname = ((sails.config.environment === 'qa' || sails.config.environment === 'development') ? 'dev_source_download' : 'images');
+
+          // setting up s3 upload parameters
+          const params = {
+              Bucket: 'cdn-nibbin',
+              Key: dirname + '/' + imageNumber, // file name you want to save as
+              Body: fileContent,
+              ACL: "public-read",
+              ContentType: "image/png" //"image/png"
+          };
+
+          // Uploading files to the bucket
+          s3.upload(params, (err, data) => {
+              if (err) {
+                  throw err;
+              }
+              console.log(`File uploaded successfully. ${data.Location}`);
+              // fs.unlinkSync(fileName);
+              // return data.Location;
+              resolve(data.Location);
+          });
+          // return true;
+      });
+
+      downloadStream.pipe(fileWriterStream); 
+    } catch (error) {
+      console.log('error during download image from source', error);
+      resolve(false);
+    }
+  })
+}
+
+async function searchImageFromGalleryByTags(news) {
+  //
+  let AllGaleryImages = await Images.find();
+  let matchedArrayWithImages = [];
+
+  // let _newsTitle_WordsArray = string_to_array(removeSymbol(news.headline));
+  // let _newsShortDesc_WordsArray = string_to_array(removeSymbol(news.shortDesc));
+  let _newsTitle_WordsArray = find_key_words(news.headline);
+  let _newsShortDesc_WordsArray = find_key_words(news.shortDesc);
+  for (let i = 0; i < AllGaleryImages.length; i++) {
+      const item = AllGaleryImages[i];
+      if(item.tags){
+          let _tags = item.tags.toLowerCase().trim().split(",").map(Function.prototype.call, String.prototype.trim);
+          // console.log('_tags', _tags);
+          let matchValuesArray = _newsTitle_WordsArray.filter(element => _tags.includes(element));
+          if(matchValuesArray.length === 0){
+              matchValuesArray = _newsShortDesc_WordsArray.filter(element => _tags.includes(element));
+          }
+          matchedArrayWithImages.push(
+              {
+                  imageId: item.id, 
+                  imageSrc: item.imageSrc, 
+                  matched: matchValuesArray, 
+                  count: matchValuesArray.length
+              }
+          );
+      }
+  }
+  matchedArrayWithImages = matchedArrayWithImages.filter((item) => item.count!==0);
+  let maxItem = Math.max.apply(Math, matchedArrayWithImages.map(function(o) { return o.count; }));
+  var _Indexed = {};
+  var itemsArray = [];
+
+  matchedArrayWithImages.forEach(function(item) {
+      item.matched.forEach(function(value) {
+          // create a new category if it does not exist yet
+          if(!_Indexed[value]) {
+              _Indexed[value] = {
+                  matched: [],
+                  total: 0
+              };
+              itemsArray.push(_Indexed[value]);
+          }
+
+          // add the product to the category
+          _Indexed[value].matched.push({
+              imageId: item.imageId, 
+              imageSrc: item.imageSrc, 
+              matched: item.matched, 
+              count: item.count  
+          });
+          _Indexed[value].total = _Indexed[value].matched.length;
+      });
+  });
+  let xMax = Math.max(...Array.from(itemsArray, o => o.total));
+  let maxXObject = itemsArray.find(o => o.total === xMax);
+  maxXObject = (maxXObject && maxXObject.matched) ? maxXObject.matched : [];
+  let result = (maxXObject.length > 0) ? maxXObject[Math.floor(Math.random() * maxXObject.length)] : null;
+  console.log('search Image by tags', result);
+  return result;
+}
+
+async function automateImageForNews_UpdateNews(news) {
+  if(news && news.metaSource && news.metaSource.mainImage){
+    if(validURL(news.metaSource.mainImage)){
+      let uploadImageOnS3 = await downloadImageFromSource_and_UploadOnS3(news.metaSource.mainImage);
+      console.log('uploadImageOnS3', uploadImageOnS3);
+      if(uploadImageOnS3){
+        let sourceName = extractHostname(news.link); //url.parse(news.link).hostname;
+        // res.send({uploadImageOnS3, sourceName});
+        let _imageData = {
+            imageSrc: uploadImageOnS3,
+            imageSourceName: sourceName,
+            original: true
+          }
+          let createdImagesObj = await Images.create(_imageData).fetch();
+        //   res.send({uploadImageOnS3, sourceName, createdImagesObj});
+        if(createdImagesObj && createdImagesObj.id){
+            return createdImagesObj.id;
+        }else{
+            return null;
+        }
+      }else{
+        return null;
+      }
+    }else{
+      return null;
+    }
+  }else{
+      let imgObj = await searchImageFromGalleryByTags(news);
+      if(imgObj){
+          return imgObj.imageId;
+      }else{
+          return null;
+      }
+  }
+}
+
+
+function extractHostname(url) {
+  var hostname;
+  //find & remove protocol (http, ftp, etc.) and get hostname
+  if (url.indexOf("//") > -1) {
+      hostname = url.split('/')[2];
+  }
+  else {
+      hostname = url.split('/')[0];
+  }
+  //find & remove port number
+  hostname = hostname.split(':')[0];
+  //find & remove "?"
+  hostname = hostname.split('?')[0];
+  return hostname;
+}
+
+function find_key_words(sentence) {
+  return keyword_extractor.extract(sentence,{
+      language:"english",
+      remove_digits: true,
+      return_changed_case:true,
+      remove_duplicates: false
+
+ });
+}
+
+function validURL(str) {
+  var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  return !!pattern.test(str);
+}

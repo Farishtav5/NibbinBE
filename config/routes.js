@@ -89,6 +89,7 @@ module.exports.routes = {
   
   'get /excel': 'ImageController.showExcelPage',
   'post /excel': 'ImageController.uploadExcel',
+  'get /scrap': 'ImageController.scrapImageUrl',
 
   /***************************************************************************
   *                                                                          *
