@@ -412,10 +412,11 @@ module.exports = {
                         data.imageSrc = result[i].imageSrc
                     }
                     if (findUpdatedNews.categories) {
-                        let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; }).join(","); // "A,B,C"
+                        let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; });//.join(","); // "A,B,C"
                         data.categories = _categories
                     }
                     let createdData = await firebaseDb.collection('posts').add(data);
+                    console.log('firebase notification - news published');
                 }
             }
         }
