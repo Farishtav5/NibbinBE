@@ -16,6 +16,7 @@ const utilitiesEnum = {
       SCHEDULED: "scheduled",
       REJECTED: "rejected",
       ON_HOLD: "on-hold",
+      AUTO_SCHEDULED: "auto-scheduled",
     }
   }
 };

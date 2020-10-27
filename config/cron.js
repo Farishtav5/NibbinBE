@@ -1,4 +1,5 @@
 var moment = require('moment');
+const moment_timezone = require('moment-timezone');
 
 module.exports.cron = {
     myFirstJob: {
@@ -17,6 +18,8 @@ module.exports.cron = {
         let last15minutesTime = moment().subtract(15, 'minutes').format("YYYY-MM-DD HH:mm:ss");
 
         console.log('currentTime', currentTime);
+        console.log('Florida CurrentTime 1', moment_timezone().tz("America/New_York").format());
+        console.log('Florida CurrentTime 2', moment_timezone().tz("America/New_York").format("YYYY-MM-DD HH:mm:ss"));
 
         let newsObj = await News.find({ status: "scheduled", scheduledTo: { '<=': currentTime } });
         console.log('newsObj', newsObj);

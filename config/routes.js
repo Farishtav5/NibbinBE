@@ -82,6 +82,7 @@ module.exports.routes = {
 
   //image upload
   'post /upload': 'ImageController.uploadFile',
+  'put /upload/:id': 'ImageController.updateImageInGallery',
 
 
   // 'get /excel': { view: 'pages/excelupload' },

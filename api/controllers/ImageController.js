@@ -48,7 +48,46 @@ module.exports = {
       //   let UpdatedNews = await News.update({ id: newsId }).set({ imageId: createdImagesObj.id }).fetch();
       // }
       return res.send({imageId: createdImagesObj.id, link: uploadedUrl, imageSourceName:createdImagesObj.imageSourceName});
-    });
+    }, this);
+  },
+
+  updateImageInGallery: async function (req, res) {
+    let params = req.allParams();    
+    const options = {
+      // This is the usual stuff
+      adapter: require("skipper-better-s3"),
+      key: 'AKIA22F3ZX7YBVHPG3LW',
+      secret: '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',
+      bucket: 'cdn-nibbin',
+    //   region: "us-east-1", // Optional - default is 'us-standard'
+      // Let's use the custom s3params to upload this file as publicly
+      // readable by anyone
+      // dirname: 'images',
+      dirname: ((sails.config.environment === 'qa' || sails.config.environment === 'development') ? 'dev_images' : 'images'),
+      s3params: { ACL: "public-read" },
+      // And while we are at it, let's monitor the progress of this upload
+      onProgress: (progress) => sails.log.verbose("Upload progress:", progress),
+    };
+
+    let findfImage = await Images.findOne({id: params.id});
+    if(findfImage){
+      req.file("image").upload(options, async (err, files) => {
+        if (err) return res.serverError(err);
+  
+        let uploadedUrl = files[0].extra.Location;
+        let _imageData = {
+          imageSrc: uploadedUrl
+        }
+        if(params.imageSourceName) _imageData.imageSourceName = params.imageSourceName;
+        if(params.tags) _imageData.tags = params.tags;
+  
+        let updateImageObj = await Images.updateOne({id: findfImage.id}).set(_imageData);
+        return res.send({imageId: updateImageObj.id, link: uploadedUrl, imageSourceName:updateImageObj.imageSourceName});
+      }, this);
+    }else{
+      return ResponseService.json(400, res, "image not found");
+    }
+
   },
   /** 
    * TODO: Upload in Images or Gallery

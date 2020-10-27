@@ -67,7 +67,8 @@ module.exports = {
         'published',
         'scheduled',
         'rejected',
-        'on-hold'
+        'on-hold',
+        'auto-scheduled'
       ],
       defaultsTo: 'in-queue'
     },

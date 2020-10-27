@@ -178,6 +178,7 @@ module.exports = {
             inDesignCount: _.filter(tilesObj, (t) => {return t.status === "in-design"}).length,
             inContentCount: _.filter(tilesObj, (t) => {return t.status === "in-content"}).length,
             onHoldCount: _.filter(tilesObj, (t) => {return t.status === "on-hold"}).length,
+            autoScheduledCount: _.filter(tilesObj, (t) => {return t.status === "auto-scheduled"}).length,
         }
         res.send({
             page,
@@ -471,7 +472,8 @@ module.exports = {
         'published',
         'scheduled',
         'rejected',
-        'on-hold'
+        'on-hold',
+        'auto-scheduled'
       ];
       res.send(statusList);
     },
@@ -756,7 +758,7 @@ async function searchImageFromGalleryByTags(news) {
 async function automateImageForNews_UpdateNews(newsId) {
     let url = require('url');
     let news = await News.findOne({ id: newsId });
-    if(news && news.metaSource && news.metaSource.mainImage){
+    if(news && news.metaSource && news.metaSource.mainImage && validURL(news.metaSource.mainImage)){
         let uploadImageOnS3 = await downloadImageFromSource_and_UploadOnS3(news.metaSource.mainImage);
         let sourceName = extractHostname(news.link); //url.parse(news.link).hostname;
         // res.send({uploadImageOnS3, sourceName});
@@ -822,4 +824,14 @@ function find_key_words(sentence) {
 
    });
 }
+
+function validURL(str) {
+    var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+      '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    return !!pattern.test(str);
+  }
 
