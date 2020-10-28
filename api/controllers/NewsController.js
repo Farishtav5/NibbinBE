@@ -342,7 +342,7 @@ module.exports = {
         if(params.status){
             objUpdate.status = params.status;
             if(params.status === "published"){
-                objUpdate.publishedAt = new Date();
+                objUpdate.publishedAt = params.dated ? params.dated : new Date();
                 objUpdate.dated = objUpdate.publishedAt;
             }else if(params.status === "scheduled"){
                 objUpdate.scheduledTo = params.dated
@@ -489,6 +489,25 @@ module.exports = {
     //     ];;
     //   const {body} = await got(urls[2]);
       res.send("😜");
+    },
+
+    updateNewsImageByPickFromGallery: async function (req, res) {
+        let params = req.allParams();
+        if (!params.id) {
+            return ResponseService.json(400, res, "please provide news id");
+        }
+        let tempIds = (params.id).toString().replace(/,(\s+)?$/, '').split(",");
+        for (let a in tempIds) {
+            tempIds[a] = parseInt(tempIds[a], 10);
+        }
+
+        let findNews = await News.find({ id: tempIds });
+        if(!findNews.length){
+            return ResponseService.json(404, res, "news not found");
+        }
+        if(findNews.length){
+
+        }
     },
 
     //TODO: Will Remove it later

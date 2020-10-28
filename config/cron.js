@@ -18,8 +18,15 @@ module.exports.cron = {
         let last15minutesTime = moment().subtract(15, 'minutes').format("YYYY-MM-DD HH:mm:ss");
 
         console.log('currentTime', currentTime);
-        console.log('Florida CurrentTime 1', moment_timezone().tz("America/New_York").format());
-        console.log('Florida CurrentTime 2', moment_timezone().tz("America/New_York").format("YYYY-MM-DD HH:mm:ss"));
+        console.log('Florida CurrentTime', moment_timezone().tz("America/New_York").format("YYYY-MM-DD HH:mm:ss"));
+        let floridaTimeHour = moment_timezone().tz("America/New_York").hour();
+        if(floridaTimeHour >= 8 && floridaTimeHour <= 22){
+          let autoSchedule_newsObj = await News.find({ status: "auto-scheduled" }).sort('updatedAt ASC');
+          autoSchedule_newsObj = autoSchedule_newsObj[0];
+          if(autoSchedule_newsObj){
+            await publish_AutoScheduleNews(autoSchedule_newsObj);
+          }
+        }
 
         let newsObj = await News.find({ status: "scheduled", scheduledTo: { '<=': currentTime } });
         console.log('newsObj', newsObj);
@@ -81,4 +88,43 @@ const runAsyncPublishPost = async (newsList) => {
     )
   }
   console.log(newsList.length);
+}
+
+const publish_AutoScheduleNews = async (news) =>{
+  let result = await News.update({ id: news.id }).set({
+    // publishedAt: new Date()
+    publishedAt: news.scheduledTo,
+    dated: news.scheduledTo,
+    status: 'published'
+  }).fetch();
+  console.log('auto scheduled to published : ', result.length);
+  if(result.length && result[0]){
+      let updatedNews = result[0];
+      if(updatedNews.status === "published"){
+          let findUpdatedNews = await News.findOne({ id: updatedNews.id }).populate("categories");
+          if(findUpdatedNews && findUpdatedNews.imageId){
+            let findImageById = await Images.findOne({ id: findUpdatedNews.imageId });
+            if(findImageById){
+                let _image_id = _.cloneDeep(findImageById);
+                findUpdatedNews.imageSrc = _image_id.imageSrc;
+                findUpdatedNews.imageSourceName = _image_id.imageSourceName;
+                findUpdatedNews.imageId = _image_id.id;
+            }
+          }
+          let firebaseDb = sails.config.firebaseDb();
+          let data = {
+              postValue: findUpdatedNews.id,
+              title: findUpdatedNews.headline
+          }
+          if (findUpdatedNews.imageSrc) {
+              data.imageSrc = findUpdatedNews.imageSrc
+          }
+          if (findUpdatedNews.categories) {
+              let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; });//.join(","); // "A,B,C"
+              data.categories = _categories
+          }
+          let createdData = await firebaseDb.collection('posts').add(data);
+          console.log('firebase notification - news published Via CRON Auto Schedule');
+      }
+  }
 }

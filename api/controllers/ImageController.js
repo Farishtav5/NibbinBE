@@ -13,7 +13,7 @@ UUID = Utilities.uuid;
 
 module.exports = {
   uploadFile: async function (req, res) {
-    let params = req.allParams();    
+    let params = req.allParams();
     const options = {
       // This is the usual stuff
       adapter: require("skipper-better-s3"),
