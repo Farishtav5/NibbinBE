@@ -180,6 +180,7 @@ module.exports = {
             inContentCount: _.filter(tilesObj, (t) => {return t.status === "in-content"}).length,
             onHoldCount: _.filter(tilesObj, (t) => {return t.status === "on-hold"}).length,
             autoScheduledCount: _.filter(tilesObj, (t) => {return t.status === "auto-scheduled"}).length,
+            rejectedCount: _.filter(tilesObj, (t) => {return t.status === "rejected"}).length,
         }
         res.send({
             page,
