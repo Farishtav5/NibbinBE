@@ -344,7 +344,7 @@ module.exports = {
             objUpdate.status = params.status;
             if(params.status === "published"){
                 objUpdate.publishedAt = params.dated ? params.dated : new Date();
-                objUpdate.dated = moment(objUpdate.publishedAt);
+                objUpdate.dated = moment(objUpdate.publishedAt).format("YYYY-MM-DD hh:mm:ss");
             }else if(params.status === "scheduled"){
                 objUpdate.scheduledTo = params.dated
             }
