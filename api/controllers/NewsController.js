@@ -6,6 +6,7 @@
  */
 const fs = require("fs");
 const got = require("got");
+const moment = require('moment');
 const keyword_extractor = require("keyword-extractor");
 
 activities = Utilities.activities;
@@ -343,7 +344,7 @@ module.exports = {
             objUpdate.status = params.status;
             if(params.status === "published"){
                 objUpdate.publishedAt = params.dated ? params.dated : new Date();
-                objUpdate.dated = objUpdate.publishedAt;
+                objUpdate.dated = moment(objUpdate.publishedAt);
             }else if(params.status === "scheduled"){
                 objUpdate.scheduledTo = params.dated
             }
