@@ -56,31 +56,33 @@ const runAsyncPublishPost = async (newsList) => {
         console.log('scheduled to published : ', result.length);
         if(result.length && result[0]){
             let updatedNews = result[0];
-            if(updatedNews.status === "published"){
-                let findUpdatedNews = await News.findOne({ id: updatedNews.id }).populate("categories");
-                if(findUpdatedNews && findUpdatedNews.imageId){
-                  let findImageById = await Images.findOne({ id: findUpdatedNews.imageId });
-                  if(findImageById){
-                      let _image_id = _.cloneDeep(findImageById);
-                      findUpdatedNews.imageSrc = _image_id.imageSrc;
-                      findUpdatedNews.imageSourceName = _image_id.imageSourceName;
-                      findUpdatedNews.imageId = _image_id.id;
+            if(sails.config.environment === 'production') {
+              if(updatedNews.status === "published") {
+                  let findUpdatedNews = await News.findOne({ id: updatedNews.id }).populate("categories");
+                  if(findUpdatedNews && findUpdatedNews.imageId){
+                    let findImageById = await Images.findOne({ id: findUpdatedNews.imageId });
+                    if(findImageById){
+                        let _image_id = _.cloneDeep(findImageById);
+                        findUpdatedNews.imageSrc = _image_id.imageSrc;
+                        findUpdatedNews.imageSourceName = _image_id.imageSourceName;
+                        findUpdatedNews.imageId = _image_id.id;
+                    }
                   }
-                }
-                let firebaseDb = sails.config.firebaseDb();
-                let data = {
-                    postValue: findUpdatedNews.id,
-                    title: findUpdatedNews.headline
-                }
-                if (findUpdatedNews.imageSrc) {
-                    data.imageSrc = findUpdatedNews.imageSrc
-                }
-                if (findUpdatedNews.categories) {
-                    let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; });//.join(","); // "A,B,C"
-                    data.categories = _categories
-                }
-                let createdData = await firebaseDb.collection('posts').add(data);
-                console.log('firebase notification - news published Via CRON');
+                  let firebaseDb = sails.config.firebaseDb();
+                  let data = {
+                      postValue: findUpdatedNews.id,
+                      title: findUpdatedNews.headline
+                  }
+                  if (findUpdatedNews.imageSrc) {
+                      data.imageSrc = findUpdatedNews.imageSrc
+                  }
+                  if (findUpdatedNews.categories) {
+                      let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; });//.join(","); // "A,B,C"
+                      data.categories = _categories
+                  }
+                  let createdData = await firebaseDb.collection('posts').add(data);
+                  console.log('firebase notification - news published Via CRON');
+              }
             }
         }
 
@@ -99,31 +101,33 @@ const publish_AutoScheduleNews = async (news) =>{
   console.log('auto scheduled to published : ', result.length);
   if(result.length && result[0]){
       let updatedNews = result[0];
-      if(updatedNews.status === "published"){
-          let findUpdatedNews = await News.findOne({ id: updatedNews.id }).populate("categories");
-          if(findUpdatedNews && findUpdatedNews.imageId){
-            let findImageById = await Images.findOne({ id: findUpdatedNews.imageId });
-            if(findImageById){
-                let _image_id = _.cloneDeep(findImageById);
-                findUpdatedNews.imageSrc = _image_id.imageSrc;
-                findUpdatedNews.imageSourceName = _image_id.imageSourceName;
-                findUpdatedNews.imageId = _image_id.id;
+      if(sails.config.environment === 'production') {
+        if(updatedNews.status === "published"){
+            let findUpdatedNews = await News.findOne({ id: updatedNews.id }).populate("categories");
+            if(findUpdatedNews && findUpdatedNews.imageId){
+              let findImageById = await Images.findOne({ id: findUpdatedNews.imageId });
+              if(findImageById){
+                  let _image_id = _.cloneDeep(findImageById);
+                  findUpdatedNews.imageSrc = _image_id.imageSrc;
+                  findUpdatedNews.imageSourceName = _image_id.imageSourceName;
+                  findUpdatedNews.imageId = _image_id.id;
+              }
             }
-          }
-          let firebaseDb = sails.config.firebaseDb();
-          let data = {
-              postValue: findUpdatedNews.id,
-              title: findUpdatedNews.headline
-          }
-          if (findUpdatedNews.imageSrc) {
-              data.imageSrc = findUpdatedNews.imageSrc
-          }
-          if (findUpdatedNews.categories) {
-              let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; });//.join(","); // "A,B,C"
-              data.categories = _categories
-          }
-          let createdData = await firebaseDb.collection('posts').add(data);
-          console.log('firebase notification - news published Via CRON Auto Schedule');
+            let firebaseDb = sails.config.firebaseDb();
+            let data = {
+                postValue: findUpdatedNews.id,
+                title: findUpdatedNews.headline
+            }
+            if (findUpdatedNews.imageSrc) {
+                data.imageSrc = findUpdatedNews.imageSrc
+            }
+            if (findUpdatedNews.categories) {
+                let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; });//.join(","); // "A,B,C"
+                data.categories = _categories
+            }
+            let createdData = await firebaseDb.collection('posts').add(data);
+            console.log('firebase notification - news published Via CRON Auto Schedule');
+        }
       }
   }
 }

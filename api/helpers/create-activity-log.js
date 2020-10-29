@@ -81,6 +81,9 @@ module.exports = {
       case _activites.NEWS.STATUS.SCHEDULED:
         _message = "News has been scheduled for publish";
         break;
+      case _activites.NEWS.STATUS.AUTO_SCHEDULED:
+        _message = "News has been updated to auto schedule";
+        break;
       case _activites.NEWS.STATUS.REJECTED:
         _message = "News has been rejected";
         break;

@@ -404,22 +404,26 @@ module.exports = {
                     status: _newsItem.status,
                     action: "NewsController - update"
                 });
-                if(_newsItem.status === "published"){
-                    let findUpdatedNews = await News.findOne({ id: _newsItem.id }).populate("categories");
-                    let firebaseDb = sails.config.firebaseDb();
-                    let data = {
-                        postValue: findUpdatedNews.id,
-                        title: findUpdatedNews.headline
+                console.log('send_notification', params.send_notification);
+                if(sails.config.environment === 'production' && params.send_notification === true) {
+                    console.log('if send_notification and env', params.send_notification);
+                    if(_newsItem.status === "published"){
+                        let findUpdatedNews = await News.findOne({ id: _newsItem.id }).populate("categories");
+                        let firebaseDb = sails.config.firebaseDb();
+                        let data = {
+                            postValue: findUpdatedNews.id,
+                            title: findUpdatedNews.headline
+                        }
+                        if (result[i].imageSrc) {
+                            data.imageSrc = result[i].imageSrc
+                        }
+                        if (findUpdatedNews.categories) {
+                            let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; });//.join(","); // "A,B,C"
+                            data.categories = _categories
+                        }
+                        let createdData = await firebaseDb.collection('posts').add(data);
+                        console.log('firebase notification - news published');
                     }
-                    if (result[i].imageSrc) {
-                        data.imageSrc = result[i].imageSrc
-                    }
-                    if (findUpdatedNews.categories) {
-                        let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; });//.join(","); // "A,B,C"
-                        data.categories = _categories
-                    }
-                    let createdData = await firebaseDb.collection('posts').add(data);
-                    console.log('firebase notification - news published');
                 }
             }
         }
@@ -881,5 +885,5 @@ function validURL(str) {
       '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
       '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
     return !!pattern.test(str);
-  }
+}
 
