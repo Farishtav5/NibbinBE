@@ -495,6 +495,7 @@ module.exports = {
 
     updateNewsImageByPickFromGallery: async function (req, res) {
         let params = req.allParams();
+        let updatedNewsArray = [];
         if (!params.id) {
             return ResponseService.json(400, res, "please provide news id");
         }
@@ -508,7 +509,33 @@ module.exports = {
             return ResponseService.json(404, res, "news not found");
         }
         if(findNews.length){
-
+            for (let i = 0; i < findNews.length; i++) {
+                let _newsItem = findNews[i];
+                if(_newsItem){
+                    let _imgId = null;
+                    let imgObj = await searchImageFromGalleryByTags(_newsItem);
+                    if(imgObj){
+                        _imgId = imgObj.imageId;
+                    }
+                    let updatedNewsObj = {};
+                    if(_imgId) updatedNewsObj.imageId = _imgId;
+                    
+                    if(_newsItem.status === activities.NEWS.STATUS.IN_DESIGN && updatedNewsObj.imageId){
+                        updatedNewsObj.status = activities.NEWS.STATUS.IN_REVIEW;
+                    }
+                    let result = await News.update({
+                        id: _newsItem.id
+                    }).set(updatedNewsObj).fetch();
+                    updatedNewsArray.push(result[0]);
+                    await sails.helpers.createActivityLog.with({
+                        newsId: _newsItem.id,
+                        createdBy: req.currentUser.id,
+                        status: result[0].status,
+                        action: "NewsController - update - imagePickFromGallery"
+                    });
+                }
+            }
+            return ResponseService.json(200, res, "news updated", updatedNewsArray);
         }
     },
 

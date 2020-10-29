@@ -28,6 +28,7 @@ module.exports.routes = {
   "post /news": "NewsController.create",
   "put /news/:id": "NewsController.update",
   "delete /news/:id": "NewsController.delete",
+  "put /news/image-from-gallery/:id": "NewsController.updateNewsImageByPickFromGallery",
   "get /reset-news": "NewsController.restAllNewsData", //will remove it later
   "get /covid": "NewsController.findCovid19", //will remove it later
   "get /go": "NewsController.demoFetch", //will remove it later
