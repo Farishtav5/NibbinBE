@@ -249,6 +249,19 @@ module.exports = {
                     resultWithCommentsObj.imageSourceName = _image_id.imageSourceName;
                     resultWithCommentsObj.imageId = _image_id.id;
                 }
+                let bookmarksResult = null;
+                if(req.currentUser && req.currentUser.id){
+                    bookmarksResult = await Bookmark.find({
+                        userId: req.currentUser.id
+                    }).intercept('UsageError', (err) => {
+                        err.message = 'Uh oh: ' + err.message;
+                        return ResponseService.json(400, res, err);
+                    });
+                }
+                if(bookmarksResult){
+                    bookmarksResult = _.uniq(bookmarksResult, 'newsId');
+                    resultWithCommentsObj.bookmarks = bookmarksResult;
+                }
                 res.send(resultWithCommentsObj);
             }else{
                 res.send(result);
@@ -344,8 +357,8 @@ module.exports = {
         if(params.status){
             objUpdate.status = params.status;
             if(params.status === "published"){
-                objUpdate.publishedAt = params.dated ? moment(params.dated).format("YYYY-MM-DD hh:mm:ss") : new Date();
-                objUpdate.dated = moment(objUpdate.publishedAt).format("YYYY-MM-DD hh:mm:ss");
+                objUpdate.publishedAt = params.dated ? moment(params.dated).format("YYYY-MM-DD hh:mm:ss") : moment().format("YYYY-MM-DD hh:mm:ss");
+                objUpdate.dated = objUpdate.publishedAt;
             }else if(params.status === "scheduled"){
                 objUpdate.scheduledTo =  moment(params.dated).format("YYYY-MM-DD hh:mm:ss") //params.dated
             }

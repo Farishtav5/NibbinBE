@@ -95,7 +95,7 @@ const runAsyncPublishPost = async (newsList) => {
 const publish_AutoScheduleNews = async (news) =>{
   let result = await News.update({ id: news.id }).set({
     // publishedAt: new Date()
-    publishedAt: news.dated ? news.dated : moment().format("YYYY-MM-DD hh:mm:ss"),
+    publishedAt: moment().format("YYYY-MM-DD hh:mm:ss"), //news.dated ? news.dated : moment().format("YYYY-MM-DD hh:mm:ss"),
     status: 'published'
   }).fetch();
   console.log('auto scheduled to published : ', result.length);
