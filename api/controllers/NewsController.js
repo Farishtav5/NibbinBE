@@ -356,11 +356,12 @@ module.exports = {
 
         if(params.status){
             objUpdate.status = params.status;
+            let _date = new Date(params.dated);
             if(params.status === "published"){
-                objUpdate.publishedAt = params.dated ? moment(params.dated).format("YYYY-MM-DD hh:mm:ss") : moment().format("YYYY-MM-DD hh:mm:ss");
+                objUpdate.publishedAt = _date ? moment(_date).format("YYYY-MM-DD hh:mm:ss") : moment().format("YYYY-MM-DD hh:mm:ss");
                 objUpdate.dated = objUpdate.publishedAt;
             }else if(params.status === "scheduled"){
-                objUpdate.scheduledTo =  moment(params.dated).format("YYYY-MM-DD hh:mm:ss") //params.dated
+                objUpdate.scheduledTo =  moment(_date).format("YYYY-MM-DD hh:mm:ss") //params.dated
             }
         }
 
