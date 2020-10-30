@@ -357,6 +357,7 @@ module.exports = {
         if(params.status){
             objUpdate.status = params.status;
             let _date = new Date(params.dated);
+            console.log('_date', _date, params.dated);
             if(params.status === "published"){
                 objUpdate.publishedAt = _date ? moment(_date).format("YYYY-MM-DD hh:mm:ss") : moment().format("YYYY-MM-DD hh:mm:ss");
                 objUpdate.dated = _date ? moment(_date).format("YYYY-MM-DD hh:mm:ss") : moment().format("YYYY-MM-DD hh:mm:ss");
