@@ -359,7 +359,8 @@ module.exports = {
             let _date = new Date(params.dated);
             if(params.status === "published"){
                 objUpdate.publishedAt = _date ? moment(_date).format("YYYY-MM-DD hh:mm:ss") : moment().format("YYYY-MM-DD hh:mm:ss");
-                objUpdate.dated = objUpdate.publishedAt;
+                objUpdate.dated = _date ? moment(_date).format("YYYY-MM-DD hh:mm:ss") : moment().format("YYYY-MM-DD hh:mm:ss");
+                console.log('published Date: ', objUpdate.publishedAt, objUpdate.dated);
             }else if(params.status === "scheduled"){
                 objUpdate.scheduledTo =  moment(_date).format("YYYY-MM-DD hh:mm:ss") //params.dated
             }
