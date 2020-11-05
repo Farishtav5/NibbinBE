@@ -830,15 +830,19 @@ async function automateImageForNews_UpdateNews(newsId) {
         let uploadImageOnS3 = await downloadImageFromSource_and_UploadOnS3(news.metaSource.mainImage);
         let sourceName = extractHostname(news.link); //url.parse(news.link).hostname;
         // res.send({uploadImageOnS3, sourceName});
-        let _imageData = {
-            imageSrc: uploadImageOnS3,
-            imageSourceName: sourceName,
-            original: true
-          }
-          let createdImagesObj = await Images.create(_imageData).fetch();
-        //   res.send({uploadImageOnS3, sourceName, createdImagesObj});
-        if(createdImagesObj && createdImagesObj.id){
-            return createdImagesObj.id;
+        if(uploadImageOnS3){
+            let _imageData = {
+                imageSrc: uploadImageOnS3,
+                imageSourceName: sourceName,
+                original: true
+              }
+              let createdImagesObj = await Images.create(_imageData).fetch();
+            //   res.send({uploadImageOnS3, sourceName, createdImagesObj});
+            if(createdImagesObj && createdImagesObj.id){
+                return createdImagesObj.id;
+            }else{
+                return null;
+            }
         }else{
             return null;
         }

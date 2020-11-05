@@ -121,6 +121,55 @@ module.exports = {
         //     return ResponseService.json(400, res, "Error:", err);
         // }
         
+    },
+
+    loginWithAppleId: async function (req, res) {
+        let params = req.allParams();
+
+        if(!params.email || !params.name){
+            return ResponseService.json(400, res, "email is required");
+        }
+
+        let userInfo = {
+            name: params.name,
+            email: params.email
+        }
+
+        let IsUserExist = await User.findOne({
+            email: userInfo.email
+        }).intercept('UsageError', (err) => {
+            err.message = 'Uh oh: ' + err.message;
+            return ResponseService.json(400, res, err);
+        });
+        let responseData = undefined;
+        if (IsUserExist){
+            responseData = {
+                user: {
+                    name: IsUserExist.name,
+                    email: IsUserExist.email,
+                    profilePic: IsUserExist.profilePic
+                },
+                token: generateToken(IsUserExist.id)
+            }
+        }else{
+            let newUserRecord = await User.create({
+                name: userInfo.name,
+                email: userInfo.email
+            }).intercept('UsageError', (err) => {
+                err.message = 'Uh oh: ' + err.message;
+                return ResponseService.json(400, res, "User could not be created", err);
+            }).fetch();
+            responseData = {
+                user: {
+                    name: newUserRecord.name,
+                    email: newUserRecord.email,
+                    profilePic: newUserRecord.profilePic
+                },
+                token: generateToken(newUserRecord.id)
+            }
+            
+        }
+        return ResponseService.json(200, res, "Successfully signed in", responseData);
     }
 
 };

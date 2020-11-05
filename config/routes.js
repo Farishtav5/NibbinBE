@@ -66,6 +66,7 @@ module.exports.routes = {
   "post /users/categories": "UserController.setUserInterestCategories",
   
   'post /verify-token/:token': 'AuthController.verifyGoogleLogin',
+  'post /login-apple': 'AuthController.loginWithAppleId',
 
 
   'get /bookmarks': 'BookmarkController.getAllBookmarkByUserId',

@@ -27,6 +27,10 @@ module.exports = {
       collection: "images",
       via: "categories"
     },
+    delete: {
+      type: 'boolean',
+      defaultsTo: false
+    },
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
