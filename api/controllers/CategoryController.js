@@ -8,9 +8,27 @@
 module.exports = {
   
     list: async (req, res) => {
-        let result = await Category.find();
+        let params = req.allParams();
+        let page = params.page == undefined ? 1 : parseInt(params.page);
+        let limit = params.limit == undefined ? 10 : parseInt(params.limit);
+        let skip = (page - 1) * limit;
+        // let sorted = 'dated DESC';
+        let shortBy = (params && params.shortBy) ? params.shortBy : 'createdAt';
+        let orderBy = (params && params.orderBy) ? params.orderBy : 'DESC';
+        let query = { skip: skip, limit: limit, sort: shortBy + ' ' + orderBy};
+        query.where = {};
+
+        if(params.name){
+            query.where.name = { contains: params.name };
+        }
+
+        let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
+
+        let result = await Category.find(query);
+        let totalCount = await Category.count(_queryClone);
         res.send({
-            rows: result
+            rows: result,
+            total: totalCount
         });
     },
 
@@ -25,7 +43,7 @@ module.exports = {
             name: params.name,
             description: params.description
         }
-        let result = await Category.create().fetch();
+        let result = await Category.create(data).fetch();
         res.send(result);
     },
     
