@@ -18,7 +18,8 @@ module.exports.cron = {
         let last15minutesTime = moment().subtract(15, 'minutes').format("YYYY-MM-DD HH:mm:ss");
 
         console.log('currentTime', currentTime);
-        console.log('Florida CurrentTime', moment_timezone().tz("America/New_York").format("YYYY-MM-DD HH:mm:ss"));
+        let floridaTime = moment_timezone().tz("America/New_York").format("YYYY-MM-DD HH:mm:ss");
+        console.log('Florida CurrentTime', floridaTime);
         let floridaTimeHour = moment_timezone().tz("America/New_York").hour();
         if(floridaTimeHour >= 8 && floridaTimeHour <= 22){
           let autoSchedule_newsObj = await News.find({ status: "auto-scheduled" }).sort('updatedAt ASC');
@@ -28,7 +29,7 @@ module.exports.cron = {
           }
         }
 
-        let newsObj = await News.find({ status: "scheduled", scheduledTo: { '<=': currentTime } });
+        let newsObj = await News.find({ status: "scheduled", scheduledTo: { '<=': floridaTime } });
         console.log('newsObj', newsObj);
         if(newsObj.length){
           await runAsyncPublishPost(newsObj);
