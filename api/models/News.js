@@ -115,6 +115,10 @@ module.exports = {
       type: 'boolean',
       defaultsTo: false
     },
+    send_notification: {
+      type: 'boolean',
+      defaultsTo: true
+    }
 
 
 

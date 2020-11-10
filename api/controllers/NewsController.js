@@ -76,7 +76,7 @@ module.exports = {
         console.log('limit', limit);
         let paginationQuery = ` group by n.id ORDER BY ${shortBy} ${orderBy} limit ${limit} offset ${skip}`;
         
-        if(!req.accessSourceType){
+        if(!req.accessSourceType){ // accessSourceType ? 
             whereQuery += ` and n.status in ('published')`;
         }else{
             if (params.status){
@@ -112,6 +112,8 @@ module.exports = {
              n.link like '%${params.query}%') `;
         }
         // sqlQuery = `SELECT DISTINCTROW n.*, CONCAT("[", GROUP_CONCAT(CONCAT('{name:"', cc.name, '", id:"',cc.id,'"}')), "]") as categories FROM news n
+
+        // 2nd inner join ?? 
         sqlQuery = `SELECT DISTINCTROW n.*, 
         JSON_ARRAYAGG(
             JSON_OBJECT(
@@ -120,7 +122,7 @@ module.exports = {
             )
         ) as categories, im.imageSrc, im.imageSourceName FROM news n
         inner join category_news__news_categories c on n.id = c.news_categories
-        inner join category cc on cc.id = c.category_news
+        inner join category cc on cc.id = c.category_news   
         left join images im on n.imageId = im.id OR n.imageId = null
         where n.delete = false`;
         let query = `${sqlQuery} ${whereQuery} ${paginationQuery}`;
@@ -158,7 +160,12 @@ module.exports = {
 
         // let totalNewsCountInDB = await News.count(_queryClone);
         // let tilesObj = await News.find({delete: false});
-        let _queryForTiles = `SELECT DISTINCTROW n.*, im.imageSrc FROM news n
+
+
+
+
+        //why join is req here ??
+        let _queryForTiles = `SELECT DISTINCTROW n.*, im.imageSrc FROM news n   
         inner join category_news__news_categories c on n.id = c.news_categories
         inner join category cc on cc.id = c.category_news
         left join images im on n.imageId = im.id OR n.imageId = null
@@ -370,6 +377,7 @@ module.exports = {
         if( (findNews.designSubmitted && objUpdate.contentSubmitted) || (findNews.contentSubmitted && objUpdate.designSubmitted) ){
             objUpdate.status = "in-review";
         }
+        objUpdate.send_notification = params.send_notification ? true : false
 
         // if(params.imageSrc){
         //     objUpdate.imageSrc = params.imageSrc;
@@ -420,9 +428,7 @@ module.exports = {
                     status: _newsItem.status,
                     action: "NewsController - update"
                 });
-                console.log('send_notification', params.send_notification);
                 if(sails.config.environment === 'production' && params.send_notification === true) {
-                    console.log('if send_notification and env', params.send_notification);
                     if(_newsItem.status === "published"){
                         let findUpdatedNews = await News.findOne({ id: _newsItem.id }).populate("categories");
                         let firebaseDb = sails.config.firebaseDb();
