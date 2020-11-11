@@ -94,6 +94,10 @@ module.exports.routes = {
   'post /excel': 'ImageController.uploadExcel',
   'get /scrap': 'ImageController.scrapImageUrl',
 
+  //website API
+  "get /web/news": "WebsiteController.list",
+  "get /web/news/:id": "WebsiteController.getSingleNews",
+
   /***************************************************************************
   *                                                                          *
   * More custom routes here...                                               *

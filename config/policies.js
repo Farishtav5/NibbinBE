@@ -61,5 +61,8 @@ module.exports.policies = {
     // '*': ['isAuthorized'],
     '*': true,
   },
+  WebsiteController: {
+    '*': true,
+  },
 
 };
