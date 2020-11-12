@@ -36,7 +36,8 @@ module.exports = {
                     { headline: { contains: params.query } },
                     { shortDesc: { contains: params.query } },
                     { link: { contains: params.query } },
-                ] 
+                ],
+                status: { in: ["published"] } 
             };
         }
         _categoriesQuery.select = ['id', 'name'];
@@ -45,14 +46,20 @@ module.exports = {
         'metaSource', 'publishedAt', 'scheduledTo', 'send_notification'];
 
         let result = [];
-        result = await News.find(query).populate("categories", _categoriesQuery).populate('imageId');
-        result.forEach((t)=>{
-            if(t.imageId && t.imageId.imageSrc){
-                t.imageSrc = t.imageId.imageSrc ? t.imageId.imageSrc : '';
-                t.imageSourceName = t.imageId.imageSourceName ? t.imageId.imageSourceName : '';
-                delete t.imageId;
+        result = await News.find(query).populate("categories", _categoriesQuery);//.populate('imageId');
+        for (let i = 0; i < result.length; i++) {
+            let t = result[i];
+            if(t.imageId){
+                let findImageById = await Images.findOne({ id: t.imageId });
+                if(findImageById){
+                    let _image_id = _.cloneDeep(findImageById);
+                    t.imageSrc = _image_id.imageSrc;
+                    t.imageSourceName = _image_id.imageSourceName;
+                    delete t.imageId;
+                }
             }
-        });
+        }
+
         res.send({
             page,
             rows: result
