@@ -26,7 +26,9 @@
     "sails-hook-sockets": "^2.0.0",
     "sails-mysql": "^1.0.1",
     "skipper-better-s3": "^2.3.0",
-    "skipper-s3": "^0.6.0"
+    "skipper-s3": "^0.6.0",
+    "twitter": "^1.7.1",
+    "twitter-lite": "^0.14.0"
   },
   "devDependencies": {
     "eslint": "5.16.0"

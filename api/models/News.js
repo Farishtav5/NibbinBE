@@ -118,6 +118,10 @@ module.exports = {
     send_notification: {
       type: 'boolean',
       defaultsTo: true
+    },
+    tweet: {
+      type: 'boolean',
+      defaultsTo: true
     }
 
 

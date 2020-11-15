@@ -447,6 +447,14 @@ module.exports = {
                         console.log('firebase notification - news published');
                     }
                 }
+                if(sails.config.environment === 'production' && _newsItem.tweet === true) {
+                    let _tweetResult = await sails.helpers.twitterIntegration.with({
+                        newsId: _newsItem.id,
+                        imgSrc: result[i].imageSrc,
+                        headline: _newsItem.headline
+                    });
+                    console.log('tweet by manual publish', _tweetResult);
+                }
             }
         }
 
@@ -663,12 +671,24 @@ module.exports = {
         // });
         // let result = await downloadImageFromSource_and_UploadOnS3(data.mainImage);
         // res.send({data:data, result:result});
-        // let params = req.allParams();
-        // let news = await News.findOne({ id: params.id });
+        let params = req.allParams();
+        let news = await News.findOne({ id: params.id });
+        let findImageById = await Images.findOne({ id: news.imageId });
+        if(findImageById){
+            let _image_id = _.cloneDeep(findImageById);
+            news.imageSrc = _image_id.imageSrc;
+            news.imageSourceName = _image_id.imageSourceName;
+        }
+        let tt = await sails.helpers.twitterIntegration.with({
+            newsId: news.id,
+            imgSrc: news.imageSrc,
+            headline: news.headline
+        })
         // let dd = await automateImageForNews_UpdateNews(params.id);
-        // res.send({dd: dd});
-        let result = await News.find().populate("categories");
-        return ResponseService.json(200, res, "get report successfully", result);
+        res.send({dd: tt});
+
+        // let result = await News.find().populate("categories");
+        // return ResponseService.json(200, res, "get report successfully", result);
     }
 
 };
