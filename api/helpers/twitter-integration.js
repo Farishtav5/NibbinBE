@@ -95,7 +95,7 @@ module.exports = {
             }
             // Lets tweet it
             client.post('statuses/update', statusObj).then((response)=>{
-              console.log('response : ', response);  // Raw response object.
+              console.log('response : ', response.text);  // Raw response object.
               return exits.success(true);
             })
             .catch((err) => {

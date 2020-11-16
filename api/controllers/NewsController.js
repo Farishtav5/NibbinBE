@@ -377,7 +377,7 @@ module.exports = {
         if( (findNews.designSubmitted && objUpdate.contentSubmitted) || (findNews.contentSubmitted && objUpdate.designSubmitted) ){
             objUpdate.status = "in-review";
         }
-        objUpdate.send_notification = params.send_notification ? true : false
+        objUpdate.send_notification = params.send_notification ? true : false;
 
         // if(params.imageSrc){
         //     objUpdate.imageSrc = params.imageSrc;
@@ -428,8 +428,8 @@ module.exports = {
                     status: _newsItem.status,
                     action: "NewsController - update"
                 });
-                if(sails.config.environment === 'production' && params.send_notification === true) {
-                    if(_newsItem.status === "published"){
+                if(sails.config.environment === 'production') {
+                    if(_newsItem.status === "published" && _newsItem.send_notification === true){
                         let findUpdatedNews = await News.findOne({ id: _newsItem.id }).populate("categories");
                         let firebaseDb = sails.config.firebaseDb();
                         let data = {
@@ -446,14 +446,14 @@ module.exports = {
                         let createdData = await firebaseDb.collection('posts').add(data);
                         console.log('firebase notification - news published');
                     }
-                }
-                if(sails.config.environment === 'production' && _newsItem.tweet === true) {
-                    let _tweetResult = await sails.helpers.twitterIntegration.with({
-                        newsId: _newsItem.id,
-                        imgSrc: result[i].imageSrc,
-                        headline: _newsItem.headline
-                    });
-                    console.log('tweet by manual publish', _tweetResult);
+                    if(_newsItem.status === "published" && _newsItem.tweet === true){
+                        let _tweetResult = await sails.helpers.twitterIntegration.with({
+                            newsId: _newsItem.id,
+                            imgSrc: result[i].imageSrc,
+                            headline: _newsItem.headline
+                        });
+                        console.log('tweet by manual publish', _tweetResult);
+                    }
                 }
             }
         }
