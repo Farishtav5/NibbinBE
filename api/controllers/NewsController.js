@@ -155,7 +155,7 @@ module.exports = {
             t.imageSrc = t.imageSrc ? JSON.parse(t.imageSrc) : '';
             t.shortDesc = t.shortDesc ? JSON.parse(t.shortDesc) : '';
             t.link = t.link ? JSON.parse(t.link) : '';
-            t.type = t.type ? JSON.parse(t.type) : '';
+            // t.type = t.type ? JSON.parse(t.type) : '';
         });
 
         // let totalNewsCountInDB = await News.count(_queryClone);
@@ -286,19 +286,21 @@ module.exports = {
 
     create: async function (req, res) {
         let params = req.allParams();
+        params.type = params.type ? params.type : 'news'
         let createdNewsObj = await News.create({
-            title: params.title,
-            headline: params.headline,
-            link: params.link,
+            title: params.title ? params.title : '',
+            headline: params.headline ? params.headline : '',
+            link: params.link ? params.link : '',
             shortDesc: params.shortDesc ? params.shortDesc : '',
-            status: "in-queue",
+            status: params.type === "graphics" ? "in-review" : "in-queue",
+            actions: params.actions ? params.actions : '',
             dated: new Date(),
             createdBy: req.currentUser.id, //params.createdBy,
             updatedBy: req.currentUser.id //params.updatedBy,
         }).fetch();
 
         if(createdNewsObj){
-            if (params.categories){
+            if (params.categories && params.type === 'news'){
                 await News.addToCollection(createdNewsObj.id, 'categories', params.categories);
             }
             await sails.helpers.createActivityLog.with({
@@ -666,6 +668,7 @@ module.exports = {
     },
 
     demoFetch: async function (req, res) {
+        console.log("demoFetch called")
         // let data = await sails.helpers.scrapImageFromUrl.with({
         //     url: 'https://www.fiercebiotech.com/medtech/fda-opens-door-to-batch-testing-for-covid-19-quest-diagnostics-green-lights',
         // });
