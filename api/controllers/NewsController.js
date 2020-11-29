@@ -131,7 +131,6 @@ module.exports = {
         let totalNewsCountInDB = await News.getDatastore().sendNativeQuery(`${sqlQuery} ${whereQuery} group by n.id`);
         totalNewsCountInDB = totalNewsCountInDB.rows.length;
 
-        
         // let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
         // let newsList = await News.find(query).populate("categories", _categoriesQuery).populate("createdBy");
         // console.log('_categoriesQuery', JSON.stringify(_categoriesQuery), tempCategories);
@@ -388,7 +387,7 @@ module.exports = {
             objUpdate.status = "in-review";
         }
         objUpdate.send_notification = params.send_notification ? true : false;
-        
+
         // if(params.imageSrc){
         //     objUpdate.imageSrc = params.imageSrc;
         // }
@@ -676,7 +675,6 @@ module.exports = {
     },
 
     demoFetch: async function (req, res) {
-        console.log("demoFetch called")
         // let data = await sails.helpers.scrapImageFromUrl.with({
         //     url: 'https://www.fiercebiotech.com/medtech/fda-opens-door-to-batch-testing-for-covid-19-quest-diagnostics-green-lights',
         // });
