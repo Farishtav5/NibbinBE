@@ -49,40 +49,10 @@ module.exports = {
       //   // now update in news
       //   let UpdatedNews = await News.update({ id: newsId }).set({ imageId: createdImagesObj.id }).fetch();
       // }
-      if(params.type === 'graphics') {
-        let actions = {
-          share: params.share === 'true' ? true : false , 
-          report: params.report === 'true' ? true : false
-        }
-
-        let newsObj = {
-          status: params.status,
-          type: params.type,
-          send_notification: false,
-          actions: actions,
-          dated: new Date(),
-          createdBy: req.currentUser.id,
-          updatedBy: req.currentUser.id,
-          imageId: createdImagesObj.id
-        }
-        let _date = new Date(params.dated);
-        if(params.status === 'published') {
-          newsObj.publishedAt = _date ? moment(_date).format("YYYY-MM-DD hh:mm:ss") : moment().format("YYYY-MM-DD hh:mm:ss");
-          newsObj.dated = _date ? moment(_date).format("YYYY-MM-DD hh:mm:ss") : moment().format("YYYY-MM-DD hh:mm:ss");
-        } else if(params.status === "scheduled"){
-          newsObj.scheduledTo =  moment(_date).format("YYYY-MM-DD hh:mm:ss") //params.dated
-        }
-      
-        let createdNewsObj = await News.create(newsObj).fetch();
-        if(createdNewsObj) 
-          return ResponseService.json(200, res, "graphics created", createdNewsObj);
-        else
-          return ResponseService.json(400, res, "error while creating graphics");
-      }
-      // return res.send({imageId: createdImagesObj.id, link: uploadedUrl, imageSourceName:createdImagesObj.imageSourceName});
+      if(params.type === 'graphics') await addAndUpdateGraphics(params,req, res, createdImagesObj);
+      else return res.send({imageId: createdImagesObj.id, link: uploadedUrl, imageSourceName:createdImagesObj.imageSourceName});
     }, this);
   },
-
   updateImageInGallery: async function (req, res) {
     let params = req.allParams();    
     const options = {
@@ -308,6 +278,39 @@ module.exports = {
     res.send({l: news.length});
   },
 };
+
+async function addAndUpdateGraphics(params, req, res, createdImagesObj) {
+  let actions = {
+    share: params.share === 'true' ? true : false, 
+    report: params.report === 'true' ? true : false
+  }
+  let newsObj = {
+    status: params.status,
+    type: params.type,
+    send_notification: false,
+    actions: actions,
+    dated: new Date(),
+    createdBy: req.currentUser.id,
+    updatedBy: req.currentUser.id,
+    imageId: createdImagesObj.id
+  }
+  let _date = new Date(params.dated);
+  if(params.status === 'published') {
+    newsObj.publishedAt = _date ? moment(_date).format("YYYY-MM-DD hh:mm:ss") : moment().format("YYYY-MM-DD hh:mm:ss");
+    newsObj.dated = _date ? moment(_date).format("YYYY-MM-DD hh:mm:ss") : moment().format("YYYY-MM-DD hh:mm:ss");
+  } 
+  if(params.status === "scheduled") newsObj.scheduledTo = moment(_date).format("YYYY-MM-DD hh:mm:ss")
+
+  let result
+  if(params.id) result = await News.updateOne({id: params.id}).set(newsObj);
+  else result = await News.create(newsObj).fetch();
+
+  if(result) {
+    if(params.id) return ResponseService.json(200, res, "graphics updated", result);
+    else return ResponseService.json(200, res, "graphics created", result);
+  }
+  else return ResponseService.json(400, res, "error while creating graphics");
+}
 
 async function downloadImageFromSource_and_UploadOnS3(imagepath) {
   let url = imagepath;

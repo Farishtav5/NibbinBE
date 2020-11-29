@@ -72,8 +72,6 @@ module.exports = {
         // query.where.delete = false;
         let sqlQuery = '';
         let whereQuery = '';
-        console.log('skip', skip);
-        console.log('limit', limit);
         let paginationQuery = ` group by n.id ORDER BY ${shortBy} ${orderBy} limit ${limit} offset ${skip}`;
         
         if(!req.accessSourceType){ // accessSourceType ? 
@@ -113,7 +111,6 @@ module.exports = {
         }
         // sqlQuery = `SELECT DISTINCTROW n.*, CONCAT("[", GROUP_CONCAT(CONCAT('{name:"', cc.name, '", id:"',cc.id,'"}')), "]") as categories FROM news n
 
-        // 2nd inner join ?? 
         sqlQuery = `SELECT DISTINCTROW n.*, 
         JSON_ARRAYAGG(
             JSON_OBJECT(
@@ -124,7 +121,7 @@ module.exports = {
         inner join category_news__news_categories c on n.id = c.news_categories
         inner join category cc on cc.id = c.category_news   
         left join images im on n.imageId = im.id OR n.imageId = null
-        where n.delete = false`;
+        where n.delete = false and n.type = 'news'`;
         let query = `${sqlQuery} ${whereQuery} ${paginationQuery}`;
         // console.log('sqlQuery', sqlQuery);
         // console.log('query', query);
@@ -162,14 +159,11 @@ module.exports = {
         // let tilesObj = await News.find({delete: false});
 
 
-
-
-        //why join is req here ??
         let _queryForTiles = `SELECT DISTINCTROW n.*, im.imageSrc FROM news n   
         inner join category_news__news_categories c on n.id = c.news_categories
         inner join category cc on cc.id = c.category_news
         left join images im on n.imageId = im.id OR n.imageId = null
-        where n.delete = false`;
+        where n.delete = false and n.type = 'news'`;
         // let _queryForTiles = `SELECT DISTINCTROW n.*, im.imageSrc FROM news n
         // left join images im on n.imageId = im.id OR n.imageId = null
         // where n.delete = false`;
@@ -200,7 +194,8 @@ module.exports = {
 
     prevNextNews: async function (req, res) {
         let params = req.allParams();
-        let querywhere = {};
+        params.type = params.type ? params.type : 'news'
+        let querywhere = {type: params.type};
         if (!params.id) {
             return ResponseService.json(400, res, "please provide news id");
         }
@@ -210,8 +205,11 @@ module.exports = {
             querywhere.status = { in: tempStatus };
         }
 
-        let newsObj = await News.find().where(querywhere).populate("categories").populate('imageId').populate("createdBy");
-
+        let newsObj
+        if(params.type === 'graphics') { 
+            newsObj = await News.find().where(querywhere).populate('imageId').populate("createdBy");
+        }
+        else newsObj = await News.find().where(querywhere).populate("categories").populate('imageId').populate("createdBy");
         let index = _.findIndex(newsObj, { id: parseInt(params.id) });
         let prevId = 0;
         let nextId = null;
@@ -238,9 +236,14 @@ module.exports = {
 
     get: async function (req, res) {
         let params = req.allParams();
+        params.type = params.type ? params.type : 'news'
         let commentsOrder = { sort: 'createdAt DESC'};
         if(params && params.id){
-            let result = await News.findOne({ id: params.id }).populate("categories").populate('imageId').populate("createdBy").populate('comments', commentsOrder);
+            let result
+            if(params.type === 'graphics') 
+                result = await News.findOne({ id: params.id, type: params.type }).populate('imageId').populate("createdBy");
+            else 
+                result = await News.findOne({ id: params.id, type: params.type }).populate("categories").populate('imageId').populate("createdBy").populate('comments', commentsOrder);
             if(result){
                 let resultWithCommentsObj = await nestedPop.nestedPop(result, {
                     comments: {
@@ -271,7 +274,7 @@ module.exports = {
                 }
                 res.send(resultWithCommentsObj);
             }else{
-                res.send(result);
+                return ResponseService.json(404, res, `No ${params.type} exists for this id`);
             }
         }else{
             return ResponseService.json(400, res, "provide news id");
@@ -376,11 +379,16 @@ module.exports = {
             }
         }
 
+        objUpdate.actions = {
+            share: params.share ? params.share : false,
+            report: params.report ? params.report : false
+        }
+
         if( (findNews.designSubmitted && objUpdate.contentSubmitted) || (findNews.contentSubmitted && objUpdate.designSubmitted) ){
             objUpdate.status = "in-review";
         }
         objUpdate.send_notification = params.send_notification ? true : false;
-
+        
         // if(params.imageSrc){
         //     objUpdate.imageSrc = params.imageSrc;
         // }
@@ -430,7 +438,7 @@ module.exports = {
                     status: _newsItem.status,
                     action: "NewsController - update"
                 });
-                if(sails.config.environment === 'production') {
+                if(sails.config.environment === 'production' && _newsItem.type === "news") {
                     if(_newsItem.status === "published" && _newsItem.send_notification === true){
                         let findUpdatedNews = await News.findOne({ id: _newsItem.id }).populate("categories");
                         let firebaseDb = sails.config.firebaseDb();

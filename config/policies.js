@@ -64,5 +64,9 @@ module.exports.policies = {
   WebsiteController: {
     '*': true,
   },
+  GraphicsController: {
+    '*': ['isAuthorized'],
+    'list': ['openAuthorized']
+  },
 
 };
