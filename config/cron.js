@@ -58,7 +58,7 @@ const runAsyncPublishPost = async (newsList) => {
         if(result.length && result[0]){
             let updatedNews = result[0];
             let findUpdatedNews = null;
-            if(sails.config.environment === 'production') {
+            if(sails.config.environment === 'production' && updatedNews.type === 'news') {
               findUpdatedNews = await News.findOne({ id: updatedNews.id }).populate("categories");
               if(findUpdatedNews && findUpdatedNews.imageId){
                 let findImageById = await Images.findOne({ id: findUpdatedNews.imageId });
@@ -113,7 +113,7 @@ const publish_AutoScheduleNews = async (news) =>{
   if(result.length && result[0]){
       let updatedNews = result[0];
       let findUpdatedNews = null;
-      if(sails.config.environment === 'production') {
+      if(sails.config.environment === 'production' && updatedNews.type === 'news') {
         findUpdatedNews = await News.findOne({ id: updatedNews.id }).populate("categories");
         if(findUpdatedNews && findUpdatedNews.imageId){
           let findImageById = await Images.findOne({ id: findUpdatedNews.imageId });

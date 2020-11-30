@@ -20,6 +20,7 @@ module.exports.routes = {
   ***************************************************************************/
 
   '/': { view: 'pages/homepage' },
+  "get /graphics": "GraphicsController.list",
   "get /news": "NewsController.list",
   "get /news/:id": 'NewsController.get',
   "get /news/:id/prev-next": 'NewsController.prevNextNews',

@@ -10,11 +10,11 @@ module.exports = {
   attributes: {
     title: {
       type: "Json",
-      required: true
+      // required: true
     },
     headline: {
       type: "json",
-      required: true,
+      // required: true,
     },
     slug: {
       type: "string"
@@ -39,7 +39,7 @@ module.exports = {
       type: "json"
     },
     type: {
-      type: "json",
+      type: "string",
       defaultsTo: "news"
     },
     // [
@@ -122,6 +122,13 @@ module.exports = {
     tweet: {
       type: 'boolean',
       defaultsTo: true
+    },
+    actions: {
+      type: "json",
+      defaultsTo: {
+        share: false,
+        report: false
+      }
     }
 
 

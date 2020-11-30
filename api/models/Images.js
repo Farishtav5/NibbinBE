@@ -34,6 +34,11 @@ module.exports = {
       type: "ref",
       columnType: "datetime"
     },
+    type: {
+      type: "string",
+      defaultsTo: 'news'
+    },
+
   },
 
   beforeCreate: function (values, cb) {

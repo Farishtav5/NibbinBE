@@ -58,11 +58,15 @@ module.exports.policies = {
     '*': ['isAuthorized'],
   },
   ImageController: {
-    // '*': ['isAuthorized'],
-    '*': true,
+    '*': ['isAuthorized'],
+    // '*': true,
   },
   WebsiteController: {
     '*': true,
+  },
+  GraphicsController: {
+    '*': ['isAuthorized'],
+    'list': ['openAuthorized']
   },
 
 };
