@@ -35,8 +35,8 @@ module.exports = {
       columnType: "datetime"
     },
     type: {
-      type: "string",
-      defaultsTo: 'news'
+      type: "json",
+      defaultsTo: "news"
     },
 
   },

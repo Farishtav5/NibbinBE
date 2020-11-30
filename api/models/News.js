@@ -39,7 +39,7 @@ module.exports = {
       type: "json"
     },
     type: {
-      type: "string",
+      type: "json",
       defaultsTo: "news"
     },
     // [

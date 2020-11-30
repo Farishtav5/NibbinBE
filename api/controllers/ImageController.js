@@ -97,7 +97,8 @@ module.exports = {
 
  getAllImagesForGallery: async function (req, res) {
   let params = req.allParams();
-  let whereQueryTags = {original: false};
+  params.type = params.type ? params.type : 'news'
+  let whereQueryTags = {original: false, or: [{ type: JSON.stringify(params.type)}, {type: null}]};
   if(params.tags){
     whereQueryTags.or = []
     let tempTags = (params.tags).toString().split(",");
@@ -107,7 +108,6 @@ module.exports = {
     }
     // query.tags = { contains: params.tags }
   }
-  whereQueryTags.type = params.type ? params.type : 'news'
   let allImages = await Images.find().sort('id DESC').where(whereQueryTags);
   console.log('allImages : ', allImages.length);
   return ResponseService.json(200, res, "getting all images", allImages);
