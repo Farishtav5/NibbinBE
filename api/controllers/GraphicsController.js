@@ -16,11 +16,15 @@ module.exports = {
         let orderBy = (params && params.orderBy) ? params.orderBy : 'DESC';
 
         let query = { skip: skip, limit: limit, sort: shortBy + ' ' + orderBy};
-        query.where = {type: 'graphics', delete: false};
+        query.where = { type: '"graphics"', delete: false };
 
         let totalCountQuery = {}
-        totalCountQuery.where = {delete: false, type: 'graphics'}
+        totalCountQuery.where = { delete: false, type: '"graphics"' }
 
+        if (params.status) {
+            query.where.status = { in: params.status };
+            totalCountQuery.where.status = { in: params.status };
+        }
         if (params.addedFrom) {
             query.where.createdAt = { '>=' : new Date(params.addedFrom).getTime() }
             totalCountQuery.where.createdAt = { '>=' : new Date(params.addedFrom).getTime() }
@@ -46,7 +50,7 @@ module.exports = {
                 }
             }
         }
-        let tilesObj = await News.find({delete: false,type: 'graphics' });
+        let tilesObj = await News.find({ delete: false, type: '"graphics"' });
         let tiles = {
             publishedCount: _.filter(tilesObj, (t) => {return t.status === "published"}).length,
             scheduledCount: _.filter(tilesObj, (t) => {return t.status === "scheduled"}).length,
