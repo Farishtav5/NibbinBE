@@ -58,7 +58,7 @@ const runAsyncPublishPost = async (newsList) => {
         if(result.length && result[0]){
             let updatedNews = result[0];
             let findUpdatedNews = null;
-            if(sails.config.environment === 'production' && updatedNews.type === 'news') {
+            if(sails.config.environment === 'production') {
               findUpdatedNews = await News.findOne({ id: updatedNews.id }).populate("categories");
               if(findUpdatedNews && findUpdatedNews.imageId){
                 let findImageById = await Images.findOne({ id: findUpdatedNews.imageId });
@@ -86,7 +86,7 @@ const runAsyncPublishPost = async (newsList) => {
                   let createdData = await firebaseDb.collection('posts').add(data);
                   console.log('firebase notification - news published Via CRON');
               }
-              if(updatedNews.status === "published" && findUpdatedNews.tweet === true && findUpdatedNews.id) {
+              if(updatedNews.status === "published" && findUpdatedNews.tweet === true && findUpdatedNews.id && updatedNews.type === 'news') {
                 let _tweetResult = await sails.helpers.twitterIntegration.with({
                     newsId: findUpdatedNews.id,
                     imgSrc: findUpdatedNews.imageSrc,
@@ -113,7 +113,7 @@ const publish_AutoScheduleNews = async (news) =>{
   if(result.length && result[0]){
       let updatedNews = result[0];
       let findUpdatedNews = null;
-      if(sails.config.environment === 'production' && updatedNews.type === 'news') {
+      if(sails.config.environment === 'production') {
         findUpdatedNews = await News.findOne({ id: updatedNews.id }).populate("categories");
         if(findUpdatedNews && findUpdatedNews.imageId){
           let findImageById = await Images.findOne({ id: findUpdatedNews.imageId });
@@ -124,7 +124,7 @@ const publish_AutoScheduleNews = async (news) =>{
               findUpdatedNews.imageId = _image_id.id;
           }
         }
-        if(updatedNews.status === "published" && updatedNews.send_notification && findUpdatedNews){
+        if(updatedNews.status === "published" && updatedNews.send_notification && findUpdatedNews) {
             let firebaseDb = sails.config.firebaseDb();
             let data = {
                 postValue: findUpdatedNews.id,
@@ -140,7 +140,7 @@ const publish_AutoScheduleNews = async (news) =>{
             let createdData = await firebaseDb.collection('posts').add(data);
             console.log('firebase notification - news published Via CRON Auto Schedule');
         }
-        if(updatedNews.status === "published" && findUpdatedNews.tweet === true && findUpdatedNews.id) {
+        if(updatedNews.status === "published" && findUpdatedNews.tweet === true && findUpdatedNews.id && updatedNews.type === 'news') {
           let _tweetResult = await sails.helpers.twitterIntegration.with({
               newsId: findUpdatedNews.id,
               imgSrc: findUpdatedNews.imageSrc,

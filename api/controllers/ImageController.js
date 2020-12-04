@@ -287,7 +287,8 @@ async function addAndUpdateGraphics(params, req, res, createdImagesObj) {
   let newsObj = {
     status: params.status,
     type: params.type,
-    send_notification: false,
+    send_notification: params.send_notification ? true : false,
+    shortDesc: params.shortDesc,
     actions: actions,
     dated: new Date(),
     createdBy: req.currentUser.id,
