@@ -239,7 +239,7 @@ module.exports = {
         if(params && params.id){
             let result
             if(params.type === 'graphics') 
-                result = await News.findOne({ id: params.id, type: JSON.stringify(params.type) }).populate('imageId').populate("createdBy");
+                result = await News.findOne({ id: params.id, type: JSON.stringify(params.type) }).populate('imageId').populate("createdBy").populate('comments', commentsOrder);
             else 
                 result = await News.findOne({ id: params.id, type: JSON.stringify(params.type) }).populate("categories").populate('imageId').populate("createdBy").populate('comments', commentsOrder);
             if(result){
@@ -437,8 +437,8 @@ module.exports = {
                     status: _newsItem.status,
                     action: "NewsController - update"
                 });
-                if(sails.config.environment === 'production' && _newsItem.type === "news") {
-                    if(_newsItem.status === "published" && _newsItem.send_notification === true){
+                if(sails.config.environment === 'production') {
+                    if(_newsItem.status === "published" && _newsItem.send_notification === true) {
                         let findUpdatedNews = await News.findOne({ id: _newsItem.id }).populate("categories");
                         let firebaseDb = sails.config.firebaseDb();
                         let data = {
@@ -455,7 +455,8 @@ module.exports = {
                         let createdData = await firebaseDb.collection('posts').add(data);
                         console.log('firebase notification - news published');
                     }
-                    if(_newsItem.status === "published" && _newsItem.tweet === true){
+                    if(_newsItem.status === "published" && _newsItem.tweet === true && _newsItem.type === "news") {
+                        
                         let _tweetResult = await sails.helpers.twitterIntegration.with({
                             newsId: _newsItem.id,
                             imgSrc: result[i].imageSrc,

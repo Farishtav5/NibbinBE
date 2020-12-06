@@ -34,7 +34,7 @@ module.exports = {
             totalCountQuery.where.createdAt = { '<=' : new Date(params.addedTo).getTime() }
         }
         query.omit = ['contentSubmitted', 'createdBy', 'updatedBy', 'delete', 'designSubmitted', 'excel_id', 
-        'metaSource', 'send_notification'];
+        'metaSource'];
 
         let result = [];
         result = await News.find(query);
@@ -56,6 +56,7 @@ module.exports = {
             scheduledCount: _.filter(tilesObj, (t) => {return t.status === "scheduled"}).length,
             inReviewCount: _.filter(tilesObj, (t) => {return t.status === "in-review"}).length,
             autoScheduledCount: _.filter(tilesObj, (t) => {return t.status === "auto-scheduled"}).length,
+            editRequiredCount: _.filter(tilesObj, (t) => {return t.status === "edit-required"}).length,
         }
         let totalGraphicsCountInDB = await News.find(totalCountQuery);
         
