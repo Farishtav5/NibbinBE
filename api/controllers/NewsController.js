@@ -443,7 +443,8 @@ module.exports = {
                         let firebaseDb = sails.config.firebaseDb();
                         let data = {
                             postValue: findUpdatedNews.id,
-                            title: findUpdatedNews.headline
+                            title: findUpdatedNews.headline,
+                            type: findUpdatedNews.type
                         }
                         if (result[i].imageSrc) {
                             data.imageSrc = result[i].imageSrc

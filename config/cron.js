@@ -74,7 +74,8 @@ const runAsyncPublishPost = async (newsList) => {
                   let firebaseDb = sails.config.firebaseDb();
                   let data = {
                       postValue: findUpdatedNews.id,
-                      title: findUpdatedNews.headline
+                      title: findUpdatedNews.headline,
+                      type: findUpdatedNews.type
                   }
                   if (findUpdatedNews.imageSrc) {
                       data.imageSrc = findUpdatedNews.imageSrc
@@ -128,7 +129,8 @@ const publish_AutoScheduleNews = async (news) =>{
             let firebaseDb = sails.config.firebaseDb();
             let data = {
                 postValue: findUpdatedNews.id,
-                title: findUpdatedNews.headline
+                title: findUpdatedNews.headline,
+                type: findUpdatedNews.type
             }
             if (findUpdatedNews.imageSrc) {
                 data.imageSrc = findUpdatedNews.imageSrc
