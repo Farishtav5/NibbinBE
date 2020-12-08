@@ -90,7 +90,7 @@ module.exports = {
 
           if(media.media_id && media.media_id_string){
             let statusObj = {
-              status: inputs.headline + ' ' + createSlug({id: inputs.newsId, headline: inputs.headline}),
+              status: inputs.headline + ' ' + createSlug({id: inputs.newsId, headline: inputs.headline}) + ' ' + addHashtags(),
               media_ids: media.media_id_string
             }
             // Lets tweet it
@@ -127,6 +127,10 @@ module.exports = {
 
 
 };
+
+function addHashtags(){
+  return "\r\n #Nibbin, #CovidTimes, #HealthCareNews, #Awareness, #Healthcare, #News"
+}
 
 function createSlug(newsValue){
   if(newsValue && newsValue.id && newsValue.headline){
