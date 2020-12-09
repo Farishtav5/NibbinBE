@@ -90,7 +90,7 @@ module.exports = {
 
           if(media.media_id && media.media_id_string){
             let statusObj = {
-              status: inputs.headline + ' ' + createSlug({id: inputs.newsId, headline: inputs.headline}) + ' ' + addHashtags(),
+              status: inputs.headline + "\r\n" + createSlug({id: inputs.newsId, headline: inputs.headline}) + "\r\n \r\n" + addHashtags(),
               media_ids: media.media_id_string
             }
             // Lets tweet it
@@ -129,12 +129,12 @@ module.exports = {
 };
 
 function addHashtags(){
-  return "\r\n #Nibbin, #CovidTimes, #HealthCareNews, #Awareness, #Healthcare, #News"
+  return "#Nibbin #CovidTimes #HealthCareNews #Awareness #Healthcare #News"
 }
 
 function createSlug(newsValue){
   if(newsValue && newsValue.id && newsValue.headline){
-    return "https://nibb.in/news?id=" + Base64.encode((newsValue.id).toString());
+    return "Read Now: https://nibb.in/news?id=" + Base64.encode((newsValue.id).toString());
     // return "https://nibb.in/news/?id=" + newsValue.id + "-" + string_to_slug(newsValue.headline);
   }else{
     return "#";
