@@ -21,7 +21,15 @@ module.exports = {
     userId: {
       model: "User"
     },
-
+    status: {
+      type: "string",
+      defaultsTo: "in-review",
+      allowNull: true
+    },
+    device: {
+      type: "json",
+      defaultsTo: {},
+    },
 
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗

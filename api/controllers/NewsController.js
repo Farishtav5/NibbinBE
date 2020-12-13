@@ -12,6 +12,10 @@ const keyword_extractor = require("keyword-extractor");
 activities = Utilities.activities;
 UUID = Utilities.uuid;
 
+const { IncomingWebhook } = require('@slack/webhook');
+const SLACK_WEBHOOK_URL = sails.config.custom.slack_webhook_url;
+const webhook = new IncomingWebhook(SLACK_WEBHOOK_URL);
+
 module.exports = {
 
     list: async function (req, res) {
@@ -493,16 +497,69 @@ module.exports = {
             let data = {
                 typeId: params.typeId,
                 subTypeId: params.subTypeId,
-                newsId: params.newsId
+                newsId: params.newsId,
+                device: {
+                    platform: params.platform,
+                    name: params.deviceName,
+                    version: params.deviceVersion,
+                    model: params.deviceModel
+                }
             }
             if (req.currentUser && req.currentUser.id) {
                 data.userId = req.currentUser.id;
             }
             let createReportByUser = await ReportByUser.create(data).intercept('UsageError', (err) => {
-                err.message = 'Uh oh: ' + err.message;
+                err.message = 'Uh oh: ' + err.message; 
                 return ResponseService.json(400, res, "User could not be created", err);
             }).fetch();
 
+            let result = await ReportByUser.findOne({id: createReportByUser.id }).populate('subTypeId').populate('typeId').populate('userId').populate('newsId')
+            if(result){
+                let resultWithImgObj = await nestedPop.nestedPop(result, {
+                    newsId: {
+                    as: 'News',
+                    populate: [
+                        'imageId'
+                    ]
+                    }
+                });
+                if(resultWithImgObj && resultWithImgObj.newsId.imageId){
+                    let _image_id = _.cloneDeep(resultWithImgObj.newsId.imageId);
+                    resultWithImgObj.imageSrc = _image_id.imageSrc;
+                    resultWithImgObj.imageSourceName = _image_id.imageSourceName;
+                    resultWithImgObj.imageId = _image_id.id;
+                }
+                let news = resultWithImgObj.newsId
+                (async () => {
+                    await webhook.send({
+                    blocks : [
+                        {
+                            "type": "section",
+                            "block_id": "section567",
+                            "accessory": {
+                                "type": "image",
+                                "image_url": resultWithImgObj.imageSrc,
+                                "alt_text": `${resultWithImgObj.imageSourceName} image` ,
+                            },
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": `*${news.headline}*\nID: ${news.id}\nType: ${news.type}`
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "block_id": "section789",
+                            "fields": [
+                                {
+                                    "type": "mrkdwn",
+                                    "text": `*${result.typeId.title}*\n${result.subTypeId.title}`
+                                }
+                            ]
+                        }
+                    ]
+                    });
+                })();
+            }
             return ResponseService.json(200, res, "reported successfully", createReportByUser);
         }
 
