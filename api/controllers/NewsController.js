@@ -73,6 +73,7 @@ module.exports = {
             };
         }
         query.where.delete = false;
+        console.log('tempCategories', tempCategories);
         if(tempCategories.length){
             query.where.categories_ids = {in : tempCategories }
         }
