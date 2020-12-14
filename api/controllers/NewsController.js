@@ -66,20 +66,31 @@ module.exports = {
             // _categoriesQuery = { where: { id: { in: tempCategories } }};
             // _categoriesQuery = { id: tempCategories };
         }
+
+        console.log('tempCategories', tempCategories);
+        let tempCategoriesStrings = [];
+        let queryWithOr_for_category = [];
+        if(tempCategories.length){
+            // query.where.categories_ids = {in : tempCategories }
+            tempCategoriesStrings = tempCategories.map(String);
+            for (let i = 0; i < tempCategoriesStrings.length; i++) {
+                const item = tempCategoriesStrings[i];
+                queryWithOr_for_category.push({ categories_ids: { contains : item } });
+            }
+            query.where.or = queryWithOr_for_category;
+        }
+
         if (params.query){
             query.where = {
                 or: [
                     { headline: { contains: params.query } },
                     { shortDesc: { contains: params.query } },
                     { link: { contains: params.query } },
+                    ...queryWithOr_for_category
                 ] 
             };
         }
         query.where.delete = false;
-        console.log('tempCategories', tempCategories);
-        if(tempCategories.length){
-            query.where.categories_ids = {in : tempCategories }
-        }
 
         let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
         let newsList = await News.find(query).populate("createdBy").populate('imageId');
