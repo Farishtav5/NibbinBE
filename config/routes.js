@@ -48,6 +48,7 @@ module.exports.routes = {
   //for dashboard
   "get /report" : "ReportController.list",
   "get /report/:id" : "ReportController.get",
+  "put /report/:id" : "ReportController.update",
 
   "get /categories": "CategoryController.list",
   "post /categories": "CategoryController.create",
