@@ -18,7 +18,108 @@ const webhook = new IncomingWebhook(SLACK_WEBHOOK_URL);
 
 module.exports = {
 
+    // TODO: TO BE TEST
     list: async function (req, res) {
+        let params = req.allParams();
+        let page = params.page == undefined ? 1 : parseInt(params.page);
+        let limit = params.limit == undefined ? 10 : parseInt(params.limit);
+        let skip = (page - 1) * limit;
+        // let sorted = 'dated DESC';
+        let shortBy = (params && params.shortBy) ? params.shortBy : 'dated';
+        let orderBy = (params && params.orderBy) ? params.orderBy : 'DESC';
+        let query = { skip: skip, limit: limit, sort: shortBy + ' ' + orderBy};
+        query.where = {};
+        
+        if(!req.accessSourceType){
+            query.where.status = { in: ["published"] }
+        }else{
+            if (params.status){
+                let tempStatus = (params.status).toString().split(",");
+                query.where.status = { in: tempStatus };
+            }
+        }
+        if(params.headline){
+            query.where.headline = { contains: params.headline };
+        }
+        if (params.link){
+            query.where.link = { contains: params.link };
+        }
+        
+        if (params.addedFrom){
+            // query.where.createdAt['>='] = new Date('2018-08-21T14:56:21.774Z').getTime();
+            query.where.createdAt = { '>=' : new Date(params.addedFrom).getTime() }
+        }
+        if (params.addedTo){
+            // query.where.createdAt['<='] = new Date('2018-08-25T14:56:21.774Z').getTime();
+            query.where.createdAt = { '<=' : new Date(params.addedTo).getTime() }
+        }
+        let _categoriesQuery = {};
+        let tempCategories = [];
+        if (params.categories){
+            tempCategories = (params.categories).toString().split(",");
+            for (a in tempCategories) {
+                tempCategories[a] = parseInt(tempCategories[a], 10);
+            }
+            // _categoriesQuery = { where: { id: { in: tempCategories } }};
+            // _categoriesQuery = { id: tempCategories };
+        }
+        if (params.query){
+            query.where = {
+                or: [
+                    { headline: { contains: params.query } },
+                    { shortDesc: { contains: params.query } },
+                    { link: { contains: params.query } },
+                ] 
+            };
+        }
+        query.where.delete = false;
+        if(tempCategories.length){
+            query.where.categories_ids = {in : tempCategories }
+        }
+
+        let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
+        let newsList = await News.find(query).populate("createdBy").populate('imageId');
+        let result = [];
+        result = newsList;
+        result.forEach((t)=>{
+            t.categories = t.categories_array;
+            delete t.categories_array;
+            if(t.imageId){
+                t.imageSrc = t.imageId.imageSrc;
+                t.imageSourceName = t.imageId.imageSourceName;
+                t.imageId = t.imageId.id;
+                delete t.imageId;
+            }
+        });
+
+        let totalNewsCountInDB = await News.count(_queryClone);
+        let tilesObj = await News.find({delete: false});
+        let tiles = {
+            //'rejected'
+            inQueueCount: _.filter(tilesObj, (t) => {return t.status === "in-queue"}).length,
+            publishedCount: _.filter(tilesObj, (t) => {return t.status === "published"}).length,
+            editRequiredCount: _.filter(tilesObj, (t) => {return t.status === "edit-required"}).length,
+            scheduledCount: _.filter(tilesObj, (t) => {return t.status === "scheduled"}).length,
+            inReviewCount: _.filter(tilesObj, (t) => {return t.status === "in-review"}).length,
+            inDraftCount: _.filter(tilesObj, (t) => {return t.status === "draft"}).length,
+            inDesignCount: _.filter(tilesObj, (t) => {return t.status === "in-design"}).length,
+            inContentCount: _.filter(tilesObj, (t) => {return t.status === "in-content"}).length,
+            onHoldCount: _.filter(tilesObj, (t) => {return t.status === "on-hold"}).length,
+            autoScheduledCount: _.filter(tilesObj, (t) => {return t.status === "auto-scheduled"}).length,
+            rejectedCount: _.filter(tilesObj, (t) => {return t.status === "rejected"}).length,
+        }
+        res.send({
+            page,
+            total: totalNewsCountInDB,
+            total_news: result.length,
+            rows: result,
+            tiles
+        });
+
+    },
+
+    //TODO: added by SATISH = it should be removed after test above function
+    list_old: async function (req, res) {
         let params = req.allParams();
         let page = params.page == undefined ? 1 : parseInt(params.page);
         let limit = params.limit == undefined ? 10 : parseInt(params.limit);
@@ -292,6 +393,16 @@ module.exports = {
     create: async function (req, res) {
         let params = req.allParams();
         params.type = params.type ? params.type : 'news';
+        let _catObj = {
+            categories_ids: '',
+            categories_array: ''
+        };
+        if (params.categories && params.type === 'news'){
+            _catObj.categories_ids = params.categories.join(',');
+            let _catarr = await Category.find({id: params.categories });
+            _catObj.categories_array = _catarr;
+        }
+        console.log('_catObj', JSON.stringify(_catObj));
         let createdNewsObj = await News.create({
             title: params.title ? params.title : '',
             headline: params.headline ? params.headline : '',
@@ -302,7 +413,9 @@ module.exports = {
             dated: new Date(),
             createdBy: req.currentUser.id, //params.createdBy,
             updatedBy: req.currentUser.id, //params.updatedBy,
-            type: params.type
+            type: params.type,
+            categories_ids: (_catObj.categories_ids) ? _catObj.categories_ids : '',
+            categories_array: (_catObj.categories_array) ? _catObj.categories_array : ''
         }).fetch();
 
         if(createdNewsObj){
@@ -355,6 +468,11 @@ module.exports = {
         
         if(params.categories){
             objUpdate.categories = params.categories;
+            if (params.categories){
+                objUpdate.categories_ids = params.categories.join(',');
+                let _catarr = await Category.find({id: params.categories });
+                objUpdate.categories_array = _catarr;
+            }
         }
         
         if(params.designSubmitted){

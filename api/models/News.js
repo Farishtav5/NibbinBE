@@ -88,6 +88,12 @@ module.exports = {
       collection: "category",
       via: "news"
     },
+    categories_ids: {
+      type: 'string',
+    },
+    categories_array: {
+      type: 'json',
+    },
     comments: {
       collection: 'Comments',
       via: 'newsId'
