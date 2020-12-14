@@ -513,9 +513,10 @@ module.exports = {
                 return ResponseService.json(400, res, "User could not be created", err);
             }).fetch();
 
-            let result = await ReportByUser.findOne({id: createReportByUser.id }).populate('subTypeId').populate('typeId').populate('userId').populate('newsId')
+            let result = await ReportByUser.findOne({id: createReportByUser.id }).populate('subTypeId').populate('typeId').populate('userId').populate('newsId');
+            let resultWithImgObj = {}
             if(result){
-                let resultWithImgObj = await nestedPop.nestedPop(result, {
+                resultWithImgObj = await nestedPop.nestedPop(result, {
                     newsId: {
                     as: 'News',
                     populate: [
@@ -523,13 +524,15 @@ module.exports = {
                     ]
                     }
                 });
-                if(resultWithImgObj && resultWithImgObj.newsId.imageId){
+                if(resultWithImgObj && resultWithImgObj.newsId && resultWithImgObj.newsId.imageId){
                     let _image_id = _.cloneDeep(resultWithImgObj.newsId.imageId);
                     resultWithImgObj.imageSrc = _image_id.imageSrc;
                     resultWithImgObj.imageSourceName = _image_id.imageSourceName;
                     resultWithImgObj.imageId = _image_id.id;
-                }
-                let news = resultWithImgObj.newsId
+                };
+                let news = result.newsId;
+                let user = result.userId;
+                let userInfo = user ? `*User Name*: ${user.name} \n *User Email*: ${user.email} ` :  "*User*: Anonymous";
                 (async () => {
                     await webhook.send({
                     blocks : [
@@ -543,7 +546,7 @@ module.exports = {
                             },
                             "text": {
                                 "type": "mrkdwn",
-                                "text": `*${news.headline}*\nID: ${news.id}\nType: ${news.type}`
+                                "text": `*${news.headline.trim()}*\nID: ${news.id}\nType: ${news.type}`
                             }
                         },
                         {
@@ -553,6 +556,16 @@ module.exports = {
                                 {
                                     "type": "mrkdwn",
                                     "text": `*${result.typeId.title}*\n${result.subTypeId.title}`
+                                }
+                            ]
+                        },
+                        {
+                            "type": "section",
+                            "block_id": "section788",
+                            "fields": [
+                                {
+                                    "type": "mrkdwn",
+                                    "text": `${userInfo}`
                                 }
                             ]
                         }
