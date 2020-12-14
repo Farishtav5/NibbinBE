@@ -85,10 +85,11 @@ module.exports = {
             t.categories = t.categories_array;
             delete t.categories_array;
             if(t.imageId){
-                t.imageSrc = t.imageId.imageSrc;
-                t.imageSourceName = t.imageId.imageSourceName;
-                t.imageId = t.imageId.id;
+                let _image_id = _.cloneDeep(t.imageId);
                 delete t.imageId;
+                t.imageSrc = _image_id.imageSrc;
+                t.imageSourceName = _image_id.imageSourceName;
+                t.imageId = _image_id.id;
             }
         });
 
