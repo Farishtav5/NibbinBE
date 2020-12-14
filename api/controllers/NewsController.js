@@ -60,6 +60,9 @@ module.exports = {
             for (a in tempCategories) {
                 tempCategories[a] = parseInt(tempCategories[a], 10);
             }
+            tempCategories = tempCategories.filter(function (value) {
+                return !Number.isNaN(value);
+            });
             // _categoriesQuery = { where: { id: { in: tempCategories } }};
             // _categoriesQuery = { id: tempCategories };
         }
