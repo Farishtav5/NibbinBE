@@ -21,6 +21,7 @@ module.exports = {
     // TODO: TO BE TEST
     list: async function (req, res) {
         let params = req.allParams();
+        params.html = params.html === "true" ? true : false
         let page = params.page == undefined ? 1 : parseInt(params.page);
         let limit = params.limit == undefined ? 10 : parseInt(params.limit);
         let skip = (page - 1) * limit;
@@ -28,7 +29,7 @@ module.exports = {
         let shortBy = (params && params.shortBy) ? params.shortBy : 'dated';
         let orderBy = (params && params.orderBy) ? params.orderBy : 'DESC';
         let query = { skip: skip, limit: limit, sort: shortBy + ' ' + orderBy};
-        query.where = {};
+        query.where = { type: '"news"'};
         
         if(!req.accessSourceType){
             query.where.status = { in: ["published"] }
@@ -66,8 +67,6 @@ module.exports = {
             // _categoriesQuery = { where: { id: { in: tempCategories } }};
             // _categoriesQuery = { id: tempCategories };
         }
-
-        console.log('tempCategories', tempCategories);
         let tempCategoriesStrings = [];
         let queryWithOr_for_category = [];
         if(tempCategories.length){
@@ -97,6 +96,10 @@ module.exports = {
         let result = [];
         result = newsList;
         result.forEach((t)=>{
+            // will be removed later
+            if(!params.html) {
+                t.shortDesc = contentExtractor(t.shortDesc)
+            } 
             t.categories = t.categories_array;
             delete t.categories_array;
             if(t.imageId){
@@ -109,7 +112,7 @@ module.exports = {
         });
 
         let totalNewsCountInDB = await News.count(_queryClone);
-        let tilesObj = await News.find({delete: false});
+        let tilesObj = await News.find({delete: false, type: '"news"'});
         let tiles = {
             //'rejected'
             inQueueCount: _.filter(tilesObj, (t) => {return t.status === "in-queue"}).length,
@@ -356,6 +359,7 @@ module.exports = {
     get: async function (req, res) {
         let params = req.allParams();
         params.type = params.type ? params.type : 'news'
+        params.html = params.html === "true" ? true : false
         let commentsOrder = { sort: 'createdAt DESC'};
         if(params && params.id){
             let result
@@ -364,6 +368,9 @@ module.exports = {
             else 
                 result = await News.findOne({ id: params.id, type: JSON.stringify(params.type) }).populate("categories").populate('imageId').populate("createdBy").populate('comments', commentsOrder);
             if(result){
+                if(!params.html) {
+                    result.shortDesc = contentExtractor(result.shortDesc);
+                }
                 let resultWithCommentsObj = await nestedPop.nestedPop(result, {
                     comments: {
                     as: 'Comments',
@@ -666,7 +673,7 @@ module.exports = {
                 };
                 let news = result.newsId;
                 let user = result.userId;
-                let userInfo = user ? `*User Name*: ${user.name} \n *User Email*: ${user.email} ` :  "*User*: Anonymous";
+                let userInfo = user ? `*User Name*: ${user.name}\n*User Email*: ${user.email} ` :  "*User*: Anonymous";
                 (async () => {
                     await webhook.send({
                     blocks : [
@@ -995,6 +1002,7 @@ async function searchImageFromGalleryByTags(news) {
     // let _newsTitle_WordsArray = string_to_array(removeSymbol(news.headline));
     // let _newsShortDesc_WordsArray = string_to_array(removeSymbol(news.shortDesc));
     let _newsTitle_WordsArray = find_key_words(news.headline);
+    news.shortDesc = contentExtractor(news.shortDesc)
     let _newsShortDesc_WordsArray = find_key_words(news.shortDesc);
     for (let i = 0; i < AllGaleryImages.length; i++) {
         const item = AllGaleryImages[i];
@@ -1096,6 +1104,14 @@ async function automateImageForNews_UpdateNews(newsId) {
         }
     }
 }
+
+function contentExtractor(shortDesc) {
+    if(shortDesc) {
+        let str = shortDesc.replace(/<[p]+>|<[li]+>/g, "\n");
+        return str.replace(/<[^>]+>/g, '').trim();
+    } else return ""
+    
+};
 
 function extractHostname(url) {
     var hostname;
