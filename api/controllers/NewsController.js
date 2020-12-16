@@ -127,12 +127,18 @@ module.exports = {
             autoScheduledCount: _.filter(tilesObj, (t) => {return t.status === "auto-scheduled"}).length,
             rejectedCount: _.filter(tilesObj, (t) => {return t.status === "rejected"}).length,
         }
+        // will remove in next commit
+        let settings = {
+            newsCount: 5,
+            graphicsCount: 1
+        }
         res.send({
             page,
             total: totalNewsCountInDB,
             total_news: result.length,
             rows: result,
-            tiles
+            tiles,
+            settings
         });
 
     },

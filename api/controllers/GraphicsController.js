@@ -59,13 +59,18 @@ module.exports = {
             editRequiredCount: _.filter(tilesObj, (t) => {return t.status === "edit-required"}).length,
         }
         let totalGraphicsCountInDB = await News.find(totalCountQuery);
+        let settings = {
+            newsCount: 5,
+            graphicsCount: 1
+        }
         
         res.send({
             page,
             totalCount: totalGraphicsCountInDB.length,
             total: result.length,
             rows: result,
-            tiles
+            tiles,
+            settings
         });
     }
 }
