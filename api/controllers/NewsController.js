@@ -333,11 +333,7 @@ module.exports = {
             querywhere.status = { in: tempStatus };
         }
 
-        let newsObj
-        if(params.type === 'graphics') { 
-            newsObj = await News.find().where(querywhere).populate('imageId').populate("createdBy");
-        }
-        else newsObj = await News.find().where(querywhere).populate("categories").populate('imageId').populate("createdBy");
+        let newsObj = await News.find().where(querywhere).populate("categories").populate('imageId').populate("createdBy");
         let index = _.findIndex(newsObj, { id: parseInt(params.id) });
         let prevId = 0;
         let nextId = null;
@@ -368,11 +364,7 @@ module.exports = {
         params.html = params.html === "true" ? true : false
         let commentsOrder = { sort: 'createdAt DESC'};
         if(params && params.id){
-            let result
-            if(params.type === 'graphics') 
-                result = await News.findOne({ id: params.id, type: JSON.stringify(params.type) }).populate('imageId').populate("createdBy").populate('comments', commentsOrder);
-            else 
-                result = await News.findOne({ id: params.id, type: JSON.stringify(params.type) }).populate("categories").populate('imageId').populate("createdBy").populate('comments', commentsOrder);
+            let result = await News.findOne({ id: params.id, type: JSON.stringify(params.type) }).populate("categories").populate('imageId').populate("createdBy").populate('comments', commentsOrder);
             if(result){
                 if(!params.html) {
                     result.shortDesc = contentExtractor(result.shortDesc);
@@ -426,12 +418,11 @@ module.exports = {
             categories_ids: '',
             categories_array: ''
         };
-        if (params.categories && params.type === 'news'){
+        if (params.categories){
             _catObj.categories_ids = params.categories.join(',');
             let _catarr = await Category.find({id: params.categories });
             _catObj.categories_array = _catarr;
         }
-        console.log('_catObj', JSON.stringify(_catObj));
         let createdNewsObj = await News.create({
             title: params.title ? params.title : '',
             headline: params.headline ? params.headline : '',
@@ -448,7 +439,7 @@ module.exports = {
         }).fetch();
 
         if(createdNewsObj){
-            if (params.categories && params.type === 'news'){
+            if (params.categories){
                 await News.addToCollection(createdNewsObj.id, 'categories', params.categories);
             }
             await sails.helpers.createActivityLog.with({
@@ -607,7 +598,7 @@ module.exports = {
                         let createdData = await firebaseDb.collection('posts').add(data);
                         console.log('firebase notification - news published');
                     }
-                    if(_newsItem.status === "published" && _newsItem.tweet === true && _newsItem.type === "news") {
+                    if(_newsItem.status === "published" && _newsItem.tweet === true) {
                         
                         let _tweetResult = await sails.helpers.twitterIntegration.with({
                             newsId: _newsItem.id,

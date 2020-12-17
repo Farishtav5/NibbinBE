@@ -284,16 +284,25 @@ async function addAndUpdateGraphics(params, req, res, createdImagesObj) {
     share: params.share === 'true' ? true : false, 
     report: params.report === 'true' ? true : false
   }
+  let _catObj = {}
+  params.categories = JSON.parse(params.categories)
+  if (params.categories) {
+    _catObj.categories_ids = params.categories.join(',');
+    let _catarr = await Category.find({id: params.categories });
+    _catObj.categories_array = _catarr;
+  }
   let newsObj = {
     status: params.status,
     type: params.type,
-    send_notification: params.send_notification ? true : false,
-    shortDesc: params.shortDesc,
+    send_notification: params.send_notification === "true" ? true : false,
+    headline: params.headline,
     actions: actions,
     dated: new Date(),
     createdBy: req.currentUser.id,
     updatedBy: req.currentUser.id,
-    imageId: createdImagesObj.id
+    imageId: createdImagesObj.id,
+    categories_ids: (_catObj.categories_ids) ? _catObj.categories_ids : '',
+    categories_array: (_catObj.categories_array) ? _catObj.categories_array : []
   }
   let _date = new Date(params.dated);
   if(params.status === 'published') {
