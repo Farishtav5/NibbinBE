@@ -364,7 +364,7 @@ module.exports = {
         params.html = params.html === "true" ? true : false
         let commentsOrder = { sort: 'createdAt DESC'};
         if(params && params.id){
-            let result = await News.findOne({ id: params.id, type: JSON.stringify(params.type) }).populate("categories").populate('imageId').populate("createdBy").populate('comments', commentsOrder);
+            let result = await News.findOne({ id: params.id }).populate("categories").populate('imageId').populate("createdBy").populate('comments', commentsOrder);
             if(result){
                 if(!params.html) {
                     result.shortDesc = contentExtractor(result.shortDesc);
