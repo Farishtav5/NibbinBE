@@ -7,6 +7,7 @@
 const fs = require("fs");
 const got = require("got");
 const moment = require('moment');
+const moment_timezone = require('moment-timezone');
 const keyword_extractor = require("keyword-extractor");
 
 activities = Utilities.activities;
@@ -306,16 +307,17 @@ async function addAndUpdateGraphics(params, req, res, createdImagesObj) {
   }
   let _date = new Date(params.dated);
   if(params.status === 'published') {
-    newsObj.publishedAt = _date ? moment(_date).format("YYYY-MM-DD hh:mm:ss") : moment().format("YYYY-MM-DD hh:mm:ss");
-    newsObj.dated = _date ? moment(_date).format("YYYY-MM-DD hh:mm:ss") : moment().format("YYYY-MM-DD hh:mm:ss");
+    newsObj.publishedAt = moment_timezone().tz("America/New_York").format("YYYY-MM-DD HH:mm:ss");
+    newsObj.dated = _date ? moment(_date).format("YYYY-MM-DD HH:mm:ss") : moment().format("YYYY-MM-DD HH:mm:ss");
   } 
-  if(params.status === "scheduled") newsObj.scheduledTo = moment(_date).format("YYYY-MM-DD hh:mm:ss")
+  if(params.status === "scheduled") newsObj.scheduledTo = moment(_date).format("YYYY-MM-DD HH:mm:ss")
 
   let result
   if(params.id) result = await News.updateOne({id: params.id}).set(newsObj);
   else result = await News.create(newsObj).fetch();
 
   if(result) {
+    if(sails.config.environment === 'production') await sendNotificationAndTweets(result)
     if(params.id) return ResponseService.json(200, res, "graphics updated", result);
     else return ResponseService.json(200, res, "graphics created", result);
   }
@@ -535,5 +537,39 @@ function contentExtractor(shortDesc) {
       let str = shortDesc.replace(/<[p]+>|<[li]+>/g, "\n");
       return str.replace(/<[^>]+>/g, '').trim();
   } else return ""
+  
+};
+
+async function sendNotificationAndTweets(news) {
+  if(news.status === "published") {
+    let result = await News.findOne({ id: news.id }).populate("categories").populate("imageId");
+    let _image = result.imageId
+    if(result.send_notification) {
+      let firebaseDb = sails.config.firebaseDb();
+      let data = {
+        postValue: result.id,
+        title: result.headline,
+        type: result.type
+      }
+      if (_image.imageSrc) {
+        data.imageSrc = _image.imageSrc
+      }
+      if (result.categories_array) {
+          let _categories = Array.prototype.map.call(result.categories_array, function(item) { return item.id; });//.join(","); // "A,B,C"
+          data.categories = _categories
+      }
+      let createdData = await firebaseDb.collection('posts').add(data);
+      console.log('firebase notification - news published', createdData);
+    }
+    if(result.tweet) {
+      let _tweetResult = await sails.helpers.twitterIntegration.with({
+          newsId: result.id,
+          imgSrc: _image.imageSrc,
+          headline: result.headline
+      });
+      console.log('tweet by manual publish', _tweetResult);
+    }
+  }
+  
   
 };
