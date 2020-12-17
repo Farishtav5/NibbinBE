@@ -21,9 +21,14 @@ module.exports = {
         let totalCountQuery = {}
         totalCountQuery.where = { delete: false, type: '"graphics"' }
 
-        if (params.status) {
-            query.where.status = { in: params.status };
-            totalCountQuery.where.status = { in: params.status };
+        if(!req.accessSourceType){
+            query.where.status = { in: ["published"] }
+        }else{
+            if (params.status){
+                let tempStatus = (params.status).toString().split(",");
+                query.where.status = { in: tempStatus };
+                totalCountQuery.where.status = { in: tempStatus };
+            }
         }
         if (params.addedFrom) {
             query.where.createdAt = { '>=' : new Date(params.addedFrom).getTime() }
@@ -39,6 +44,8 @@ module.exports = {
         let result = [];
         result = await News.find(query);
         for (let i = 0; i < result.length; i++) {
+            result[i].categories = result[i].categories_array;
+            delete result[i].categories_array;
             let t = result[i];
             if(t.imageId){
                 let findImageById = await Images.findOne({ id: t.imageId });

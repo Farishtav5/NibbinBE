@@ -87,7 +87,7 @@ const runAsyncPublishPost = async (newsList) => {
                   let createdData = await firebaseDb.collection('posts').add(data);
                   console.log('firebase notification - news published Via CRON');
               }
-              if(updatedNews.status === "published" && findUpdatedNews.tweet === true && findUpdatedNews.id && updatedNews.type === 'news') {
+              if(updatedNews.status === "published" && findUpdatedNews.tweet === true && findUpdatedNews.id) {
                 let _tweetResult = await sails.helpers.twitterIntegration.with({
                     newsId: findUpdatedNews.id,
                     imgSrc: findUpdatedNews.imageSrc,
@@ -142,7 +142,7 @@ const publish_AutoScheduleNews = async (news) =>{
             let createdData = await firebaseDb.collection('posts').add(data);
             console.log('firebase notification - news published Via CRON Auto Schedule');
         }
-        if(updatedNews.status === "published" && findUpdatedNews.tweet === true && findUpdatedNews.id && updatedNews.type === 'news') {
+        if(updatedNews.status === "published" && findUpdatedNews.tweet === true && findUpdatedNews.id) {
           let _tweetResult = await sails.helpers.twitterIntegration.with({
               newsId: findUpdatedNews.id,
               imgSrc: findUpdatedNews.imageSrc,
