@@ -392,7 +392,8 @@ async function searchImageFromGalleryByTags(news) {
   // let _newsTitle_WordsArray = string_to_array(removeSymbol(news.headline));
   // let _newsShortDesc_WordsArray = string_to_array(removeSymbol(news.shortDesc));
   let _newsTitle_WordsArray = find_key_words(news.headline);
-  let _newsShortDesc_WordsArray = find_key_words(news.shortDesc);
+  let _shortDesc = contentExtractor(news.shortDesc);
+  let _newsShortDesc_WordsArray = find_key_words(_shortDesc);
   for (let i = 0; i < AllGaleryImages.length; i++) {
       const item = AllGaleryImages[i];
       if(item.tags){
@@ -517,4 +518,13 @@ function validURL(str) {
     '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
     '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
   return !!pattern.test(str);
-}
+};
+
+//will remove later
+function contentExtractor(shortDesc) {
+  if(shortDesc) {
+      let str = shortDesc.replace(/<[p]+>|<[li]+>/g, "\n");
+      return str.replace(/<[^>]+>/g, '').trim();
+  } else return ""
+  
+};

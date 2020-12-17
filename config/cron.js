@@ -50,7 +50,7 @@ const runAsyncPublishPost = async (newsList) => {
       newsList.map(async (news) => {
         let result = await News.update({ id: news.id }).set({
           // publishedAt: new Date()
-          publishedAt: news.scheduledTo,
+          publishedAt: moment_timezone().tz("America/New_York").format("YYYY-MM-DD HH:mm:ss"),
           dated: news.scheduledTo,
           status: 'published'
         }).fetch();
@@ -107,7 +107,7 @@ const runAsyncPublishPost = async (newsList) => {
 const publish_AutoScheduleNews = async (news) =>{
   let result = await News.update({ id: news.id }).set({
     // publishedAt: new Date()
-    publishedAt: moment().format("YYYY-MM-DD hh:mm:ss"), //news.dated ? news.dated : moment().format("YYYY-MM-DD hh:mm:ss"),
+    publishedAt: moment_timezone().tz("America/New_York").format("YYYY-MM-DD HH:mm:ss"), //news.dated ? news.dated : moment().format("YYYY-MM-DD hh:mm:ss"),
     status: 'published'
   }).fetch();
   console.log('auto scheduled to published : ', result.length);
