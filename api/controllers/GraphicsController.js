@@ -64,6 +64,7 @@ module.exports = {
             inReviewCount: _.filter(tilesObj, (t) => {return t.status === "in-review"}).length,
             autoScheduledCount: _.filter(tilesObj, (t) => {return t.status === "auto-scheduled"}).length,
             editRequiredCount: _.filter(tilesObj, (t) => {return t.status === "edit-required"}).length,
+            rejectedCount: _.filter(tilesObj, (t) => {return t.status === "rejected"}).length
         }
         let totalGraphicsCountInDB = await News.find(totalCountQuery);
         let settings = {

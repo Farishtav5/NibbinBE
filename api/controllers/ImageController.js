@@ -296,6 +296,7 @@ async function addAndUpdateGraphics(params, req, res, createdImagesObj) {
     status: params.status,
     type: params.type,
     send_notification: params.send_notification === "true" ? true : false,
+    tweet: params.tweet === "true" ? true : false,
     headline: params.headline,
     actions: actions,
     dated: new Date(),

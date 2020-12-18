@@ -369,6 +369,8 @@ module.exports = {
                 if(!params.html) {
                     result.shortDesc = contentExtractor(result.shortDesc);
                 }
+                result.categories = result.categories_array;
+                delete result.categories_array;
                 let resultWithCommentsObj = await nestedPop.nestedPop(result, {
                     comments: {
                     as: 'Comments',
@@ -529,6 +531,7 @@ module.exports = {
             objUpdate.status = "in-review";
         }
         objUpdate.send_notification = params.send_notification ? true : false;
+        objUpdate.tweet = params.tweet ? true : false;
 
         // if(params.imageSrc){
         //     objUpdate.imageSrc = params.imageSrc;
