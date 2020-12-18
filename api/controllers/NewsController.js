@@ -7,6 +7,7 @@
 const fs = require("fs");
 const got = require("got");
 const moment = require('moment');
+const moment_timezone = require('moment-timezone');
 const keyword_extractor = require("keyword-extractor");
 
 activities = Utilities.activities;
@@ -514,11 +515,11 @@ module.exports = {
             let _date = new Date(params.dated);
             console.log('_date', _date, params.dated);
             if(params.status === "published"){
-                objUpdate.publishedAt = _date ? moment(_date).format("YYYY-MM-DD hh:mm:ss") : moment().format("YYYY-MM-DD hh:mm:ss");
-                objUpdate.dated = _date ? moment(_date).format("YYYY-MM-DD hh:mm:ss") : moment().format("YYYY-MM-DD hh:mm:ss");
+                objUpdate.publishedAt = moment_timezone().tz("America/New_York").format("YYYY-MM-DD HH:mm:ss");
+                objUpdate.dated = _date ? moment(_date).format("YYYY-MM-DD HH:mm:ss") : moment().format("YYYY-MM-DD HH:mm:ss");
                 console.log('published Date: ', objUpdate.publishedAt, objUpdate.dated);
             }else if(params.status === "scheduled"){
-                objUpdate.scheduledTo =  moment(_date).format("YYYY-MM-DD hh:mm:ss") //params.dated
+                objUpdate.scheduledTo =  moment(_date).format("YYYY-MM-DD HH:mm:ss") //params.dated
             }
         }
 
