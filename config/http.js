@@ -57,6 +57,7 @@ module.exports.http = {
     // })(),
 
     switchDB: (function(){
+      console.log('Local Initializing `switchDB` (HTTP middleware)...');
       return async function (req,res,next) {
         console.log('Received HTTP request: '+req.method+' '+req.path + ', host : ' + req.hostname, req.subdomains);
         let datastore = null
