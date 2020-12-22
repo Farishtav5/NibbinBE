@@ -42,6 +42,10 @@ module.exports = {
       example: "News approved",
       description: "The type of activity like news",
     },
+    categories: {
+      type: "ref",
+      description: "Categories associated to news",
+    },
 
   },
 
@@ -90,7 +94,7 @@ module.exports = {
 
           if(media.media_id && media.media_id_string){
             let statusObj = {
-              status: inputs.headline + "\r\n" + createSlug({id: inputs.newsId, headline: inputs.headline}) + "\r\n \r\n" + addHashtags(),
+              status: inputs.headline + "\r\n" + createSlug({id: inputs.newsId, headline: inputs.headline}) + "\r\n \r\n" + addHashtags(inputs.categories),
               media_ids: media.media_id_string
             }
             // Lets tweet it
@@ -110,7 +114,7 @@ module.exports = {
         console.log('twitter media upload error : ', err);
         return exits.success(false);
       });
-    }else{
+    }else {
       return exits.success(false);
     }
 
@@ -128,8 +132,39 @@ module.exports = {
 
 };
 
-function addHashtags(){
-  return "#Nibbin #CovidTimes #HealthCareNews #Awareness #Healthcare #News"
+function addHashtags(categories){
+  let hashtags = ""
+  for(let i=0 ; i < categories.length ; i++) {
+    hashtags = `${hashtags} ${addCategoryHashtags(categories[i].name)}`
+  }
+  if(!hashtags || !hashtags.includes("#Healthcare #News #Nibbin")) 
+    hashtags = `${hashtags} #Healthcare #News #Nibbin`
+  return hashtags.trim()
+}
+
+function addCategoryHashtags(category){
+  let hashes = ""
+  switch(category) {
+    case 'Regulations' : 
+      hashes = "#Regulation #Governance"
+    break
+    case 'Technology' : 
+      hashes = "#Technology #Advancements"
+    break
+    case 'Business' : 
+      hashes = "#Acquisitions #Investment"
+    break
+    case 'Insights' : 
+      hashes = "#Research #Analytics"
+    break
+    case 'General' : 
+      hashes = ""
+    break
+    default : 
+      hashes = "#Healthcare #News #Nibbin"
+    break
+  }
+  return hashes
 }
 
 function createSlug(newsValue){

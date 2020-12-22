@@ -607,7 +607,8 @@ module.exports = {
                         let _tweetResult = await sails.helpers.twitterIntegration.with({
                             newsId: _newsItem.id,
                             imgSrc: result[i].imageSrc,
-                            headline: _newsItem.headline
+                            headline: _newsItem.headline,
+                            categories: _newsItem.categories_array
                         });
                         console.log('tweet by manual publish', _tweetResult);
                     }
@@ -905,7 +906,8 @@ module.exports = {
         let tt = await sails.helpers.twitterIntegration.with({
             newsId: news.id,
             imgSrc: news.imageSrc,
-            headline: news.headline
+            headline: news.headline,
+            categories: news.categories_array
         })
         // let dd = await automateImageForNews_UpdateNews(params.id);
         res.send({dd: tt});

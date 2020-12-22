@@ -566,7 +566,8 @@ async function sendNotificationAndTweets(news) {
       let _tweetResult = await sails.helpers.twitterIntegration.with({
           newsId: result.id,
           imgSrc: _image.imageSrc,
-          headline: result.headline
+          headline: result.headline,
+          categories: result.categories_array,
       });
       console.log('tweet by manual publish', _tweetResult);
     }
