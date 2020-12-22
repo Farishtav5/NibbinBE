@@ -29,16 +29,17 @@ module.exports.http = {
     *                                                                          *
     ***************************************************************************/
 
-    // order: [
-    //   'cookieParser',
-    //   'session',
-    //   'bodyParser',
-    //   'compress',
-    //   'poweredBy',
-    //   'router',
-    //   'www',
-    //   'favicon',
-    // ],
+    order: [
+      'cookieParser',
+      'session',
+      'switchDB',
+      'bodyParser',
+      'compress',
+      'poweredBy',
+      'router',
+      'www',
+      'favicon',
+    ],
 
 
     /***************************************************************************
@@ -54,6 +55,25 @@ module.exports.http = {
     //   var middlewareFn = skipper({ strict: true });
     //   return middlewareFn;
     // })(),
+
+    switchDB: (function(){
+      return async function (req,res,next) {
+        console.log('Received HTTP request: '+req.method+' '+req.path + ', host : ' + req.hostname, req.subdomains);
+        let datastore = null
+        if(sails.config.environment === 'production') 
+          datastore = req.hostname === 'api.thekaavya.org' ? 'kaavya' : 'default';
+        else datastore = req.subdomains[0] === 'kaavya' ? 'kaavya' : 'default';  //for local
+        let stores = sails.getDatastore(datastore);
+        let connectionString = stores.manager.connectionString;
+        let Driver = stores.driver;
+        let manager = (
+        await Driver.createManager({ connectionString: connectionString })
+        ).manager
+        let conn = await Driver.getConnection({manager: manager})
+        sails.config.db = conn.connection;
+        return next();
+      };
+    })(),
 
   },
 

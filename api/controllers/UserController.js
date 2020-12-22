@@ -39,8 +39,8 @@ module.exports = {
         // }
         
         let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
-        let result = await User.find(query).populate('role');
-        let totalUsers = await User.count(_queryClone);
+        let result = await User.find(query).populate('role').usingConnection(sails.config.db);
+        let totalUsers = await User.count(_queryClone).usingConnection(sails.config.db);
         res.send({
             page,
             total: totalUsers,
@@ -50,12 +50,12 @@ module.exports = {
 
     get: async function (req, res) {
         let id = req.param('id');
-        let result = await User.find({ id: id }).populate('categories').populate('bookmarks').populate('role');
+        let result = await User.find({ id: id }).populate('categories').populate('bookmarks').populate('role').usingConnection(sails.config.db);
         res.send(result);
     },
 
     getMyProfile: async function (req, res) {
-        let result = await User.find({ id: req.currentUser.id }).populate('categories').populate('bookmarks').populate('role');
+        let result = await User.find({ id: req.currentUser.id }).populate('categories').populate('bookmarks').populate('role').usingConnection(sails.config.db);
         res.send(result);
     },
     updateMyProfile: async function (req, res) {
@@ -63,12 +63,12 @@ module.exports = {
         let objUserFound = await User.findOne({ id: req.currentUser.id }).intercept('UsageError', (err) => {
             err.message = 'Uh oh: ' + err.message;
             return ResponseService.json(400, res, "getting error when User find", err);
-        });
+        }).usingConnection(sails.config.db);
         if (objUserFound){
             let dataToUpdate = {
                 enableNotification: params.notification
             }
-            var updatedUser = await User.updateOne({ id: req.currentUser.id }).set(dataToUpdate);
+            var updatedUser = await User.updateOne({ id: req.currentUser.id }).set(dataToUpdate).usingConnection(sails.config.db);
             if (updatedUser) {
                 return ResponseService.json(200, res, "user updated successfully", updatedUser);
             }
@@ -83,7 +83,7 @@ module.exports = {
     setUserInterestCategories: async function (req, res) {
         let params = req.allParams();
         console.log('set categoryIds', params.categoryIds);
-        let result = await User.replaceCollection(req.currentUser.id, 'categories').members(params.categoryIds);
+        let result = await User.replaceCollection(req.currentUser.id, 'categories').members(params.categoryIds).usingConnection(sails.config.db);
         return ResponseService.json(200, res, "set categories successfully", result);
     },
 
@@ -91,7 +91,7 @@ module.exports = {
         let item = req.allParams();
         let IsUserExist = await User.findOne({
             email: req.param('email')
-        });
+        }).usingConnection(sails.config.db);
         if (IsUserExist) {
             return ResponseService.json(400, res, "email already in used");
         } else {
@@ -106,7 +106,7 @@ module.exports = {
             let newUserRecord = await User.create(data).intercept('UsageError', (err) => {
                 err.message = 'Uh oh: ' + err.message;
                 return ResponseService.json(400, res, "User could not be created", err);
-            }).fetch();
+            }).fetch().usingConnection(sails.config.db);
 
             if (newUserRecord) {
                 return ResponseService.json(200, res, "User created successfully", newUserRecord);
@@ -126,14 +126,14 @@ module.exports = {
         let objUserFound = await User.findOne({ id: params.id }).intercept('UsageError', (err) => {
             err.message = 'Uh oh: ' + err.message;
             return ResponseService.json(400, res, "getting error when User find", err);
-        });
+        }).usingConnection(sails.config.db);
         if (objUserFound){
             let dataToUpdate = {};
             if(params.name) dataToUpdate.name = params.name;
             if(params.status) dataToUpdate.status = params.status;
             if(params.role) dataToUpdate.role = params.role;
 
-            var updatedUser = await User.updateOne({ id: params.id }).set(dataToUpdate);
+            var updatedUser = await User.updateOne({ id: params.id }).set(dataToUpdate).usingConnection(sails.config.db);
             if (updatedUser) {
                 return ResponseService.json(200, res, "user updated successfully", updatedUser);
             }

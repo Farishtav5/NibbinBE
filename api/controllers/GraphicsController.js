@@ -42,13 +42,13 @@ module.exports = {
         'metaSource'];
 
         let result = [];
-        result = await News.find(query);
+        result = await News.find(query).usingConnection(sails.config.db);
         for (let i = 0; i < result.length; i++) {
             result[i].categories = result[i].categories_array;
             delete result[i].categories_array;
             let t = result[i];
             if(t.imageId){
-                let findImageById = await Images.findOne({ id: t.imageId });
+                let findImageById = await Images.findOne({ id: t.imageId }).usingConnection(sails.config.db);
                 if(findImageById){
                     let _image_id = _.cloneDeep(findImageById);
                     t.imageSrc = _image_id.imageSrc;
@@ -57,7 +57,7 @@ module.exports = {
                 }
             }
         }
-        let tilesObj = await News.find({ delete: false, type: '"graphics"' });
+        let tilesObj = await News.find({ delete: false, type: '"graphics"' }).usingConnection(sails.config.db);
         let tiles = {
             publishedCount: _.filter(tilesObj, (t) => {return t.status === "published"}).length,
             scheduledCount: _.filter(tilesObj, (t) => {return t.status === "scheduled"}).length,
@@ -66,7 +66,7 @@ module.exports = {
             editRequiredCount: _.filter(tilesObj, (t) => {return t.status === "edit-required"}).length,
             rejectedCount: _.filter(tilesObj, (t) => {return t.status === "rejected"}).length
         }
-        let totalGraphicsCountInDB = await News.find(totalCountQuery);
+        let totalGraphicsCountInDB = await News.find(totalCountQuery).usingConnection(sails.config.db);
         let settings = {
             newsCount: 5,
             graphicsCount: 1

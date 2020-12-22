@@ -40,7 +40,7 @@ module.exports = {
             totalCountQuery.where.createdAt = { '<=' : new Date(params.addedTo).getTime() }
         }
         
-        let result = await ReportByUser.find(query).populate('typeId').populate('subTypeId').populate('newsId');
+        let result = await ReportByUser.find(query).populate('typeId').populate('subTypeId').populate('newsId').usingConnection(sails.config.db);
         let resultWithImgObj = {}
         if(result){
             resultWithImgObj = await nestedPop.nestedPop(result, {
@@ -60,7 +60,7 @@ module.exports = {
                 }
             }
         };
-        let totalReportCountInDB = await ReportByUser.find(totalCountQuery);
+        let totalReportCountInDB = await ReportByUser.find(totalCountQuery).usingConnection(sails.config.db);
         res.send({
             page,
             totalCount: totalReportCountInDB.length,
@@ -71,7 +71,7 @@ module.exports = {
 
     get: async function (req, res) {
         let params = req.allParams();
-        let result = await ReportByUser.findOne({id: params.id}).populate('typeId').populate('subTypeId').populate('newsId').populate('userId');
+        let result = await ReportByUser.findOne({id: params.id}).populate('typeId').populate('subTypeId').populate('newsId').populate('userId').usingConnection(sails.config.db);
         let resultWithImgObj = {}
         if(result) {
             resultWithImgObj = await nestedPop.nestedPop(result, {
@@ -102,7 +102,7 @@ module.exports = {
             return ResponseService.json(400, res, "please provide news id");
         }
        
-        let findReport = await ReportByUser.find({ id:  params.id});
+        let findReport = await ReportByUser.find({ id:  params.id}).usingConnection(sails.config.db);
         if(!findReport){
             return ResponseService.json(404, res, "news not found");
         }
@@ -112,29 +112,29 @@ module.exports = {
         }
         let result = await ReportByUser.updateOne({
             id: params.id
-        }).set(objUpdate);
+        }).set(objUpdate).usingConnection(sails.config.db);
         res.send(result);
     },
 
     types : async function (req, res) {
-        let result = await ReportType.find().populate('subTypes');
+        let result = await ReportType.find().populate('subTypes').usingConnection(sails.config.db);
         res.send(result);
     },
 
     addSubTypesInTypes: async function (req, res) {
-        let objReportTypes = await ReportType.find();
+        let objReportTypes = await ReportType.find().usingConnection(sails.config.db);
         if (objReportTypes.length){
             for (let index = 0; index < objReportTypes.length; index++) {
                 const _types = objReportTypes[index];
                 switch (_types.id) {
                     case 1:
-                        await ReportType.addToCollection(_types.id, 'subTypes', [1, 2, 3]);
+                        await ReportType.addToCollection(_types.id, 'subTypes', [1, 2, 3]).usingConnection(sails.config.db);
                         break;
                     case 2:
-                        await ReportType.addToCollection(_types.id, 'subTypes', [4, 5, 6]);
+                        await ReportType.addToCollection(_types.id, 'subTypes', [4, 5, 6]).usingConnection(sails.config.db);
                         break;
                     case 3:
-                        await ReportType.addToCollection(_types.id, 'subTypes', [7, 8, 9]);
+                        await ReportType.addToCollection(_types.id, 'subTypes', [7, 8, 9]).usingConnection(sails.config.db);
                         break;
                 
                     default:
@@ -143,7 +143,7 @@ module.exports = {
                 
             }
         }
-        let result = await ReportType.find().populate('subTypes');
+        let result = await ReportType.find().populate('subTypes').usingConnection(sails.config.db);
         res.send(result);
     }
 
