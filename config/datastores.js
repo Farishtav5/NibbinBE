@@ -51,5 +51,9 @@ module.exports.datastores = {
     adapter: 'sails-mysql',
     url: 'mysql://root:root@localhost:8889/Nibbin',
   },
+  kaavya: {
+    adapter: 'sails-mysql',
+    url: 'mysql://root:root@localhost:8889/kaavya',
+  },
 
 };
