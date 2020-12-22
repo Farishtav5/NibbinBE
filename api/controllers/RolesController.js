@@ -10,7 +10,7 @@ module.exports = {
     let result = await Roles.find().intercept("UsageError", (err) => {
       err.message = "Uh oh: " + err.message;
       return ResponseService.json(400, res, "getting all roles error", err);
-    });
+    }).usingConnection(sails.config.db);
     return ResponseService.json(200, res, "getting all roles", result);
   },
 
@@ -25,7 +25,7 @@ module.exports = {
         err.message = "Uh oh: " + err.message;
         return ResponseService.json(400, res, "Role could not be create", err);
       })
-      .fetch();
+      .fetch().usingConnection(sails.config.db);
 
     if (createdRoleObj) {
       return ResponseService.json(200, res, "added new role", createdRoleObj);
@@ -86,7 +86,7 @@ module.exports = {
         err.message = "Uh oh: " + err.message;
         return ResponseService.json(400, res, "Role could not be create", err);
       })
-      .fetch();
+      .fetch().usingConnection(sails.config.db);
 
     if (updatedObj) {
       return ResponseService.json(200, res, "Role updated", updatedObj);
@@ -100,7 +100,7 @@ module.exports = {
     if (!params.id) {
       return ResponseService.json(400, res, "please provide role id");
     }
-    let result = await Roles.archiveOne({ id: params.id });
+    let result = await Roles.archiveOne({ id: params.id }).usingConnection(sails.config.db);
     res.send(result);
   },
 };

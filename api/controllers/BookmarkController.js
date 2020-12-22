@@ -27,7 +27,7 @@ module.exports = {
             newsId: params.newsId,
             // Set the User's Primary Key to associate the Pet with the User.
             userId: req.currentUser.id
-        });
+        }).usingConnection(sails.config.db);
         return ResponseService.json(200, res, "updated bookmarks successfully", createdBookmarks);
     },
 
@@ -38,7 +38,7 @@ module.exports = {
         //     temp[a] = parseInt(temp[a], 10);
         // }
         let removedBookMarks = await User.removeFromCollection(req.currentUser.id, 'bookmarks')
-            .members([params.bookmarkId]);
+            .members([params.bookmarkId]).usingConnection(sails.config.db);
         return ResponseService.json(200, res, "removed bookmarks successfully", removedBookMarks);
     }
     // updateBookmarksByUserId: async function (req, res) {

@@ -24,8 +24,8 @@ module.exports = {
 
         let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
 
-        let result = await Category.find(query);
-        let totalCount = await Category.count(_queryClone);
+        let result = await Category.find(query).usingConnection(sails.config.db);
+        let totalCount = await Category.count(_queryClone).usingConnection(sails.config.db);
         res.send({
             rows: result,
             total: totalCount
@@ -43,7 +43,7 @@ module.exports = {
             name: params.name,
             description: params.description
         }
-        let result = await Category.create(data).fetch();
+        let result = await Category.create(data).fetch().usingConnection(sails.config.db);
         res.send(result);
     },
     
@@ -54,12 +54,12 @@ module.exports = {
             return ResponseService.json(400, res, "pass id");
         }
 
-        let findCategoryById = await Category.findOne({id: params.id});
+        let findCategoryById = await Category.findOne({id: params.id}).usingConnection(sails.config.db);
         if(findCategoryById){
             let data = {};
             if(params.name) data.name = params.name;
             if(params.description) data.description = params.description;
-            let result = await Category.updateOne({id: params.id}).set(data);
+            let result = await Category.updateOne({id: params.id}).set(data).usingConnection(sails.config.db);
             res.send(result);
         }else{
             return ResponseService.json(400, res, "category not found");
