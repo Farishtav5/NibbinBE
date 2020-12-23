@@ -25,7 +25,7 @@ module.exports = {
         err.message = "Uh oh: " + err.message;
         return ResponseService.json(400, res, "Comment could not be create", err);
       })
-      .fetch().usingConnection(sails.config.db);
+      .fetch();
 
     if (createdCommentObj) {
       return ResponseService.json(200, res, "added new Comment", createdCommentObj);
