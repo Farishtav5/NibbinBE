@@ -91,7 +91,8 @@ const runAsyncPublishPost = async (newsList) => {
                 let _tweetResult = await sails.helpers.twitterIntegration.with({
                     newsId: findUpdatedNews.id,
                     imgSrc: findUpdatedNews.imageSrc,
-                    headline: findUpdatedNews.headline
+                    headline: findUpdatedNews.headline,
+                    categories: findUpdatedNews.categories_array,
                 });
                 console.log('tweet by schedule publish', _tweetResult);
               }
@@ -146,7 +147,8 @@ const publish_AutoScheduleNews = async (news) =>{
           let _tweetResult = await sails.helpers.twitterIntegration.with({
               newsId: findUpdatedNews.id,
               imgSrc: findUpdatedNews.imageSrc,
-              headline: findUpdatedNews.headline
+              headline: findUpdatedNews.headline,
+              categories: findUpdatedNews.categories_array,
           });
           console.log('tweet by Auto Schedule publish', _tweetResult);
         }
