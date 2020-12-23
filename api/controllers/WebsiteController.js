@@ -46,11 +46,11 @@ module.exports = {
         'metaSource', 'publishedAt', 'scheduledTo', 'send_notification'];
 
         let result = [];
-        result = await News.find(query).populate("categories", _categoriesQuery).usingConnection(sails.config.db);//.populate('imageId');
+        result = await News.find(query).populate("categories", _categoriesQuery);//.populate('imageId');
         for (let i = 0; i < result.length; i++) {
             let t = result[i];
             if(t.imageId){
-                let findImageById = await Images.findOne({ id: t.imageId }).usingConnection(sails.config.db);
+                let findImageById = await Images.findOne({ id: t.imageId });
                 if(findImageById){
                     let _image_id = _.cloneDeep(findImageById);
                     t.imageSrc = _image_id.imageSrc;
@@ -69,7 +69,7 @@ module.exports = {
     getSingleNews: async function (req, res) {
         let params = req.allParams();
         if(params && params.id){
-            let result = await News.findOne({ id: params.id }).populate("categories", {select : ['id', 'name'] }).populate('imageId').usingConnection(sails.config.db);
+            let result = await News.findOne({ id: params.id }).populate("categories", {select : ['id', 'name'] }).populate('imageId');
             if(result){
                 if(result.imageId && result.imageId.imageSrc){
                     result.imageSrc = result.imageId.imageSrc ? result.imageId.imageSrc : '';

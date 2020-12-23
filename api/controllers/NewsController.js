@@ -93,7 +93,7 @@ module.exports = {
         query.where.delete = false;
 
         let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
-        let newsList = await News.find(query).populate("createdBy").populate('imageId').usingConnection(sails.config.db);
+        let newsList = await News.find(query).populate("createdBy").populate('imageId');
         let result = [];
         result = newsList;
         result.forEach((t)=>{
@@ -112,8 +112,8 @@ module.exports = {
             }
         });
 
-        let totalNewsCountInDB = await News.count(_queryClone).usingConnection(sails.config.db);
-        let tilesObj = await News.find({delete: false, type: '"news"'}).usingConnection(sails.config.db);
+        let totalNewsCountInDB = await News.count(_queryClone);
+        let tilesObj = await News.find({delete: false, type: '"news"'});
         let tiles = {
             //'rejected'
             inQueueCount: _.filter(tilesObj, (t) => {return t.status === "in-queue"}).length,
@@ -256,9 +256,9 @@ module.exports = {
         let query = `${sqlQuery} ${whereQuery} ${paginationQuery}`;
         // console.log('sqlQuery', sqlQuery);
 
-        let result = await News.getDatastore().sendNativeQuery(query).usingConnection(sails.config.db);
+        let result = await News.getDatastore().sendNativeQuery(query);
         result = result.rows;
-        let totalNewsCountInDB = await News.getDatastore().sendNativeQuery(`${sqlQuery} ${whereQuery} group by n.id`).usingConnection(sails.config.db);
+        let totalNewsCountInDB = await News.getDatastore().sendNativeQuery(`${sqlQuery} ${whereQuery} group by n.id`);
         totalNewsCountInDB = totalNewsCountInDB.rows.length;
 
         // let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
@@ -296,7 +296,7 @@ module.exports = {
         // let _queryForTiles = `SELECT DISTINCTROW n.*, im.imageSrc FROM news n
         // left join images im on n.imageId = im.id OR n.imageId = null
         // where n.delete = false`;
-        let tilesObj = await News.getDatastore().sendNativeQuery(`${_queryForTiles} group by n.id`).usingConnection(sails.config.db);
+        let tilesObj = await News.getDatastore().sendNativeQuery(`${_queryForTiles} group by n.id`);
         tilesObj = tilesObj.rows;
         let tiles = {
             //'rejected'
@@ -334,7 +334,7 @@ module.exports = {
             querywhere.status = { in: tempStatus };
         }
 
-        let newsObj = await News.find().where(querywhere).populate("categories").populate('imageId').populate("createdBy").usingConnection(sails.config.db);
+        let newsObj = await News.find().where(querywhere).populate("categories").populate('imageId').populate("createdBy");
         let index = _.findIndex(newsObj, { id: parseInt(params.id) });
         let prevId = 0;
         let nextId = null;
@@ -365,7 +365,7 @@ module.exports = {
         params.html = params.html === "true" ? true : false
         let commentsOrder = { sort: 'createdAt DESC'};
         if(params && params.id){
-            let result = await News.findOne({ id: params.id }).populate("categories").populate('imageId').populate("createdBy").populate('comments', commentsOrder).usingConnection(sails.config.db);
+            let result = await News.findOne({ id: params.id }).populate("categories").populate('imageId').populate("createdBy").populate('comments', commentsOrder);
             if(result){
                 if(!params.html) {
                     result.shortDesc = contentExtractor(result.shortDesc);
@@ -393,7 +393,7 @@ module.exports = {
                     }).intercept('UsageError', (err) => {
                         err.message = 'Uh oh: ' + err.message;
                         return ResponseService.json(400, res, err);
-                    }).usingConnection(sails.config.db);
+                    });
                 }
                 if(bookmarksResult){
                     bookmarksResult = _.uniq(bookmarksResult, 'newsId');
@@ -410,7 +410,7 @@ module.exports = {
     },
 
     bind: async function (req, res) {
-        let result = await News.addToCollection(1, 'categories', 3).usingConnection(sails.config.db);
+        let result = await News.addToCollection(1, 'categories', 3);
         res.send(result);
     },
 
@@ -423,7 +423,7 @@ module.exports = {
         };
         if (params.categories){
             _catObj.categories_ids = params.categories.join(',');
-            let _catarr = await Category.find({id: params.categories }).usingConnection(sails.config.db);
+            let _catarr = await Category.find({id: params.categories });
             _catObj.categories_array = _catarr;
         }
         let createdNewsObj = await News.create({
@@ -439,11 +439,11 @@ module.exports = {
             type: params.type,
             categories_ids: (_catObj.categories_ids) ? _catObj.categories_ids : '',
             categories_array: (_catObj.categories_array) ? _catObj.categories_array : ''
-        }).fetch().usingConnection(sails.config.db);
+        }).fetch();
 
         if(createdNewsObj){
             if (params.categories){
-                await News.addToCollection(createdNewsObj.id, 'categories', params.categories).usingConnection(sails.config.db);
+                await News.addToCollection(createdNewsObj.id, 'categories', params.categories);
             }
             await sails.helpers.createActivityLog.with({
                 newsId: createdNewsObj.id,
@@ -468,7 +468,7 @@ module.exports = {
             tempIds[a] = parseInt(tempIds[a], 10);
         }
 
-        let findNews = await News.find({ id: tempIds }).usingConnection(sails.config.db);
+        let findNews = await News.find({ id: tempIds });
         if(!findNews){
             return ResponseService.json(404, res, "news not found");
         }
@@ -493,7 +493,7 @@ module.exports = {
             objUpdate.categories = params.categories;
             if (params.categories){
                 objUpdate.categories_ids = params.categories.join(',');
-                let _catarr = await Category.find({id: params.categories }).usingConnection(sails.config.db);
+                let _catarr = await Category.find({id: params.categories });
                 objUpdate.categories_array = _catarr;
             }
         }
@@ -544,7 +544,7 @@ module.exports = {
             objUpdate.imageId = params.imageId;
             if(params.imageSourceName){
                 objUpdate.imageSourceName = params.imageSourceName;
-                await Images.update({id: params.imageId}).set({imageSourceName: params.imageSourceName}).fetch().usingConnection(sails.config.db);
+                await Images.update({id: params.imageId}).set({imageSourceName: params.imageSourceName}).fetch();
             }
         }
         
@@ -559,14 +559,14 @@ module.exports = {
         
         let result = await News.update({
             id: tempIds //params.id
-        }).set(objUpdate).fetch().usingConnection(sails.config.db);
+        }).set(objUpdate).fetch();
 
         if(result.length){
             let updatedNews = result;
             for (let i = 0; i < updatedNews.length; i++) {
                 const _newsItem = updatedNews[i];
                 if(_newsItem && _newsItem.imageId){
-                    let findImageById = await Images.findOne({ id: _newsItem.imageId }).usingConnection(sails.config.db);
+                    let findImageById = await Images.findOne({ id: _newsItem.imageId });
                     if(findImageById){
                         let _image_id = _.cloneDeep(findImageById);
                         result[i].imageSrc = _image_id.imageSrc;
@@ -583,9 +583,9 @@ module.exports = {
                     status: _newsItem.status,
                     action: "NewsController - update"
                 });
-                if(sails.config.environment === 'production') {
+                if(sails.config.environment != 'development') {
                     if(_newsItem.status === "published" && _newsItem.send_notification === true) {
-                        let findUpdatedNews = await News.findOne({ id: _newsItem.id }).populate("categories").usingConnection(sails.config.db);
+                        let findUpdatedNews = await News.findOne({ id: _newsItem.id }).populate("categories");
                         let firebaseDb = sails.config.firebaseDb();
                         let data = {
                             postValue: findUpdatedNews.id,
@@ -622,7 +622,7 @@ module.exports = {
         let params = req.allParams();
         let result = await News.updateOne({ id: params.id }).set({
             delete: true
-          }).usingConnection(sails.config.db);
+          });
         await sails.helpers.createActivityLog.with({
             newsId: result.id,
             createdBy: req.currentUser.id,
@@ -653,9 +653,9 @@ module.exports = {
             let createReportByUser = await ReportByUser.create(data).intercept('UsageError', (err) => {
                 err.message = 'Uh oh: ' + err.message; 
                 return ResponseService.json(400, res, "User could not be created", err);
-            }).fetch().usingConnection(sails.config.db);
+            }).fetch();
 
-            let result = await ReportByUser.findOne({id: createReportByUser.id }).populate('subTypeId').populate('typeId').populate('userId').populate('newsId').usingConnection(sails.config.db);
+            let result = await ReportByUser.findOne({id: createReportByUser.id }).populate('subTypeId').populate('typeId').populate('userId').populate('newsId');
             let resultWithImgObj = {}
             if(result){
                 resultWithImgObj = await nestedPop.nestedPop(result, {
@@ -761,7 +761,7 @@ module.exports = {
             tempIds[a] = parseInt(tempIds[a], 10);
         }
 
-        let findNews = await News.find({ id: tempIds }).usingConnection(sails.config.db);
+        let findNews = await News.find({ id: tempIds });
         if(!findNews.length){
             return ResponseService.json(404, res, "news not found");
         }
@@ -782,7 +782,7 @@ module.exports = {
                     }
                     let result = await News.update({
                         id: _newsItem.id
-                    }).set(updatedNewsObj).fetch().usingConnection(sails.config.db);
+                    }).set(updatedNewsObj).fetch();
                     updatedNewsArray.push(result[0]);
                     await sails.helpers.createActivityLog.with({
                         newsId: _newsItem.id,
@@ -816,7 +816,7 @@ module.exports = {
 
             let cloneObj = _.cloneDeep(NewsArray);
             console.log('NewsArray length', NewsArray.length);
-            let insertedData = await News.createEach(NewsArray).fetch().usingConnection(sails.config.db);
+            let insertedData = await News.createEach(NewsArray).fetch();
             // if (insertedData.length) {
             //     console.log('insertedData', insertedData.length);
             //     for (let index = 0; index < insertedData.length; index++) {
@@ -826,7 +826,7 @@ module.exports = {
             //         }
             //     }
             // }
-            let result = await News.find().populate("categories").usingConnection(sails.config.db);
+            let result = await News.find().populate("categories");
             return ResponseService.json(200, res, "get report successfully", result);
         });
 
@@ -881,7 +881,7 @@ module.exports = {
         // let result = await News.find(query);
         let result = await News.update(query).set({
             delete: true
-          }).fetch().usingConnection(sails.config.db);
+          }).fetch();
         res.send({
             total: result.length,
             rows: result,
@@ -895,8 +895,8 @@ module.exports = {
         // let result = await downloadImageFromSource_and_UploadOnS3(data.mainImage);
         // res.send({data:data, result:result});
         let params = req.allParams();
-        let news = await News.findOne({ id: params.id }).usingConnection(sails.config.db);
-        let findImageById = await Images.findOne({ id: news.imageId }).usingConnection(sails.config.db);
+        let news = await News.findOne({ id: params.id });
+        let findImageById = await Images.findOne({ id: news.imageId });
         if(findImageById){
             let _image_id = _.cloneDeep(findImageById);
             news.imageSrc = _image_id.imageSrc;
@@ -925,7 +925,7 @@ async function updateApprovedNewsForMetaSource(news) {
             let metaInfo = metaInfoFromSource;
             let result = await News.update({
                 id: news.id
-            }).set({metaSource: metaInfo}).fetch().usingConnection(sails.config.db);
+            }).set({metaSource: metaInfo}).fetch();
             console.log('updated Meta info ', result[0].status);
             return result;
         }
@@ -997,7 +997,7 @@ async function downloadImageFromSource_and_UploadOnS3(imagepath) {
 
 async function searchImageFromGalleryByTags(news) {
     //
-    let AllGaleryImages = await Images.find().usingConnection(sails.config.db);
+    let AllGaleryImages = await Images.find();
     let matchedArrayWithImages = [];
 
     // let _newsTitle_WordsArray = string_to_array(removeSymbol(news.headline));
@@ -1075,7 +1075,7 @@ async function searchImageFromGalleryByTags(news) {
 
 async function automateImageForNews_UpdateNews(newsId) {
     let url = require('url');
-    let news = await News.findOne({ id: newsId }).usingConnection(sails.config.db);
+    let news = await News.findOne({ id: newsId });
     if(news && news.metaSource && news.metaSource.mainImage && validURL(news.metaSource.mainImage)){
         let uploadImageOnS3 = await downloadImageFromSource_and_UploadOnS3(news.metaSource.mainImage);
         let sourceName = extractHostname(news.link); //url.parse(news.link).hostname;
@@ -1086,7 +1086,7 @@ async function automateImageForNews_UpdateNews(newsId) {
                 imageSourceName: sourceName,
                 original: true
               }
-              let createdImagesObj = await Images.create(_imageData).fetch().usingConnection(sails.config.db);
+              let createdImagesObj = await Images.create(_imageData).fetch();
             //   res.send({uploadImageOnS3, sourceName, createdImagesObj});
             if(createdImagesObj && createdImagesObj.id){
                 return createdImagesObj.id;

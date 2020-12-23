@@ -43,7 +43,7 @@ module.exports = {
       if(params.imageSourceName) _imageData.imageSourceName = params.imageSourceName;
       if(params.tags) _imageData.tags = params.tags;
       _imageData.type = params.type ? params.type : 'news';
-      let createdImagesObj = await Images.create(_imageData).fetch().usingConnection(sails.config.db);
+      let createdImagesObj = await Images.create(_imageData).fetch();
 
       // if(createdImagesObj){
       //   await Images.addToCollection(createdImagesObj.id, 'categories').members([_categories]);
@@ -72,7 +72,7 @@ module.exports = {
       onProgress: (progress) => sails.log.verbose("Upload progress:", progress),
     };
 
-    let findfImage = await Images.findOne({id: params.id}).usingConnection(sails.config.db);
+    let findfImage = await Images.findOne({id: params.id});
     if(findfImage){
       req.file("image").upload(options, async (err, files) => {
         if (err) return res.serverError(err);
@@ -84,7 +84,7 @@ module.exports = {
         if(params.imageSourceName) _imageData.imageSourceName = params.imageSourceName;
         if(params.tags) _imageData.tags = params.tags;
   
-        let updateImageObj = await Images.updateOne({id: findfImage.id}).set(_imageData).usingConnection(sails.config.db);
+        let updateImageObj = await Images.updateOne({id: findfImage.id}).set(_imageData);
         return res.send({imageId: updateImageObj.id, link: uploadedUrl, imageSourceName:updateImageObj.imageSourceName});
       }, this);
     }else{
@@ -109,7 +109,7 @@ module.exports = {
     }
     // query.tags = { contains: params.tags }
   }
-  let allImages = await Images.find().sort('id DESC').where(whereQueryTags).usingConnection(sails.config.db);
+  let allImages = await Images.find().sort('id DESC').where(whereQueryTags);
   console.log('allImages : ', allImages.length);
   return ResponseService.json(200, res, "getting all images", allImages);
  },
@@ -213,9 +213,9 @@ module.exports = {
           }else if(!news_data.shortDesc){
             news_data.status = activities.NEWS.STATUS.IN_CONTENT;
           }
-          let insertedNews = await News.create(news_data).fetch().usingConnection(sails.config.db);
+          let insertedNews = await News.create(news_data).fetch();
           if (cloneObj[i].categories_ids.length) {
-              await News.addToCollection(insertedNews.id, 'categories', cloneObj[i].categories_ids).usingConnection(sails.config.db);
+              await News.addToCollection(insertedNews.id, 'categories', cloneObj[i].categories_ids);
           }
           if(insertedNews) insertedData.push(insertedNews);
         }
@@ -225,17 +225,17 @@ module.exports = {
         let ImagesArray = params.images;
         let cloneObj = _.cloneDeep(ImagesArray);
         console.log('ImagesArray length', ImagesArray.length);
-        let insertedData = await Images.createEach(ImagesArray).fetch().usingConnection(sails.config.db);
+        let insertedData = await Images.createEach(ImagesArray).fetch();
         if (insertedData.length) {
             console.log('insertedData', insertedData.length);
-            let result = await Images.find().populate("categories").usingConnection(sails.config.db);
+            let result = await Images.find().populate("categories");
             return ResponseService.json(200, res, "get report successfully", result);
         }
     }
   },
 
   scrapImageUrl: async function (req, res) {
-    let news = await News.find().usingConnection(sails.config.db); // {metaSource: null}
+    let news = await News.find(); // {metaSource: null}
     console.log('news.length', news.length);
     if(news.length){
       for (let i = 0; i < news.length; i++) {
@@ -289,7 +289,7 @@ async function addAndUpdateGraphics(params, req, res, createdImagesObj) {
   params.categories = JSON.parse(params.categories)
   if (params.categories) {
     _catObj.categories_ids = params.categories.join(',');
-    let _catarr = await Category.find({id: params.categories }).usingConnection(sails.config.db);
+    let _catarr = await Category.find({id: params.categories });
     _catObj.categories_array = _catarr;
   }
   let newsObj = {
@@ -314,11 +314,11 @@ async function addAndUpdateGraphics(params, req, res, createdImagesObj) {
   if(params.status === "scheduled") newsObj.scheduledTo = moment(_date).format("YYYY-MM-DD HH:mm:ss")
 
   let result
-  if(params.id) result = await News.updateOne({id: params.id}).set(newsObj).usingConnection(sails.config.db);
-  else result = await News.create(newsObj).fetch().usingConnection(sails.config.db);
+  if(params.id) result = await News.updateOne({id: params.id}).set(newsObj);
+  else result = await News.create(newsObj).fetch();
 
   if(result) {
-    if(sails.config.environment === 'production') await sendNotificationAndTweets(result)
+    if(sails.config.environment != 'development') await sendNotificationAndTweets(result)
     if(params.id) return ResponseService.json(200, res, "graphics updated", result);
     else return ResponseService.json(200, res, "graphics created", result);
   }
@@ -398,7 +398,7 @@ async function downloadImageFromSource_and_UploadOnS3(imagepath) {
 
 async function searchImageFromGalleryByTags(news) {
   //
-  let AllGaleryImages = await Images.find().usingConnection(sails.config.db);
+  let AllGaleryImages = await Images.find();
   let matchedArrayWithImages = [];
 
   // let _newsTitle_WordsArray = string_to_array(removeSymbol(news.headline));
@@ -472,7 +472,7 @@ async function automateImageForNews_UpdateNews(news) {
             imageSourceName: sourceName,
             original: true
           }
-          let createdImagesObj = await Images.create(_imageData).fetch().usingConnection(sails.config.db);
+          let createdImagesObj = await Images.create(_imageData).fetch();
         //   res.send({uploadImageOnS3, sourceName, createdImagesObj});
         if(createdImagesObj && createdImagesObj.id){
             return createdImagesObj.id;
@@ -543,7 +543,7 @@ function contentExtractor(shortDesc) {
 
 async function sendNotificationAndTweets(news) {
   if(news.status === "published") {
-    let result = await News.findOne({ id: news.id }).populate("categories").populate("imageId").usingConnection(sails.config.db);
+    let result = await News.findOne({ id: news.id }).populate("categories").populate("imageId");
     let _image = result.imageId
     if(result.send_notification) {
       let firebaseDb = sails.config.firebaseDb();

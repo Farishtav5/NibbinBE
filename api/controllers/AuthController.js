@@ -23,7 +23,7 @@ module.exports = {
         if (email && password) {
             let foundUser = await User.findOne({
                 email: email
-            }).usingConnection(sails.config.db);
+            });
             if (!foundUser) {
                 return invalidEmailOrPassword(res);
             }
@@ -73,7 +73,7 @@ module.exports = {
                         }).intercept('UsageError', (err) => {
                             err.message = 'Uh oh: ' + err.message;
                             return ResponseService.json(400, res, err);
-                        }).usingConnection(sails.config.db);
+                        });
                         let responseData = undefined;
                         if (IsUserExist){
                             responseData = {
@@ -93,7 +93,7 @@ module.exports = {
                             }).intercept('UsageError', (err) => {
                                 err.message = 'Uh oh: ' + err.message;
                                 return ResponseService.json(400, res, "User could not be created", err);
-                            }).fetch().usingConnection(sails.config.db);
+                            }).fetch();
                             responseData = {
                                 user: {
                                     name: newUserRecord.name,
@@ -140,7 +140,7 @@ module.exports = {
         }).intercept('UsageError', (err) => {
             err.message = 'Uh oh: ' + err.message;
             return ResponseService.json(400, res, err);
-        }).usingConnection(sails.config.db);
+        });
         let responseData = undefined;
         if (IsUserExist){
             responseData = {
@@ -158,7 +158,7 @@ module.exports = {
             }).intercept('UsageError', (err) => {
                 err.message = 'Uh oh: ' + err.message;
                 return ResponseService.json(400, res, "User could not be created", err);
-            }).fetch().usingConnection(sails.config.db);
+            }).fetch();
             responseData = {
                 user: {
                     name: newUserRecord.name,
