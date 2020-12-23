@@ -72,8 +72,10 @@ module.exports.http = {
         ).manager
         let conn = await Driver.getConnection({manager: manager})
         sails.config.db = conn.connection;
-        stores.leaseConnection(sails.config.db);
-        return next();
+        await stores.leaseConnection(async (db) => {
+          next();
+        });
+        // return next();
       };
     })(),
 
