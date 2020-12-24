@@ -20,35 +20,46 @@ module.exports = {
         query.where = {};
         query.where.status = { in: ["published"] }
         
-        let _categoriesQuery = {};
         let tempCategories = [];
         if (params.categories){
             tempCategories = (params.categories).toString().replace(/,(\s+)?$/, '').split(",");
             for (a in tempCategories) {
                 tempCategories[a] = parseInt(tempCategories[a], 10);
             }
-            _categoriesQuery = { where: { id: { in: tempCategories } }};
-            // _categoriesQuery = { id: tempCategories };
         }
+
+        let tempCategoriesStrings = [];
+        let queryWithOr_for_category = [];
+        if(tempCategories.length){
+            tempCategoriesStrings = tempCategories.map(String);
+            for (let i = 0; i < tempCategoriesStrings.length; i++) {
+                const item = tempCategoriesStrings[i];
+                queryWithOr_for_category.push({ categories_ids: { contains : item } });
+            }
+            query.where.or = queryWithOr_for_category;
+        }
+
         if (params.query){
             query.where = {
                 or: [
                     { headline: { contains: params.query } },
                     { shortDesc: { contains: params.query } },
                     { link: { contains: params.query } },
+                    ...queryWithOr_for_category
                 ],
                 status: { in: ["published"] } 
             };
         }
-        _categoriesQuery.select = ['id', 'name'];
         query.where.delete = false;
         query.omit = ['contentSubmitted', 'createdBy', 'updatedBy', 'delete', 'designSubmitted', 'excel_id', 
         'metaSource', 'publishedAt', 'scheduledTo', 'send_notification'];
 
         let result = [];
-        result = await News.find(query).populate("categories", _categoriesQuery);//.populate('imageId');
+        result = await News.find(query)//.populate('imageId');
         for (let i = 0; i < result.length; i++) {
             let t = result[i];
+            t.categories = t.categories_array;
+            delete t.categories_array;
             if(t.imageId){
                 let findImageById = await Images.findOne({ id: t.imageId });
                 if(findImageById){
