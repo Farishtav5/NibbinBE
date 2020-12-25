@@ -675,7 +675,7 @@ module.exports = {
                 let news = result.newsId;
                 let user = result.userId;
                 let userInfo = user ? `*User Name*: ${user.name}\n*User Email*: ${user.email} ` :  "*User*: Anonymous";
-                let url = params.type === 'kaavya' ? KAAVYA_SLACK_WEBHOOK_URL : NIBBIN_SLACK_WEBHOOK_URL
+                let url = params.app === "kaavya" ? KAAVYA_SLACK_WEBHOOK_URL : NIBBIN_SLACK_WEBHOOK_URL
                 let webhook = new IncomingWebhook(url);
                 let slackData = { blocks : [
                     {
