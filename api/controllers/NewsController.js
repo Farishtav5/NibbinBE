@@ -14,8 +14,8 @@ activities = Utilities.activities;
 UUID = Utilities.uuid;
 
 const { IncomingWebhook } = require('@slack/webhook');
-const SLACK_WEBHOOK_URL = sails.config.custom.slack_webhook_url;
-const webhook = new IncomingWebhook(SLACK_WEBHOOK_URL);
+const NIBBIN_SLACK_WEBHOOK_URL = sails.config.custom.nibbin_slack_webhook_url;
+const KAAVYA_SLACK_WEBHOOK_URL = sails.config.custom.kaavya_slack_webhook_url;
 
 module.exports = {
 
@@ -532,7 +532,6 @@ module.exports = {
             objUpdate.status = "in-review";
         }
         objUpdate.send_notification = params.send_notification ? true : false;
-        objUpdate.tweet = params.tweet ? true : false;
 
         // if(params.imageSrc){
         //     objUpdate.imageSrc = params.imageSrc;
@@ -676,44 +675,47 @@ module.exports = {
                 let news = result.newsId;
                 let user = result.userId;
                 let userInfo = user ? `*User Name*: ${user.name}\n*User Email*: ${user.email} ` :  "*User*: Anonymous";
-                (async () => {
-                    await webhook.send({
-                    blocks : [
-                        {
-                            "type": "section",
-                            "block_id": "section567",
-                            "accessory": {
-                                "type": "image",
-                                "image_url": resultWithImgObj.imageSrc,
-                                "alt_text": `${resultWithImgObj.imageSourceName} image` ,
-                            },
-                            "text": {
-                                "type": "mrkdwn",
-                                "text": `*${news.headline.trim()}*\nID: ${news.id}\nType: ${news.type}`
-                            }
-                        },
-                        {
-                            "type": "section",
-                            "block_id": "section789",
-                            "fields": [
-                                {
-                                    "type": "mrkdwn",
-                                    "text": `*${result.typeId.title}*\n${result.subTypeId.title}`
-                                }
-                            ]
-                        },
-                        {
-                            "type": "section",
-                            "block_id": "section788",
-                            "fields": [
-                                {
-                                    "type": "mrkdwn",
-                                    "text": `${userInfo}`
-                                }
-                            ]
+                let url = params.type === 'kaavya' ? KAAVYA_SLACK_WEBHOOK_URL : NIBBIN_SLACK_WEBHOOK_URL
+                let webhook = new IncomingWebhook(url);
+                let slackData = { blocks : [
+                    {
+                        "type": "section",
+                        "block_id": "section567",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": `${news.headline ? `*${news.headline.trim()}*\n` : ''}ID: ${news.id}\nType: ${news.type}`
                         }
-                    ]
-                    });
+                    },
+                    {
+                        "type": "section",
+                        "block_id": "section789",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": `*${result.typeId.title}*\n${result.subTypeId.title}`
+                            }
+                        ]
+                    },
+                    {
+                        "type": "section",
+                        "block_id": "section788",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": `${userInfo}`
+                            }
+                        ]
+                    }
+                ]};
+                if(resultWithImgObj.imageSrc) {
+                    slackData.blocks[0].accessory = {
+                        "type": "image",
+                        "image_url": resultWithImgObj.imageSrc,
+                        "alt_text": `${resultWithImgObj.imageSourceName} image` ,
+                    };
+                };
+                (async () => {
+                    await webhook.send(slackData);
                 })();
             }
             return ResponseService.json(200, res, "reported successfully", createReportByUser);
