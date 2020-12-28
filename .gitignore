@@ -5,3 +5,6 @@ node_modules
 # config/env/*
 config/env/production.js
 config/env/kaavya-production.js
+config/env/satyameva-production.js
+config/env/kaavya-production.js
+config/env/production.js
