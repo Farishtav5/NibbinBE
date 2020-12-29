@@ -1086,7 +1086,7 @@ async function automateImageForNews_UpdateNews(newsId) {
         // res.send({uploadImageOnS3, sourceName});
         if(uploadImageOnS3){
             let _imageData = {
-                imageSrc: uploadImageOnS3,
+                imageSrc: uploadImageOnS3.replace(/^.+amazonaws.com/,'https://cdn.nibb.in'),
                 imageSourceName: sourceName,
                 original: true
               }

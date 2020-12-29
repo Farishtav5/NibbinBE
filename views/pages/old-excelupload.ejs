@@ -186,7 +186,7 @@
             let item = {
                 title: t.Title ? t.Title : '-',
                 headline: t.Headline ? t.Headline : (t.Title ? t.Title : '-'),
-                imageSrc: t['Image Link'] ? 'https://cdn-nibbin.s3.us-east-2.amazonaws.com/images/' + trimString(t['SrNo']) + '.jpg' : '',
+                imageSrc: t['Image Link'] ? 'https://cdn.nibb.in/images/' + trimString(t['SrNo']) + '.jpg' : '',
                 imageSourceName: t['Image Credit'] ? trimString(t['Image Credit']) : '',
                 shortDesc: (t['Brief'] ? trimString(t['Brief']) : '').replace(/[\u0800-\uFFFF]/g, ''),
                 link: t['Read More'] ? trimString(t['Read More']) : '',
