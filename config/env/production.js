@@ -49,7 +49,7 @@ module.exports = {
     default: {
       // adapter: 'sails-mysql',
       adapter: 'sails-mysql',
-      url: 'mysql://console:Console@cs132020@localhost:3306/console',
+      url: 'mysql://root:$Admin@BluOne@2020@localhost:3306/nibbin',
       // url: 'mysql://user:password@host:port/database',
       //--------------------------------------------------------------------------
       //  /\   To avoid checking it in to version control, you might opt to set
@@ -379,8 +379,12 @@ module.exports = {
     baseUrl: 'https://example.com',
     internalEmailAddress: 'support@example.com',
 
-    google_web_client_id: '993581954800-uvda3dhqpi6cfrkddbvfk1jo7in0r0q5.apps.googleusercontent.com'
-
+    //google_web_client_id: '993581954800-uvda3dhqpi6cfrkddbvfk1jo7in0r0q5.apps.googleusercontent.com'
+google_web_client_id: '993581954800-uvda3dhqpi6cfrkddbvfk1jo7in0r0q5.apps.googleusercontent.com',
+    google_ios_client_id: '993581954800-i57lidp4isrf5i7ejs2u859r8j8898cu.apps.googleusercontent.com',
+    slack_webhook_url: 'https://hooks.slack.com/services/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',
+    kaavya_slack_webhook_url: 'https://hooks.slack.com/services/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',
+  nibbin_slack_webhook_url: 'https://hooks.slack.com/services/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'
     // sendgridSecret: 'SG.fake.3e0Bn0qSQVnwb1E4qNPz9JZP5vLZYqjh7sn8S93oSHU',
     // stripeSecret: 'sk_prod__fake_Nfgh82401348jaDa3lkZ0d9Hm',
     //--------------------------------------------------------------------------
