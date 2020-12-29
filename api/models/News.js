@@ -35,6 +35,9 @@ module.exports = {
     shortDesc: {
       type: "Json"
     },
+    longDesc: {
+      type: "Json"
+    },
     link: {
       type: "json"
     },
