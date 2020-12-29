@@ -38,7 +38,7 @@ module.exports = {
 
       let uploadedUrl = files[0].extra.Location;
       let _imageData = {
-        imageSrc: uploadedUrl
+        imageSrc: uploadedUrl.replace(/^.+amazonaws.com/,'https://cdn.nibb.in')
       }
       if(params.imageSourceName) _imageData.imageSourceName = params.imageSourceName;
       if(params.tags) _imageData.tags = params.tags;
@@ -79,7 +79,7 @@ module.exports = {
   
         let uploadedUrl = files[0].extra.Location;
         let _imageData = {
-          imageSrc: uploadedUrl
+          imageSrc: uploadedUrl.replace(/^.+amazonaws.com/,'https://cdn.nibb.in')
         }
         if(params.imageSourceName) _imageData.imageSourceName = params.imageSourceName;
         if(params.tags) _imageData.tags = params.tags;
@@ -468,7 +468,7 @@ async function automateImageForNews_UpdateNews(news) {
         let sourceName = extractHostname(news.link); //url.parse(news.link).hostname;
         // res.send({uploadImageOnS3, sourceName});
         let _imageData = {
-            imageSrc: uploadImageOnS3,
+            imageSrc: uploadImageOnS3.replace(/^.+amazonaws.com/,'https://cdn.nibb.in'),
             imageSourceName: sourceName,
             original: true
           }
