@@ -86,6 +86,8 @@ module.exports = {
                     { headline: { contains: params.query } },
                     { shortDesc: { contains: params.query } },
                     { link: { contains: params.query } },
+                    { longDesc: { contains: params.query } },
+                    { title: { contains: params.query } },
                     ...queryWithOr_for_category
                 ] 
             };
