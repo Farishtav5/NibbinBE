@@ -17,6 +17,8 @@ const { IncomingWebhook } = require('@slack/webhook');
 const NIBBIN_SLACK_WEBHOOK_URL = sails.config.custom.nibbin_slack_webhook_url;
 const KAAVYA_SLACK_WEBHOOK_URL = sails.config.custom.kaavya_slack_webhook_url;
 
+const translate = require('@vitalets/google-translate-api');
+
 module.exports = {
 
     // TODO: TO BE TEST
@@ -81,13 +83,21 @@ module.exports = {
         }
 
         if (params.query){
+            let translatedText = ""
+            await translate(params.query, { client: 'gtx', to: 'hi' })
+            .then(res => {
+                translatedText = res.text;
+            });
             query.where = {
                 or: [
                     { headline: { contains: params.query } },
                     { shortDesc: { contains: params.query } },
-                    { link: { contains: params.query } },
                     { longDesc: { contains: params.query } },
                     { title: { contains: params.query } },
+                    { headline: { contains: translatedText } },
+                    { shortDesc: { contains: translatedText } },
+                    { longDesc: { contains: translatedText } },
+                    { title: { contains: translatedText } },
                     ...queryWithOr_for_category
                 ] 
             };
