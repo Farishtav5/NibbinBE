@@ -34,10 +34,7 @@ module.exports = {
 
     verifyGoogleLogin: async function (req, res) {
         const { OAuth2Client } = require('google-auth-library');
-        console.log('verifyGoogleLogin : ', req.method, req.allParams());
-
-        // will remove in next commit
-        console.log(GOOGLE.ANDROID_CLIENT_ID, "andrroid", GOOGLE.IOS_CLIENT_ID, "ios")
+        console.log('verifyGoogleLogin : ', req.method);
 
         let items = req.allParams();
         let token = items.token;
@@ -51,7 +48,6 @@ module.exports = {
             _clientId = GOOGLE.IOS_CLIENT_ID;
         }
         const client = new OAuth2Client(_clientId);
-        console.log("client", client)
         // try {
             const ticket = await client.verifyIdToken({
                 idToken: token,
