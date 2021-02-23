@@ -36,6 +36,7 @@ module.exports.policies = {
     'findCovid19': ['openAuthorized'],
     'demoNotifyFirebase': ['openAuthorized'],
     'demoFetch': ['openAuthorized'],
+    'addNews': ['openAuthorized'],
     
     'previewSourceLink': true,
   },

@@ -902,6 +902,57 @@ module.exports = {
             rows: result,
         });
     },
+    addNews: async function (req, res) {
+        let params = req.allParams();
+        params.type = params.type ? params.type : 'news';
+        let _catObj = {
+            categories_ids: '',
+            categories_array: ''
+        };
+        if (params.categories){
+            _catObj.categories_ids = params.categories.join(',');
+            let _catarr = await Category.find({id: params.categories });
+            _catObj.categories_array = _catarr;
+        }
+        let createdNewsObj = await News.create({
+            title: params.title ? params.title : '',
+            headline: params.headline ? params.headline : '',
+            link: params.link ? params.link : '',
+            shortDesc: params.shortDesc ? params.shortDesc : '',
+            longDesc: params.longDesc ? params.longDesc : '',
+            status: "published",
+            actions: params.actions ? params.actions : '',
+            dated: new Date(),
+            createdBy: params.createdBy,
+            updatedBy: params.updatedBy,
+            type: params.type,
+            categories_ids: (_catObj.categories_ids) ? _catObj.categories_ids : '',
+            categories_array: (_catObj.categories_array) ? _catObj.categories_array : '',
+            imageId: params.imageId,
+            excel_id: params.excel_id
+        }).fetch();
+
+        if(createdNewsObj){
+            if(sails.config.environment != 'development') {
+                if(createdNewsObj.status === "published" && createdNewsObj.send_notification === true) {
+                    let firebaseDb = sails.config.firebaseDb();
+                    let data = {
+                        postValue: createdNewsObj.id,
+                        title: createdNewsObj.headline,
+                        type: createdNewsObj.type,
+                        categories: createdNewsObj.categories_array,
+                        shortDesc: createdNewsObj.shortDesc
+                    }
+                    let createdData = await firebaseDb.collection('posts').add(data);
+                    console.log('firebase notification - news published', createdData);
+                }
+            }
+            return ResponseService.json(200, res, "news created", createdNewsObj);
+        }else{
+            return ResponseService.json(400, res, "error to during create news");
+        }
+
+    },
 
     demoFetch: async function (req, res) {
         // let data = await sails.helpers.scrapImageFromUrl.with({
