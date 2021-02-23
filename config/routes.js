@@ -20,6 +20,7 @@ module.exports.routes = {
   ***************************************************************************/
 
   '/': { view: 'pages/homepage' },
+  // '/excel_upload': { view: 'pages/excelupload' },
   "get /graphics": "GraphicsController.list",
   "get /news": "NewsController.list",
   "get /news/:id": 'NewsController.get',
@@ -33,6 +34,8 @@ module.exports.routes = {
   "get /reset-news": "NewsController.restAllNewsData", //will remove it later
   "get /covid": "NewsController.findCovid19", //will remove it later
   "get /go": "NewsController.demoFetch", //will remove it later
+
+  "post /add-news": "NewsController.addNews", //will remove it later
   
   
   "get /preview": "NewsController.previewSourceLink", //will remove it later
