@@ -933,6 +933,9 @@ module.exports = {
         }).fetch();
 
         if(createdNewsObj){
+            if (params.categories){
+                await News.addToCollection(createdNewsObj.id, 'categories', params.categories);
+            }
             if(sails.config.environment != 'development') {
                 if(createdNewsObj.status === "published" && createdNewsObj.send_notification === true) {
                     let firebaseDb = sails.config.firebaseDb();
