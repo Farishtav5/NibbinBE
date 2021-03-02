@@ -17,7 +17,9 @@ admin.initializeApp({
     databaseURL: "https://kaavya-7de37-default-rtdb.firebaseio.com"
 });
 
-module.exports.firebaseDb = function () {
-    let firebaseDb = admin.firestore();
-    return firebaseDb;
-}
+module.exports.admin = admin;
+
+// module.exports.firebaseDb = function () {
+//     let firebaseDb = admin.firestore();
+//     return firebaseDb;
+// }

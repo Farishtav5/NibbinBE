@@ -595,24 +595,24 @@ module.exports = {
                     action: "NewsController - update"
                 });
                 if(sails.config.environment != 'development') {
-                    if(_newsItem.status === "published" && _newsItem.send_notification === true) {
-                        let findUpdatedNews = await News.findOne({ id: _newsItem.id }).populate("categories");
-                        let firebaseDb = sails.config.firebaseDb();
-                        let data = {
-                            postValue: findUpdatedNews.id,
-                            title: findUpdatedNews.headline,
-                            type: findUpdatedNews.type
-                        }
-                        if (result[i].imageSrc) {
-                            data.imageSrc = result[i].imageSrc
-                        }
-                        if (findUpdatedNews.categories) {
-                            let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; });//.join(","); // "A,B,C"
-                            data.categories = _categories
-                        }
-                        let createdData = await firebaseDb.collection('posts').add(data);
-                        console.log('firebase notification - news published');
-                    }
+                    // if(_newsItem.status === "published" && _newsItem.send_notification === true) {
+                    //     let findUpdatedNews = await News.findOne({ id: _newsItem.id }).populate("categories");
+                    //     let firebaseDb = sails.config.firebaseDb();
+                    //     let data = {
+                    //         postValue: findUpdatedNews.id,
+                    //         title: findUpdatedNews.headline,
+                    //         type: findUpdatedNews.type
+                    //     }
+                    //     if (result[i].imageSrc) {
+                    //         data.imageSrc = result[i].imageSrc
+                    //     }
+                    //     if (findUpdatedNews.categories) {
+                    //         let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; });//.join(","); // "A,B,C"
+                    //         data.categories = _categories
+                    //     }
+                    //     let createdData = await firebaseDb.collection('posts').add(data);
+                    //     console.log('firebase notification - news published');
+                    // }
                     if(_newsItem.status === "published" && _newsItem.tweet === true) {
                         
                         let _tweetResult = await sails.helpers.twitterIntegration.with({
@@ -936,18 +936,68 @@ module.exports = {
             if (params.categories){
                 await News.addToCollection(createdNewsObj.id, 'categories', params.categories);
             }
+            console.log("categories",createdNewsObj.categories_ids)
             if(sails.config.environment != 'development') {
-                if(createdNewsObj.status === "published" && createdNewsObj.send_notification === true) {
-                    let firebaseDb = sails.config.firebaseDb();
-                    let data = {
-                        postValue: createdNewsObj.id,
-                        title: createdNewsObj.headline,
-                        type: createdNewsObj.type,
-                        categories: createdNewsObj.categories_array,
-                        shortDesc: createdNewsObj.shortDesc
+                if(createdNewsObj.status === "published" && createdNewsObj.send_notification === true && result) {
+                    let categories = createdNewsObj.categories_ids;
+                    let admin = sails.config.admin;
+                    let tokens = []
+                    let rejectedTokens = []
+                    console.log(categories,"categories")
+                    const snapshot = await admin.firestore().collection('pushtokens').get()
+                    
+                    for (let doc of snapshot.docs) {
+                        let item = doc._fieldsProto;
+                        if(item.notificationEnabled.stringValue === "YES") {
+                            for(let c of item.categories.arrayValue.values){
+                                let flag = false
+                                if(categories.includes(c.integerValue)) {
+                                    flag = true
+                                    if(flag) tokens.push(item.devtoken.stringValue)
+                                    break;
+                                }
+                                tokens.push(item.devtoken.stringValue) 
+                            }   
+                        } 
                     }
-                    let createdData = await firebaseDb.collection('posts').add(data);
-                    console.log('firebase notification - news published', createdData);
+                    let payload = {
+                        notification: { title: createdNewsObj.headline ,body: "", sound:"default", click_action: "FLUTTER_NOTIFICATION_CLICK"},
+                        data: {postValue: createdNewsObj.id.toString()}
+                    }
+                    const response = await admin.messaging().sendToDevice(tokens, payload);
+
+                    response.results.forEach((result, index) => {
+                        const error = result.error;
+                        if (error) {
+                            console.error('Failure sending notification to', tokens[index]);
+                            if (error.code === 'messaging/invalid-registration-token' ||
+                                error.code === 'messaging/registration-token-not-registered') {
+                                rejectedTokens.push(tokens[index])
+                            }
+                        }
+                        });
+                    console.log(rejectedTokens,"rejectedTokens")
+                    if(rejectedTokens.length > 0) {
+                        snapshot.docs.forEach(doc => {
+                            if(rejectedTokens.includes(doc._fieldsProto.devtoken.stringValue)) {
+                                admin.firestore().collection("pushtokens").doc(doc.id).delete()
+                            .catch(error => {
+                                console.log(error)
+                            })
+                            }
+                            
+                        })
+                    }
+                    // let firebaseDb = sails.config.firebaseDb();
+                    // let data = {
+                    //     postValue: createdNewsObj.id,
+                    //     title: createdNewsObj.headline,
+                    //     type: createdNewsObj.type,
+                    //     categories: createdNewsObj.categories_array,
+                    //     shortDesc: createdNewsObj.shortDesc
+                    // }
+                    // let createdData = await firebaseDb.collection('posts').add(data);
+                    // console.log('firebase notification - news published', createdData);
                 }
             }
             return ResponseService.json(200, res, "news created", createdNewsObj);
