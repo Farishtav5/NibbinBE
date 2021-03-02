@@ -936,9 +936,8 @@ module.exports = {
             if (params.categories){
                 await News.addToCollection(createdNewsObj.id, 'categories', params.categories);
             }
-            console.log("categories",createdNewsObj.categories_ids)
             if(sails.config.environment != 'development') {
-                if(createdNewsObj.status === "published" && createdNewsObj.send_notification === true && result) {
+                if(createdNewsObj.status === "published" && createdNewsObj.send_notification === true) {
                     let categories = createdNewsObj.categories_ids;
                     let admin = sails.config.admin;
                     let tokens = []
