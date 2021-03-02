@@ -70,23 +70,23 @@ const runAsyncPublishPost = async (newsList) => {
                 }
               }
 
-              if(updatedNews.status === "published" && updatedNews.send_notification && findUpdatedNews.id) {
-                  let firebaseDb = sails.config.firebaseDb();
-                  let data = {
-                      postValue: findUpdatedNews.id,
-                      title: findUpdatedNews.headline,
-                      type: findUpdatedNews.type
-                  }
-                  if (findUpdatedNews.imageSrc) {
-                      data.imageSrc = findUpdatedNews.imageSrc
-                  }
-                  if (findUpdatedNews.categories) {
-                      let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; });//.join(","); // "A,B,C"
-                      data.categories = _categories
-                  }
-                  let createdData = await firebaseDb.collection('posts').add(data);
-                  console.log('firebase notification - news published Via CRON');
-              }
+              // if(updatedNews.status === "published" && updatedNews.send_notification && findUpdatedNews.id) {
+              //     let firebaseDb = sails.config.firebaseDb();
+              //     let data = {
+              //         postValue: findUpdatedNews.id,
+              //         title: findUpdatedNews.headline,
+              //         type: findUpdatedNews.type
+              //     }
+              //     if (findUpdatedNews.imageSrc) {
+              //         data.imageSrc = findUpdatedNews.imageSrc
+              //     }
+              //     if (findUpdatedNews.categories) {
+              //         let _categories = Array.prototype.map.call(findUpdatedNews.categories, function(item) { return item.id; });//.join(","); // "A,B,C"
+              //         data.categories = _categories
+              //     }
+              //     let createdData = await firebaseDb.collection('posts').add(data);
+              //     console.log('firebase notification - news published Via CRON');
+              // }
               if(updatedNews.status === "published" && findUpdatedNews.tweet === true && findUpdatedNews.id) {
                 let _tweetResult = await sails.helpers.twitterIntegration.with({
                     newsId: findUpdatedNews.id,

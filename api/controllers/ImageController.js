@@ -545,23 +545,23 @@ async function sendNotificationAndTweets(news) {
   if(news.status === "published") {
     let result = await News.findOne({ id: news.id }).populate("categories").populate("imageId");
     let _image = result.imageId
-    if(result.send_notification) {
-      let firebaseDb = sails.config.firebaseDb();
-      let data = {
-        postValue: result.id,
-        title: result.headline,
-        type: result.type
-      }
-      if (_image.imageSrc) {
-        data.imageSrc = _image.imageSrc
-      }
-      if (result.categories_array) {
-          let _categories = Array.prototype.map.call(result.categories_array, function(item) { return item.id; });//.join(","); // "A,B,C"
-          data.categories = _categories
-      }
-      let createdData = await firebaseDb.collection('posts').add(data);
-      console.log('firebase notification - news published', createdData);
-    }
+    // if(result.send_notification) {
+    //   let firebaseDb = sails.config.firebaseDb();
+    //   let data = {
+    //     postValue: result.id,
+    //     title: result.headline,
+    //     type: result.type
+    //   }
+    //   if (_image.imageSrc) {
+    //     data.imageSrc = _image.imageSrc
+    //   }
+    //   if (result.categories_array) {
+    //       let _categories = Array.prototype.map.call(result.categories_array, function(item) { return item.id; });//.join(","); // "A,B,C"
+    //       data.categories = _categories
+    //   }
+    //   let createdData = await firebaseDb.collection('posts').add(data);
+    //   console.log('firebase notification - news published', createdData);
+    // }
     if(result.tweet) {
       let _tweetResult = await sails.helpers.twitterIntegration.with({
           newsId: result.id,
