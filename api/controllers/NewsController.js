@@ -948,17 +948,15 @@ module.exports = {
                     for (let doc of snapshot.docs) {
                         let item = doc._fieldsProto;
                         if(item.notificationEnabled.stringValue === "YES") {
-                            for(let c of item.categories.arrayValue.values){
-                                let flag = false
+                            for(let c of item.categories.arrayValue.values) {
                                 if(categories.includes(c.integerValue)) {
-                                    flag = true
-                                    if(flag) tokens.push(item.devtoken.stringValue)
+                                    tokens.push(item.devtoken.stringValue)
                                     break;
                                 }
-                                tokens.push(item.devtoken.stringValue) 
                             }   
                         } 
                     }
+                    console.log("tokens", tokens)
                     let payload = {
                         notification: { title: createdNewsObj.headline ,body: "", sound:"default", click_action: "FLUTTER_NOTIFICATION_CLICK"},
                         data: {postValue: createdNewsObj.id.toString()}
