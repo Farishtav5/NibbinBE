@@ -33,10 +33,12 @@ module.exports = {
       type: "string"
     },
     shortDesc: {
-      type: "Json"
+      type: 'string',
+      columnType: 'longtext'
     },
     longDesc: {
-      type: "Json"
+      type: 'string',
+      columnType: 'longtext' 
     },
     link: {
       type: "json"
