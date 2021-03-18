@@ -107,23 +107,9 @@ module.exports = {
         let _queryClone = _.omit(query, ['limit', 'skip', 'sort']);
         let newsList = await News.find(query).populate("createdBy").populate('imageId');
         let result = [];
-        result = newsList;
-        result.forEach((t)=>{
-            // will be removed later
-            if(!params.html) {
-                t.shortDesc = contentExtractor(t.shortDesc)
-            } 
-            t.categories = t.categories_array;
-            delete t.categories_array;
-            if(t.imageId){
-                let _image_id = _.cloneDeep(t.imageId);
-                delete t.imageId;
-                t.imageSrc = _image_id.imageSrc;
-                t.imageSourceName = _image_id.imageSourceName;
-                t.imageId = _image_id.id;
-            }
-        });
+        // result = newsList;
 
+        result = await setData(newsList, params.html);
         let totalNewsCountInDB = await News.count(_queryClone);
         let tilesObj = await News.find({delete: false, type: '"news"'});
         let tiles = {
@@ -1188,6 +1174,23 @@ async function searchImageFromGalleryByTags(news) {
     //     _newsTitle_WordsArray, _newsShortDesc_WordsArray
     // });
 
+}
+async function setData(items, html) {
+    for(let item of items) {
+        if(!html) {
+            item.shortDesc = contentExtractor(item.shortDesc)
+        } 
+        item.categories = item.categories_array;
+        delete item.categories_array;
+        if(item.imageId){
+            let _image_id = _.cloneDeep(item.imageId);
+            delete item.imageId;
+            item.imageSrc = _image_id.imageSrc;
+            item.imageSourceName = _image_id.imageSourceName;
+            item.imageId = _image_id.id;
+        }
+    };
+    return items
 }
 
 async function automateImageForNews_UpdateNews(newsId) {
