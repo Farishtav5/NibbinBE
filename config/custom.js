@@ -22,5 +22,6 @@ module.exports.custom = {
   google_web_client_id: '993581954800-uvda3dhqpi6cfrkddbvfk1jo7in0r0q5.apps.googleusercontent.com',
   google_ios_client_id: '993581954800-i57lidp4isrf5i7ejs2u859r8j8898cu.apps.googleusercontent.com',
   kaavya_slack_webhook_url: 'https://hooks.slack.com/services/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',
-  nibbin_slack_webhook_url: 'https://hooks.slack.com/services/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'
+  nibbin_slack_webhook_url: 'https://hooks.slack.com/services/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',
+  satyameva_slack_webhook_url: 'https://hooks.slack.com/services/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'
 };
