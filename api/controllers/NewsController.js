@@ -14,8 +14,9 @@ activities = Utilities.activities;
 UUID = Utilities.uuid;
 
 const { IncomingWebhook } = require('@slack/webhook');
-const NIBBIN_SLACK_WEBHOOK_URL = sails.config.custom.nibbin_slack_webhook_url;
+// const NIBBIN_SLACK_WEBHOOK_URL = sails.config.custom.nibbin_slack_webhook_url;
 const KAAVYA_SLACK_WEBHOOK_URL = sails.config.custom.kaavya_slack_webhook_url;
+const SATYAMEVA_SLACK_WEBHOOK_URL = sails.config.custom.satyameva_slack_webhook_url;
 
 const translate = require('@vitalets/google-translate-api');
 
@@ -673,7 +674,7 @@ module.exports = {
                 let news = result.newsId;
                 let user = result.userId;
                 let userInfo = user ? `*User Name*: ${user.name}\n*User Email*: ${user.email} ` :  "*User*: Anonymous";
-                let url = params.app === "kaavya" ? KAAVYA_SLACK_WEBHOOK_URL : NIBBIN_SLACK_WEBHOOK_URL
+                let url = req.baseUrl.includes("kaavya") ? KAAVYA_SLACK_WEBHOOK_URL : SATYAMEVA_SLACK_WEBHOOK_URL
                 let webhook = new IncomingWebhook(url);
                 let slackData = { blocks : [
                     {
